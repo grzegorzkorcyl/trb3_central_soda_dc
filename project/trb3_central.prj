@@ -124,12 +124,14 @@ add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_fifo8to32_SODA.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_SODA_clockcrossing.vhd"
 
 
-
 #soda specific
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/pll_in100_out80M.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/DLLl_in200M_out200M.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/sync_bit.vhd"
 
+
+#soda fifos
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_nn_4096x103.vhd"
 
 
 #trbnet and base files
