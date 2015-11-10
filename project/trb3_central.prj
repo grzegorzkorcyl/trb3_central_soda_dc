@@ -132,6 +132,7 @@ add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/sync_bit.vhd"
 
 #soda fifos
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_nn_4096x103.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/async_fifo_nn_4096x103_ecp3.vhd"
 
 
 #trbnet and base files
