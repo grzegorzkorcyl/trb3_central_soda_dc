@@ -1296,7 +1296,7 @@ begin
 		killswitch_reboot_i <= stab_counter(stab_counter'high) and inp;
 	end process;
 
-	THE_CLOCK_SWITCH : clock_switch
+	THE_CLOCK_SWITCH : entity work.clock_switch
 		generic map(
 			DEFAULT_INTERNAL_TRIGGER => c_YES
 		)
