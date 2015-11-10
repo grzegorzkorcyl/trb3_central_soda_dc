@@ -1276,56 +1276,8 @@ begin
 			PROGRAMN  => PROGRAMN
 		);
 
-	do_reboot_i <= common_ctrl_regs(15); -- or killswitch_reboot_i;
+	do_reboot_i <= common_ctrl_regs(15);
 
-	-- if jttl(15) is stabily high for 1.28us: issue reboot
-	THE_KILLSWITCH_PROC : process
-		variable stab_counter   : unsigned(7 downto 0);
-		variable inp, inp_delay : std_logic := '0';
-	begin
-		wait until rising_edge(clk_100_i);
-
-		if inp_delay = inp then
-			stab_counter := stab_counter + 1;
-		else
-			stab_counter := 0;
-		end if;
-
-		inp_delay           := inp;
-		inp                 := JTTL(15);
-		killswitch_reboot_i <= stab_counter(stab_counter'high) and inp;
-	end process;
-
-	THE_CLOCK_SWITCH : entity work.clock_switch
-		generic map(
-			DEFAULT_INTERNAL_TRIGGER => c_YES
-		)
-		port map(
-			INT_CLK_IN     => CLK_GPLL_RIGHT,
-			SYS_CLK_IN     => clk_100_i,
-			BUS_RX         => bustc_rx,
-			BUS_TX         => bustc_tx,
-			PLL_LOCK       => pll_lock,
-			RESET_IN       => reset_i,
-			RESET_OUT      => open,
-			CLOCK_SELECT   => CLOCK_SELECT,
-			TRIG_SELECT    => TRIGGER_SELECT,
-			CLK_MNGR1_USER => CLK_MNGR1_USER,
-			CLK_MNGR2_USER => CLK_MNGR2_USER,
-			DEBUG_OUT      => open
-		);
-
-	cts_rdo_trigger <= cts_trigger_out;
-
-	process is
-	begin
-		-- output time reference synchronously to the 200MHz clock
-		-- in order to reduce jitter
-		wait until rising_edge(clk_200_i);
-		TRIGGER_OUT      <= cts_trigger_out;
-		TRIGGER_OUT2     <= cts_trigger_out;
-		TRG_FANOUT_ADDON <= cts_trigger_out;
-	end process;
 
 	---------------------------------------------------------------------------
 	-- FPGA communication
