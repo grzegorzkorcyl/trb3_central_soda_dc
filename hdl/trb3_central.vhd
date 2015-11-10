@@ -17,10 +17,6 @@ use work.tdc_components.TDC;
 use work.tdc_version.all;
 use work.trb_net_gbe_components.all;
 
-use work.cbmnet_interface_pkg.all;
-
-use work.cts_pkg.all;
-
 --Configuration is done in this file:   
 use work.config.all;
 -- The description of hub ports is also there!
@@ -1287,7 +1283,7 @@ begin
 		killswitch_reboot_i <= stab_counter(stab_counter'high) and inp;
 	end process;
 
-	THE_CLOCK_SWITCH : entity work.clock_switch
+	THE_CLOCK_SWITCH : clock_switch
 		generic map(
 			DEFAULT_INTERNAL_TRIGGER => c_YES
 		)
