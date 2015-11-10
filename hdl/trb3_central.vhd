@@ -292,12 +292,24 @@ entity trb3_central is
 end entity;
 
 architecture trb3_central_arch of trb3_central is
-	constant SWITCHABLE_SODA    : boolean                       := false;
-	constant EXTERNAL_SODA      : boolean                       := true;
-	constant REGIO_INIT_ADDRESS : std_logic_vector(15 downto 0) := x"f300";
+	constant SWITCHABLE_SODA     : boolean                       := false;
+	constant EXTERNAL_SODA       : boolean                       := true;
+	constant REGIO_INIT_ADDRESS  : std_logic_vector(15 downto 0) := x"f300";
+	constant REGIO_NUM_STAT_REGS : integer                       := 2;
+	constant REGIO_NUM_CTRL_REGS : integer                       := 2;
 
 	attribute syn_keep : boolean;
 	attribute syn_preserve : boolean;
+
+	component CLKDIVB
+		-- synthesis translate_off
+		generic(
+			GSR : in String);
+		-- synthesis translate_on
+		port(
+			CLKI, RST, RELEASE         : IN  std_logic;
+			CDIV1, CDIV2, CDIV4, CDIV8 : OUT std_logic);
+	end component;
 
 	signal clk_100_i : std_logic;       --clock for main logic, 100 MHz, via Clock Manager and internal PLL
 	signal clk_200_i : std_logic;       --clock for logic at 200 MHz, via Clock Manager and bypassed PLL
