@@ -1,0 +1,26 @@
+SCUBA, Version Diamond (64-bit) 3.2.0.134
+Wed Jan 28 16:09:06 2015
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2014 Lattice Semiconductor Corporation,  All rights reserved.
+
+    Issued command   : C:\Lattice\diamond\3.2_x64\ispfpga\bin\nt64\scuba.exe -w -n DLLl_in200M_out200M -lang vhdl -synth synplify -bus_exp 7 -bb -arch ep5c00 -type dll -dll_type cid -fin 200 -clkos_div 1 -fb_mode 0 
+    Circuit name     : DLLl_in200M_out200M
+    Module type      : dll
+    Module Version   : 3.5
+    Ports            : 
+	Inputs       : clki, aluhold
+	Outputs      : clkop, clkos, lock
+    I/O buffer       : not inserted
+    EDIF output      : DLLl_in200M_out200M.edn
+    VHDL output      : DLLl_in200M_out200M.vhd
+    VHDL template    : DLLl_in200M_out200M_tmpl.vhd
+    VHDL purpose     : for synthesis and simulation
+    Bus notation     : big endian
+    Report output    : DLLl_in200M_out200M.srp
+    Element Usage    :
+        CIDDLLB : 1
+    Estimated Resource Usage:

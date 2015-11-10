@@ -1,0 +1,26 @@
+SCUBA, Version Diamond (64-bit) 3.2.0.134
+Fri Aug 29 10:45:47 2014
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2014 Lattice Semiconductor Corporation,  All rights reserved.
+
+    Issued command   : C:\Lattice\diamond\3.2_x64\ispfpga\bin\nt64\scuba.exe -w -n pll_in125_out125_62M5 -lang vhdl -synth synplify -arch ep5c00 -type pll -fin 125 -phase_cntl STATIC -fclkop 125 -fclkop_tol 0.0 -fb_mode INTERNAL -noclkos -fclkok 62.5 -fclkok_tol 0.0 -clkoki 0 -norst -noclkok2 -bw 
+    Circuit name     : pll_in125_out125_62M5
+    Module type      : pll
+    Module Version   : 5.6
+    Ports            : 
+	Inputs       : CLK
+	Outputs      : CLKOP, CLKOK, LOCK
+    I/O buffer       : not inserted
+    EDIF output      : pll_in125_out125_62M5.edn
+    VHDL output      : pll_in125_out125_62M5.vhd
+    VHDL template    : pll_in125_out125_62M5_tmpl.vhd
+    VHDL purpose     : for synthesis and simulation
+    Bus notation     : not used
+    Report output    : pll_in125_out125_62M5.srp
+    Element Usage    :
+        EHXPLLF : 1
+    Estimated Resource Usage:

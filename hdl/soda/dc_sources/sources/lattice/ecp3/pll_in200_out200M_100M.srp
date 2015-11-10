@@ -1,0 +1,26 @@
+SCUBA, Version Diamond (64-bit) 3.2.0.134
+Thu Nov 20 10:10:31 2014
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2014 Lattice Semiconductor Corporation,  All rights reserved.
+
+    Issued command   : C:\Lattice\diamond\3.2_x64\ispfpga\bin\nt64\scuba.exe -w -n pll_in200_out200M_100M -lang vhdl -synth synplify -arch ep5c00 -type pll -fin 200 -phase_cntl STATIC -bypasss -fclkop 100 -fclkop_tol 0.0 -fb_mode CLOCKTREE -phaseadj 0.0 -duty 8 -noclkok -norst -noclkok2 -bw 
+    Circuit name     : pll_in200_out200M_100M
+    Module type      : pll
+    Module Version   : 5.6
+    Ports            : 
+	Inputs       : CLK
+	Outputs      : CLKOP, CLKOS, LOCK
+    I/O buffer       : not inserted
+    EDIF output      : pll_in200_out200M_100M.edn
+    VHDL output      : pll_in200_out200M_100M.vhd
+    VHDL template    : pll_in200_out200M_100M_tmpl.vhd
+    VHDL purpose     : for synthesis and simulation
+    Bus notation     : not used
+    Report output    : pll_in200_out200M_100M.srp
+    Element Usage    :
+        EHXPLLF : 1
+    Estimated Resource Usage:

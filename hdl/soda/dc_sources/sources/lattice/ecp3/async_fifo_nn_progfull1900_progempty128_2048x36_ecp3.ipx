@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DiamondModule name="async_fifo_nn_progfull1900_progempty128_2048x36_ecp3" module="async_fifo_nn_progfull1900_progempty128_2048x36_ecp3" VendorName="Lattice Semiconductor Corporation" generator="IPexpress" date="2015 09 24 09:26:39.843" version="5.7" type="Module" synthesis="synplify" source_format="VHDL">
+  <Package>
+		<File name="async_fifo_nn_progfull1900_progempty128_2048x36_ecp3.lpc" type="lpc" modified="2015 09 24 09:26:37.526"/>
+		<File name="async_fifo_nn_progfull1900_progempty128_2048x36_ecp3.vhd" type="top_level_vhdl" modified="2015 09 24 09:26:37.750"/>
+		<File name="async_fifo_nn_progfull1900_progempty128_2048x36_ecp3_tmpl.vhd" type="template_vhdl" modified="2015 09 24 09:26:37.750"/>
+		<File name="tb_async_fifo_nn_progfull1900_progempty128_2048x36_ecp3_tmpl.vhd" type="testbench_vhdl" modified="2015 09 24 09:26:37.769"/>
+  </Package>
+</DiamondModule>

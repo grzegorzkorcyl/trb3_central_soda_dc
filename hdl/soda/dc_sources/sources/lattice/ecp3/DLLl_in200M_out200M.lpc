@@ -1,0 +1,45 @@
+[Device]
+Family=latticeecp3
+PartType=LFE3-150EA
+PartName=LFE3-150EA-8FN672C
+SpeedGrade=8
+Package=FPBGA672
+OperatingCondition=COM
+Status=P
+
+[IP]
+VendorName=Lattice Semiconductor Corporation
+CoreType=LPM
+CoreStatus=Demo
+CoreName=DLL
+CoreRevision=3.5
+ModuleName=DLLl_in200M_out200M
+SourceFormat=VHDL
+ParameterFileVersion=1.0
+Date=01/28/2015
+Time=16:09:06
+
+[Parameters]
+Verilog=0
+VHDL=1
+EDIF=1
+Destination=Synplicity
+Expression=BusA(0 to 7)
+Order=Big Endian [MSB:LSB]
+IO=0
+dlltype=Clock Injection Delay Removal
+fin=200
+clkos_div=1
+clkos_ph=0
+Mode=CLKOP
+Freq=CLKI
+Smiports=0
+RSTNport=0
+reset_en=0
+DCNTL=0
+enDiff=0
+enGrayo=0
+enInco=0
+
+[Command]
+cmd_line= -w -n DLLl_in200M_out200M -lang vhdl -synth synplify -bus_exp 7 -bb -arch ep5c00 -type dll -dll_type cid -fin 200 -clkos_div 1 -fb_mode 0

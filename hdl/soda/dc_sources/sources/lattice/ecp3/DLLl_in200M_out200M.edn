@@ -1,0 +1,188 @@
+(edif DLLl_in200M_out200M
+  (edifVersion 2 0 0)
+  (edifLevel 0)
+  (keywordMap (keywordLevel 0))
+  (status
+    (written
+      (timestamp 2015 1 28 16 9 6)
+      (program "SCUBA" (version "Diamond (64-bit) 3.2.0.134"))))
+      (comment "C:\Lattice\diamond\3.2_x64\ispfpga\bin\nt64\scuba.exe -w -n DLLl_in200M_out200M -lang vhdl -synth synplify -bus_exp 7 -bb -arch ep5c00 -type dll -dll_type cid -fin 200 -clkos_div 1 -fb_mode 0 ")
+  (library ORCLIB
+    (edifLevel 0)
+    (technology
+      (numberDefinition))
+    (cell VHI
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port Z
+            (direction OUTPUT)))))
+    (cell VLO
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port Z
+            (direction OUTPUT)))))
+    (cell CIDDLLB
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port CLKI
+            (direction INPUT))
+          (port CLKFB
+            (direction INPUT))
+          (port RSTN
+            (direction INPUT))
+          (port ALUHOLD
+            (direction INPUT))
+          (port INCI
+            (direction INPUT))
+          (port GRAYI5
+            (direction INPUT))
+          (port GRAYI4
+            (direction INPUT))
+          (port GRAYI3
+            (direction INPUT))
+          (port GRAYI2
+            (direction INPUT))
+          (port GRAYI1
+            (direction INPUT))
+          (port GRAYI0
+            (direction INPUT))
+          (port CLKOP
+            (direction OUTPUT))
+          (port CLKOS
+            (direction OUTPUT))
+          (port LOCK
+            (direction OUTPUT)))))
+    (cell DLLl_in200M_out200M
+      (cellType GENERIC)
+      (view view1
+        (viewType NETLIST)
+        (interface
+          (port clki
+            (direction INPUT))
+          (port clkop
+            (direction OUTPUT))
+          (port clkos
+            (direction OUTPUT))
+          (port lock
+            (direction OUTPUT))
+          (port aluhold
+            (direction INPUT)))
+        (property NGD_DRC_MASK (integer 1))
+        (contents
+          (instance scuba_vlo_inst
+            (viewRef view1 
+              (cellRef VLO)))
+          (instance scuba_vhi_inst
+            (viewRef view1 
+              (cellRef VHI)))
+          (instance Inst1_CIDDLLB
+            (viewRef view1 
+              (cellRef CIDDLLB))
+            (property DEL4_GRAY
+              (string "DISABLED"))
+            (property DEL3_GRAY
+              (string "DISABLED"))
+            (property DEL2_GRAY
+              (string "DISABLED"))
+            (property DEL1_GRAY
+              (string "DISABLED"))
+            (property DEL0_GRAY
+              (string "DISABLED"))
+            (property CLKOS_DUTY50
+              (string "DISABLED"))
+            (property CLKOP_DUTY50
+              (string "DISABLED"))
+            (property LOCK_DELAY
+              (string "100"))
+            (property GLITCH_TOLERANCE
+              (string "2"))
+            (property ALU_INIT_CNTVAL
+              (string "10"))
+            (property ALU_UNLOCK_CNT
+              (string "15"))
+            (property ALU_LOCK_CNT
+              (string "3"))
+            (property CLKI_DIV
+              (string "1"))
+            (property CLKOS_DIV
+              (string "1"))
+            (property CLKOS_FPHASE
+              (string "0"))
+            (property CLKOS_PHASE
+              (string "360"))
+            (property CLKOP_PHASE
+              (string "360"))
+            (property FREQUENCY_PIN_CLKOS
+              (string "200.000000"))
+            (property FREQUENCY_PIN_CLKOP
+              (string "200"))
+            (property FREQUENCY_PIN_CLKI
+              (string "200"))
+            (property GSR
+              (string "DISABLED")))
+          (net t_grayi0
+            (joined
+              (portRef GRAYI0 (instanceRef Inst1_CIDDLLB))
+              (portRef Z (instanceRef scuba_vlo_inst))))
+          (net t_grayi1
+            (joined
+              (portRef GRAYI1 (instanceRef Inst1_CIDDLLB))
+              (portRef Z (instanceRef scuba_vlo_inst))))
+          (net t_grayi2
+            (joined
+              (portRef GRAYI2 (instanceRef Inst1_CIDDLLB))
+              (portRef Z (instanceRef scuba_vlo_inst))))
+          (net t_grayi3
+            (joined
+              (portRef GRAYI3 (instanceRef Inst1_CIDDLLB))
+              (portRef Z (instanceRef scuba_vlo_inst))))
+          (net t_grayi4
+            (joined
+              (portRef GRAYI4 (instanceRef Inst1_CIDDLLB))
+              (portRef Z (instanceRef scuba_vlo_inst))))
+          (net t_grayi5
+            (joined
+              (portRef GRAYI5 (instanceRef Inst1_CIDDLLB))
+              (portRef Z (instanceRef scuba_vlo_inst))))
+          (net inci
+            (joined
+              (portRef INCI (instanceRef Inst1_CIDDLLB))
+              (portRef Z (instanceRef scuba_vlo_inst))))
+          (net rstn
+            (joined
+              (portRef RSTN (instanceRef Inst1_CIDDLLB))
+              (portRef Z (instanceRef scuba_vhi_inst))))
+          (net t_clkfb
+            (joined
+              (portRef CLKFB (instanceRef Inst1_CIDDLLB))
+              (portRef CLKOP (instanceRef Inst1_CIDDLLB))))
+          (net aluhold
+            (joined
+              (portRef aluhold)
+              (portRef ALUHOLD (instanceRef Inst1_CIDDLLB))))
+          (net lock
+            (joined
+              (portRef lock)
+              (portRef LOCK (instanceRef Inst1_CIDDLLB))))
+          (net clkos
+            (joined
+              (portRef clkos)
+              (portRef CLKOS (instanceRef Inst1_CIDDLLB))))
+          (net clkop
+            (joined
+              (portRef clkop)
+              (portRef CLKOP (instanceRef Inst1_CIDDLLB))))
+          (net clki
+            (joined
+              (portRef clki)
+              (portRef CLKI (instanceRef Inst1_CIDDLLB))))))))
+  (design DLLl_in200M_out200M
+    (cellRef DLLl_in200M_out200M
+      (libraryRef ORCLIB)))
+)

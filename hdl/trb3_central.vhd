@@ -620,6 +620,7 @@ begin
 	---------------------------------------------------------------------------
 	-- Reset Generation
 	---------------------------------------------------------------------------
+
 	GSR_N <= pll_lock;
 
 	THE_RESET_HANDLER : trb_net_reset_handler
@@ -627,32 +628,42 @@ begin
 			RESET_DELAY => x"FEEE"
 		)
 		port map(
-			CLEAR_IN      => select_tc_reset_i, -- reset input (high active, async)
+			CLEAR_IN      => '0',       -- reset input (high active, async)
 			CLEAR_N_IN    => '1',       -- reset input (low active, async)
 			CLK_IN        => clk_200_i, -- raw master clock, NOT from PLL/DLL!
 			SYSCLK_IN     => clk_100_i, -- PLL/DLL remastered clock
 			PLL_LOCKED_IN => pll_lock,  -- master PLL lock signal (async)
 			RESET_IN      => '0',       -- general reset signal (SYSCLK)
-			TRB_RESET_IN  => trb_reset_in, -- TRBnet reset signal (SYSCLK)
+			TRB_RESET_IN  => med_stat_op(13), -- TRBnet reset signal (SYSCLK)
 			CLEAR_OUT     => clear_i,   -- async reset out, USE WITH CARE!
-			RESET_OUT     => reset_i_temp, -- synchronous reset out (SYSCLK)
+			RESET_OUT     => reset_i,   -- synchronous reset out (SYSCLK)
 			DEBUG_OUT     => open
 		);
-
-	trb_reset_in <= reset_via_gbe or MED_STAT_OP(4 * 16 + 13); --_delayed(2)
-	reset_i      <= reset_i_temp;       -- or trb_reset_in;
 
 	---------------------------------------------------------------------------
 	-- Clock Handling
 	---------------------------------------------------------------------------
-	THE_MAIN_PLL : pll_in200_out100
+
+	THE_MAIN_PLL : trb3_components.pll_in200_out100
 		port map(
-			CLK   => CLK_GPLL_LEFT,
+			CLK   => CLK_GPLL_LEFT,     --CLK_GPLL_RIGHT,
 			RESET => '0',
 			CLKOP => clk_100_i,
 			CLKOK => clk_200_i,
 			LOCK  => pll_lock
 		);
+
+	THE_CLOCK80 : pll_in100_out80M
+		port map(
+			CLK    => clk_100_i,
+			CLKOP  => clk_160_i,        -- 160MHz
+			CLKOK  => clk_80_i,         -- 80MHz
+			CLKOK2 => clk_160div3_i,    -- 160/3MHz
+			LOCK   => open);
+			
+	PACKETIN_clock  <= clk_80_i;        -- clk_160div3_i;
+	MUX_clock       <= clk_100_i;
+	PACKETOUT_clock <= clk_80_i;
 
 	clk_125_i <= CLK_GPLL_RIGHT;
 

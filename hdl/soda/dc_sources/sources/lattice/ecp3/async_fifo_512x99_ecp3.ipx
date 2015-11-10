@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DiamondModule name="async_fifo_512x99_ecp3" module="FIFO_DC" VendorName="Lattice Semiconductor Corporation" generator="IPexpress" date="2014 10 27 14:17:34.819" version="5.7" type="Module" synthesis="synplify" source_format="VHDL">
+  <Package>
+		<File name="async_fifo_512x99_ecp3.lpc" type="lpc" modified="2014 10 27 14:17:32.162"/>
+		<File name="async_fifo_512x99_ecp3.vhd" type="top_level_vhdl" modified="2014 10 27 14:17:32.277"/>
+		<File name="async_fifo_512x99_ecp3_tmpl.vhd" type="template_vhdl" modified="2014 10 27 14:17:32.278"/>
+		<File name="tb_async_fifo_512x99_ecp3_tmpl.vhd" type="testbench_vhdl" modified="2014 10 27 14:17:32.282"/>
+  </Package>
+</DiamondModule>

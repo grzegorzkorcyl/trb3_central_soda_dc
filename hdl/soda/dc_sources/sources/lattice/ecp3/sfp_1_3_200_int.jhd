@@ -1,0 +1,13 @@
+MODULE sfp_1_3_200_intrx_reset_sm DEFIN sfp_1_3_200_int.vhd
+MODULE sfp_1_3_200_inttx_reset_sm DEFIN sfp_1_3_200_int.vhd
+MODULE sfp_1_3_200_int DEFIN sfp_1_3_200_int.vhd
+	SUBMODULE sfp_1_3_200_inttx_reset_sm
+		INSTANCE tx_reset_sm_ch
+	SUBMODULE sfp_1_3_200_intrx_reset_sm
+		INSTANCE rx_reset_sm_ch1
+	SUBMODULE PCSD
+		INSTANCE PCSD_INST
+	SUBMODULE VHI
+		INSTANCE vhi_inst
+	SUBMODULE VLO
+		INSTANCE vlo_inst

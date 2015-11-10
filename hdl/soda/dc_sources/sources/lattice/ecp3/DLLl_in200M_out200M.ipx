@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DiamondModule name="DLLl_in200M_out200M" module="DLL" VendorName="Lattice Semiconductor Corporation" generator="IPexpress" date="2015 01 28 16:09:09.334" version="3.5" type="Module" synthesis="synplify" source_format="VHDL">
+  <Package>
+		<File name="DLLl_in200M_out200M.lpc" type="lpc" modified="2015 01 28 16:09:06.614"/>
+		<File name="DLLl_in200M_out200M.vhd" type="top_level_vhdl" modified="2015 01 28 16:09:06.712"/>
+		<File name="DLLl_in200M_out200M_tmpl.vhd" type="template_vhdl" modified="2015 01 28 16:09:06.713"/>
+  </Package>
+</DiamondModule>

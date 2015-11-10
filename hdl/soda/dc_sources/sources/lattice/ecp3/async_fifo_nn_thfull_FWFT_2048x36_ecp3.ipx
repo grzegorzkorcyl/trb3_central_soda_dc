@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DiamondModule name="async_fifo_nn_thfull_FWFT_2048x36_ecp3" module="FIFO_DC" VendorName="Lattice Semiconductor Corporation" generator="IPexpress" date="2015 08 20 09:06:51.084" version="5.7" type="IP" synthesis="synplify" source_format="VHDL">
+  <Package>
+		<File name="async_fifo_nn_thfull_FWFT_2048x36_ecp3.lpc" type="lpc" modified="2015 08 20 09:06:47.757"/>
+  </Package>
+</DiamondModule>

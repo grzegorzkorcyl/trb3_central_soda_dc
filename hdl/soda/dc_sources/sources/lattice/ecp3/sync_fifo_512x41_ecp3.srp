@@ -1,0 +1,42 @@
+SCUBA, Version Diamond (64-bit) 3.2.0.134
+Wed Oct 08 11:23:07 2014
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2014 Lattice Semiconductor Corporation,  All rights reserved.
+
+    Issued command   : C:\Lattice\diamond\3.2_x64\ispfpga\bin\nt64\scuba.exe -w -n sync_fifo_512x41_ecp3 -lang vhdl -synth synplify -bus_exp 7 -bb -arch ep5c00 -type fifoblk -addr_width 9 -data_width 41 -num_words 512 -no_enable -pe -1 -pf -1 
+    Circuit name     : sync_fifo_512x41_ecp3
+    Module type      : fifoblk
+    Module Version   : 5.0
+    Ports            : 
+	Inputs       : Data[40:0], Clock, WrEn, RdEn, Reset
+	Outputs      : Q[40:0], Empty, Full
+    I/O buffer       : not inserted
+    EDIF output      : sync_fifo_512x41_ecp3.edn
+    VHDL output      : sync_fifo_512x41_ecp3.vhd
+    VHDL template    : sync_fifo_512x41_ecp3_tmpl.vhd
+    VHDL testbench    : tb_sync_fifo_512x41_ecp3_tmpl.vhd
+    VHDL purpose     : for synthesis and simulation
+    Bus notation     : big endian
+    Report output    : sync_fifo_512x41_ecp3.srp
+    Element Usage    :
+          AGEB2 : 5
+          ALEB2 : 5
+           AND2 : 3
+            CU2 : 10
+            CB2 : 5
+         FADD2B : 7
+        FD1P3DX : 30
+        FD1S3BX : 1
+        FD1S3DX : 1
+            INV : 4
+       ROM16X1A : 2
+           XOR2 : 1
+       PDPW16KC : 2
+    Estimated Resource Usage:
+            LUT : 70
+            EBR : 2
+            Reg : 32

@@ -1,0 +1,44 @@
+SCUBA, Version Diamond (64-bit) 3.2.0.134
+Thu Sep 18 10:10:35 2014
+
+Copyright (c) 1991-1994 by NeoCAD Inc. All rights reserved.
+Copyright (c) 1995 AT&T Corp.   All rights reserved.
+Copyright (c) 1995-2001 Lucent Technologies Inc.  All rights reserved.
+Copyright (c) 2001 Agere Systems   All rights reserved.
+Copyright (c) 2002-2014 Lattice Semiconductor Corporation,  All rights reserved.
+
+    Issued command   : C:\Lattice\diamond\3.2_x64\ispfpga\bin\nt64\scuba.exe -w -n async_fifo_nn_4096x36_ecp3 -lang vhdl -synth synplify -bus_exp 7 -bb -arch ep5c00 -type fifodc -addr_width 12 -data_width 36 -num_words 4096 -rdata_width 36 -no_enable -pe -1 -pf -1 -fill 
+    Circuit name     : async_fifo_nn_4096x36_ecp3
+    Module type      : ebfifo
+    Module Version   : 5.7
+    Ports            : 
+	Inputs       : Data[35:0], WrClock, RdClock, WrEn, RdEn, Reset, RPReset
+	Outputs      : Q[35:0], WCNT[12:0], Empty, Full
+    I/O buffer       : not inserted
+    EDIF output      : async_fifo_nn_4096x36_ecp3.edn
+    VHDL output      : async_fifo_nn_4096x36_ecp3.vhd
+    VHDL template    : async_fifo_nn_4096x36_ecp3_tmpl.vhd
+    VHDL testbench    : tb_async_fifo_nn_4096x36_ecp3_tmpl.vhd
+    VHDL purpose     : for synthesis and simulation
+    Bus notation     : big endian
+    Report output    : async_fifo_nn_4096x36_ecp3.srp
+    Element Usage    :
+          AGEB2 : 14
+           AND2 : 2
+            CU2 : 14
+         FADD2B : 8
+         FSUB2B : 7
+        FD1P3BX : 2
+        FD1P3DX : 77
+        FD1S3BX : 1
+        FD1S3DX : 66
+            INV : 2
+          MUX21 : 36
+            OR2 : 1
+       ROM16X1A : 34
+           XOR2 : 25
+         DP16KC : 8
+    Estimated Resource Usage:
+            LUT : 184
+            EBR : 8
+            Reg : 146

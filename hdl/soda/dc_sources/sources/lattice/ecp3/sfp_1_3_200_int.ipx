@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DiamondModule name="sfp_1_3_200_int" module="sfp_1_3_200_int" VendorName="Lattice Semiconductor Corporation" generator="IPexpress" date="2014 06 25 09:30:34.887" version="8.1" type="Module" synthesis="synplify" source_format="VHDL">
+  <Package>
+		<File name="sfp_1_3_200_int.lpc" type="lpc" modified="2014 06 25 09:30:30.819"/>
+		<File name="sfp_1_3_200_int.pp" type="pp" modified="2014 06 25 09:30:30.821"/>
+		<File name="sfp_1_3_200_int.sym" type="sym" modified="2014 06 25 09:30:31.064"/>
+		<File name="sfp_1_3_200_int.txt" type="pcs_module" modified="2014 06 25 09:30:30.841"/>
+		<File name="sfp_1_3_200_int.vhd" type="top_level_vhdl" modified="2014 06 24 10:41:47.249"/>
+  </Package>
+</DiamondModule>
