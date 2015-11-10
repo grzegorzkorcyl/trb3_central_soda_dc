@@ -124,7 +124,7 @@ add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_module_TRB3.vhd"
 #soda specific
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/pll_in100_out80M.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/DLLl_in200M_out200M.vhd"
-add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/sync_bit.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/sync_bit.vhd"
 
 
 
