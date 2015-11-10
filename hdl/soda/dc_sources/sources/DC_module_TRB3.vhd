@@ -836,6 +836,7 @@ begin
 			end loop;
 		else
 			if (board_control_write_S(conv_integer(ADDRESS_MUX_CROSSSWITCH(3 downto 0)))='1') then
+				--GK: PROBLEM HERE WITH THE VECTOR LENGTH
 				--for i in 0 to 31 loop
 				for i in 0 to 15 loop
 					combine_pulse_S(i) <= board_control_S(conv_integer(ADDRESS_MUX_CROSSSWITCH(3 downto 0)))(i);
