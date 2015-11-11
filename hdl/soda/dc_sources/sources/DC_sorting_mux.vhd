@@ -346,7 +346,8 @@ dfifo: async_fifo_nn_progfull512_progempty128_FWFT_1024x99 port map(
 		dout => dfifo_dout_S(index),
 		full => dfifo_full_S(index),
 		empty => dfifo_empty_S(index),
-		rd_data_count(9 downto 0) => infifo_fullness_S(index)(MUXINFIFOSIZE-1 downto 0),
+		--rd_data_count(9 downto 0) => infifo_fullness_S(index)(MUXINFIFOSIZE-1 downto 0),
+		rd_data_count(9 downto 0) => infifo_fullness_S(index)(9 downto 0),
 		prog_full => dfifo_prog_full_S(index),
 		prog_empty => dfifo_prog_empty_S(index));
 		
