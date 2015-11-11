@@ -112,8 +112,9 @@ add_file -vhdl -lib work "../hdl/soda/source/soda_reply_pkt_builder.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/trb_net16_med_2sync_3_ecp3_sfp.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/serdesQuadBufLayerMUX.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/serdesQuadMUXwrapper.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/med_ecp3_quad_sfp_sync.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/serdes_sync_200_full.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/sfp_2sync_3_200_int.vhd"
-
 add_file -vhdl -lib work "../../trbnet/media_interfaces/sync/rx_reset_fsm.vhd"
 add_file -vhdl -lib work "../../trbnet/media_interfaces/sync/tx_reset_fsm.vhd"
 
@@ -147,6 +148,10 @@ add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_wavemux2to1.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_wavemux_readfifo.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_wave2packet64.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_superburst2packet64.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_time_energy_LUTs.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_CF_MAX_correction.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_split_data.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_superburst2packet64.vhd"
 
 
 
@@ -155,9 +160,14 @@ add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/pll_in100_
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/DLLl_in200M_out200M.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/sync_bit.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/crc8_add_check64.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/crc8_add_check32.vhd"
 
 
 #soda fifos
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/sync_fifo_512x41.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/sync_fifo_512x41_ecp3.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_16x8.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/async_fifo_16x8_ecp3.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_512x99.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/async_fifo_512x99_ecp3.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_512x32.vhd"
