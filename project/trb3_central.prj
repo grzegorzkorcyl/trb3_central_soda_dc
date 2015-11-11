@@ -160,6 +160,11 @@ add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/shift_register.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_time_lookuptable.vhd"
 
 
+#soda trb3 tdc data concentrator
+add_file -vhdl -lib work "../hdl/soda/dc_sources/dc_trb_tdc/dc_module_trb_tdc.vhd"
+
+
+
 #soda specific
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/pll_in100_out80M.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/DLLl_in200M_out200M.vhd"
