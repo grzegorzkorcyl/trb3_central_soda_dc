@@ -164,6 +164,7 @@ add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/sync_bit.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/crc8_add_check64.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/crc8_add_check32.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/div_pipe_r4_arch2/div_r4_pipe.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/div_pipe_r4_arch2/nr_r4_cel.vhd"
 
 
 #soda fifos
