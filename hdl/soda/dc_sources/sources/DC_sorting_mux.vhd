@@ -76,7 +76,9 @@ USE work.panda_package.all;
 entity DC_sorting_mux is
 	generic(
 		NROFMUXINPUTS           : natural := 4;
-		MUXINFIFOSIZE           : natural := 9;
+		-- GK: width problem
+		--MUXINFIFOSIZE           : natural := 9;
+		MUXINFIFOSIZE           : natural := 8;
 		TRANSFERFIFOSIZE        : natural := 12;
 		CF_FRACTIONBIT          : natural := 11
 	);
