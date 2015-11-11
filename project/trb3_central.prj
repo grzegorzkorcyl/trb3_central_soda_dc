@@ -164,6 +164,8 @@ add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_512x
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/async_fifo_512x32_ecp3.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_nn_4096x103.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/async_fifo_nn_4096x103_ecp3.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_nn_4096x36.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/async_fifo_nn_4096x36_ecp3.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_nn_progfull512_progempty128_FWFT_1024x99.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/async_fifo_nn_progfull512_progempty128_FWFT_1024x99_ecp3.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_nn_progfull1900_progempty128_2048x36.vhd"
