@@ -503,6 +503,7 @@ architecture trb3_central_arch of trb3_central is
 	signal sodasrc_data_out      : std_logic_vector(31 downto 0);
 	signal sodasrc_TX_DLM_S      : std_logic;
 	signal sodasrc_TX_DLM_word_S : std_logic_vector(7 downto 0);
+	signal LEDs_link_ok_i : std_logic_vector(0 to 3);
 
 begin
 
@@ -796,7 +797,7 @@ begin
 			G3_txN                 => SODA_ENDP_TXN_OUT(3),
 			G3_rxP                 => SODA_ENDP_RXP_IN(3),
 			G3_rxN                 => SODA_ENDP_RXN_IN(3),
-			LEDs_link_ok           => open, --LEDs_link_ok_i,
+			LEDs_link_ok           => LEDs_link_ok_i,
 			LEDs_rx                => open, --LEDs_rx_i,
 			LEDs_tx                => open, --LEDs_tx_i,
 			GT0_QPLLOUTCLK_IN      => '0',
@@ -1324,10 +1325,10 @@ begin
 	--   LED_RED                        <= '1';
 
 
-	LED_GREEN  <= debug(0);
-	LED_ORANGE <= debug(1);
-	LED_RED    <= debug(2);
-	LED_YELLOW <= link_ok;
+	LED_GREEN  <= LEDs_link_ok_i(0); -- debug(0);
+	LED_ORANGE <= LEDs_link_ok_i(1); -- debug(1);
+	LED_RED    <= LEDs_link_ok_i(2); -- debug(2);
+	LED_YELLOW <= LEDs_link_ok_i(3); -- link_ok;
 
 	---------------------------------------------------------------------------
 	-- Test Connector
