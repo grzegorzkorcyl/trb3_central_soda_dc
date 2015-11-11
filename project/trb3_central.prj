@@ -96,6 +96,14 @@ add_file -vhdl -lib work "../hdl/trb3_central.vhd"
 #soda sources
 add_file -vhdl -lib work "../hdl/soda/source/soda_source.vhd"
 add_file -vhdl -lib work "../hdl/soda/source/soda_start_of_burst_control.vhd"
+add_file -vhdl -lib work "../hdl/soda/source/soda_packet_handler.vhd"
+add_file -vhdl -lib work "../hdl/soda/source/soda_hub.vhd"
+add_file -vhdl -lib work "../hdl/soda/source/soda_superburst_gen.vhd"
+add_file -vhdl -lib work "../hdl/soda/source/posedge_to_pulse.vhd"
+add_file -vhdl -lib work "../hdl/soda/source/soda_reply_handler.vhd"
+add_file -vhdl -lib work "../hdl/soda/source/soda_packet_builder.vhd"
+add_file -vhdl -lib work "../hdl/soda/source/soda_calibration_timer.vhd"
+
 
 
 #soda media interfaces
@@ -122,6 +130,22 @@ add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_posedge_to_pulse.vhd
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_fifo32to8_SODA.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_fifo8to32_SODA.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_SODA_clockcrossing.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_checkwave.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/HUB_16to8_SODA.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/HUB_8to16_SODA.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_measure_frequency.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_separate_data.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/synchronizer_to_other_clock.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_slowcontrol_to_serial.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_slowcontrol_packetbuilder.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_slowcontrol_receive_from_cpu.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_mux2to1.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/blockmem.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_wavemux2to1.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_wavemux_readfifo.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_wave2packet64.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_superburst2packet64.vhd"
+
 
 
 #soda specific
@@ -131,6 +155,8 @@ add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/sync_bit.vhd"
 
 
 #soda fifos
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_512x99.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_512x32.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_nn_4096x103.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/async_fifo_nn_4096x103_ecp3.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/async_fifo_nn_progfull512_progempty128_FWFT_1024x99_ecp3.vhd"
@@ -143,6 +169,7 @@ add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/async_fifo
 add_file -vhdl -lib work "../../trbnet/trb_net16_api_ipu_streaming_internal.vhd"
 add_file -vhdl -lib work "../../trbnet/trb_net16_ipudata.vhd"
 
+add_file -vhdl -lib work "../../trbnet/trb_net16_endpoint_hades_full_handler.vhd"
 
 add_file -vhdl -lib work "../../trbnet/trb_net_CRC.vhd"
 add_file -vhdl -lib work "../../trbnet/trb_net_onewire.vhd"
