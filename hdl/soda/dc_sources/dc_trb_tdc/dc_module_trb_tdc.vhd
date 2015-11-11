@@ -77,6 +77,15 @@ entity dc_module_trb_tdc is
 end dc_module_trb_tdc;
 
 architecture Behavioral of dc_module_trb_tdc is
+	component DC_posedge_to_pulse is
+		port(
+			clock_in  : in  std_logic;
+			clock_out : in  std_logic;
+			en_clk    : in  std_logic;
+			signal_in : in  std_logic;
+			pulse     : out std_logic);
+	end component;
+
 	type dummy_data_gen_states is (IDLE, WAIT_FOR_ALLOW, GEN_HDR1, GEN_HDR2, GEN_DATA_FEE1, GEN_DATA_FEE2, GEN_DATA_FEE3, GEN_DATA_FEE4, CLOSE);
 	signal dummy_current_state, dummy_next_state : dummy_data_gen_states;
 
@@ -160,98 +169,98 @@ begin
 				else
 					dummy_next_state <= IDLE;
 				end if;
-				
+
 			when WAIT_FOR_ALLOW =>
 				if (data_out_allowed = '1') then
 					dummy_next_state <= GEN_HDR1;
 				else
 					dummy_next_state <= WAIT_FOR_ALLOW;
 				end if;
-				
+
 			when GEN_HDR1 =>
 				dummy_next_state <= GEN_HDR2;
-				
+
 			when GEN_HDR2 =>
 				dummy_next_state <= GEN_DATA_FEE1;
-				
+
 			when GEN_DATA_FEE1 =>
 				dummy_next_state <= GEN_DATA_FEE2;
-				
+
 			when GEN_DATA_FEE2 =>
 				dummy_next_state <= GEN_DATA_FEE3;
-				
+
 			when GEN_DATA_FEE3 =>
 				dummy_next_state <= GEN_DATA_FEE4;
-				
+
 			when GEN_DATA_FEE4 =>
 				dummy_next_state <= CLOSE;
-				
+
 			when CLOSE =>
 				dummy_next_state <= IDLE;
-				
+
 		end case;
 	end process;
-	
--- The 64 bits output packets, according to 32bits SODAnet specs:
--- 32bits word1:   
---        bit31      = last-packet flag
---        bit30..16  = packet number
---        bit15..0   = data size in bytes
--- 32bits word2:   
---        bit31..0   = Not used (same as HADES)
--- 32bits word3:   
---        bit31..16  = Status
---           bit16=internal data-error
---           bit17=internal error
---           bit18=error in pulse-data/superburst number
---           bit31=  0:pulse data packet, 1:waveform packet
---        bit15..0   = System ID
--- 32bits word4:   
---        bit31      = 0
---        bit30..0   = Super-burst number
-	
+
+	-- The 64 bits output packets, according to 32bits SODAnet specs:
+	-- 32bits word1:   
+	--        bit31      = last-packet flag
+	--        bit30..16  = packet number
+	--        bit15..0   = data size in bytes
+	-- 32bits word2:   
+	--        bit31..0   = Not used (same as HADES)
+	-- 32bits word3:   
+	--        bit31..16  = Status
+	--           bit16=internal data-error
+	--           bit17=internal error
+	--           bit18=error in pulse-data/superburst number
+	--           bit31=  0:pulse data packet, 1:waveform packet
+	--        bit15..0   = System ID
+	-- 32bits word4:   
+	--        bit31      = 0
+	--        bit30..0   = Super-burst number
+
 	process(dummy_current_state, latestsuperburstnumber_S)
 	begin
-		case dummy_current_state is 
+		case dummy_current_state is
 			when GEN_HDR1 =>
-				data_out <= x"0000" & x"0030" & x"0000_0000";
+				data_out       <= x"0000" & x"0030" & x"0000_0000";
 				data_out_write <= '1';
 				data_out_first <= '1';
-				data_out_last <= '0';
+				data_out_last  <= '0';
 			when GEN_HDR2 =>
-				data_out <= x"0000" & x"abcd" & '0' & latestsuperburstnumber_S;
+				data_out       <= x"0000" & x"abcd" & '0' & latestsuperburstnumber_S;
 				data_out_write <= '1';
 				data_out_first <= '0';
-				data_out_last <= '0';
+				data_out_last  <= '0';
 			when GEN_DATA_FEE1 =>
-				data_out <= x"1111_0011_2233_4455";
+				data_out       <= x"1111_0011_2233_4455";
 				data_out_write <= '1';
 				data_out_first <= '0';
-				data_out_last <= '0';
+				data_out_last  <= '0';
 			when GEN_DATA_FEE2 =>
-				data_out <= x"2222_6677_8899_aabb";
+				data_out       <= x"2222_6677_8899_aabb";
 				data_out_write <= '1';
 				data_out_first <= '0';
-				data_out_last <= '0';
+				data_out_last  <= '0';
 			when GEN_DATA_FEE3 =>
-				data_out <= x"3333_ccdd_eeff_0011";
+				data_out       <= x"3333_ccdd_eeff_0011";
 				data_out_write <= '1';
 				data_out_first <= '0';
-				data_out_last <= '0';
+				data_out_last  <= '0';
 			when GEN_DATA_FEE4 =>
-				data_out <= x"4444_2233_4455_6677";
+				data_out       <= x"4444_2233_4455_6677";
 				data_out_write <= '1';
 				data_out_first <= '0';
-				data_out_last <= '1';
+				data_out_last  <= '1';
 			when others =>
-				data_out <= (others => '0');
+				data_out       <= (others => '0');
 				data_out_write <= '0';
 				data_out_first <= '0';
-				data_out_last <= '0';
+				data_out_last  <= '0';
 		end case;
 	end process;
-	
-	data_out_error <= '0';
+
+	data_out_error  <= '0';
 	no_packet_limit <= '0';
-	
+
 end Behavioral;
