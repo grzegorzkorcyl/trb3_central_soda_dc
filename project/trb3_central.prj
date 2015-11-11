@@ -103,6 +103,8 @@ add_file -vhdl -lib work "../hdl/soda/source/posedge_to_pulse.vhd"
 add_file -vhdl -lib work "../hdl/soda/source/soda_reply_handler.vhd"
 add_file -vhdl -lib work "../hdl/soda/source/soda_packet_builder.vhd"
 add_file -vhdl -lib work "../hdl/soda/source/soda_calibration_timer.vhd"
+add_file -vhdl -lib work "../hdl/soda/source/soda_d8crc8.vhd"
+add_file -vhdl -lib work "../hdl/soda/source/soda_reply_pkt_builder.vhd"
 
 
 
@@ -152,14 +154,19 @@ add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_superburst2packet64.
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/pll_in100_out80M.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/DLLl_in200M_out200M.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/sync_bit.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/crc8_add_check64.vhd"
 
 
 #soda fifos
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_512x99.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/async_fifo_512x99_ecp3.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_512x32.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/async_fifo_512x32_ecp3.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_nn_4096x103.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/async_fifo_nn_4096x103_ecp3.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_nn_progfull512_progempty128_FWFT_1024x99.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/async_fifo_nn_progfull512_progempty128_FWFT_1024x99_ecp3.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_nn_progfull1900_progempty128_2048x36.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/async_fifo_nn_progfull1900_progempty128_2048x36_ecp3.vhd"
 
 
@@ -170,6 +177,8 @@ add_file -vhdl -lib work "../../trbnet/trb_net16_api_ipu_streaming_internal.vhd"
 add_file -vhdl -lib work "../../trbnet/trb_net16_ipudata.vhd"
 
 add_file -vhdl -lib work "../../trbnet/trb_net16_endpoint_hades_full_handler.vhd"
+add_file -vhdl -lib work "../../trbnet/trb_net16_endpoint_hades_full.vhd"
+add_file -vhdl -lib work "../../trbnet/special/bus_register_handler.vhd"
 
 add_file -vhdl -lib work "../../trbnet/trb_net_CRC.vhd"
 add_file -vhdl -lib work "../../trbnet/trb_net_onewire.vhd"
