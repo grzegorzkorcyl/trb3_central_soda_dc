@@ -346,7 +346,7 @@ dfifo: async_fifo_nn_progfull512_progempty128_FWFT_1024x99 port map(
 		dout => dfifo_dout_S(index),
 		full => dfifo_full_S(index),
 		empty => dfifo_empty_S(index),
-		rd_data_count => infifo_fullness_S(index)(MUXINFIFOSIZE-1 downto 0),
+		rd_data_count(9 downto 0) => infifo_fullness_S(index)(MUXINFIFOSIZE-1 downto 0),
 		prog_full => dfifo_prog_full_S(index),
 		prog_empty => dfifo_prog_empty_S(index));
 		
@@ -460,7 +460,7 @@ tfifo: async_fifo_nn_4096x103 port map(
 		dout(102 downto 99) => fiber_index_out,
 		full => tfifo_full_S,
 		empty => tfifo_empty_S,
-		rd_data_count => outfifo_fullness(TRANSFERFIFOSIZE-1 downto 0));
+		rd_data_count(11 downto 0) => outfifo_fullness(TRANSFERFIFOSIZE-1 downto 0));
 outfifo_fullness(15 downto TRANSFERFIFOSIZE) <= (others => '0');
 		
 tfifo_rd_S <= '1' when (data_out_read='1') and (tfifo_empty_S='0') else '0';
