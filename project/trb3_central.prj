@@ -181,6 +181,7 @@ add_file -vhdl -lib work "../../trbnet/trb_net16_ipudata.vhd"
 add_file -vhdl -lib work "../../trbnet/trb_net16_endpoint_hades_full_handler.vhd"
 add_file -vhdl -lib work "../../trbnet/trb_net16_endpoint_hades_full.vhd"
 add_file -vhdl -lib work "../../trbnet/special/bus_register_handler.vhd"
+add_file -vhdl -lib work "../../trbnet/basic/pulse_stretch.vhd"
 
 add_file -vhdl -lib work "../../trbnet/trb_net_CRC.vhd"
 add_file -vhdl -lib work "../../trbnet/trb_net_onewire.vhd"
