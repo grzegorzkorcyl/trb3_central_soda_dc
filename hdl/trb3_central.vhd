@@ -845,9 +845,9 @@ begin
 			SCI_ACK            => sci2_ack,
 			
 			-- Status and control port
-			STAT_OP            => med_stat_op(63 downto 0),
-			CTRL_OP            => med_ctrl_op(63 downto 0),
-			STAT_DEBUG         => med_stat_debug(3 * 64 + 63 downto 0 * 64),
+			STAT_OP            => med_stat_op(63 + 16 downto 0 + 16),
+			CTRL_OP            => med_ctrl_op(63 + 16 downto 0 + 16),
+			STAT_DEBUG         => open, --med_stat_debug(3 * 64 + 63 downto 0 * 64),
 			CTRL_DEBUG         => (others => '0')
 		);
 
