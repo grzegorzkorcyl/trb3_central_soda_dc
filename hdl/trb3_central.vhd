@@ -841,7 +841,7 @@ begin
 	-- Data Concentrator
 	--------------------------------------------------------------------------- 
 
-	THE_DATACONCENTRATOR : entity work.dc_module_trb_tdc
+	THE_DATACONCENTRATOR_FROM_TDC : entity work.dc_module_trb_tdc
 		port map(
 			slowcontrol_clock    => clk_100_i,
 			packet_in_clock      => PACKETIN_clock,
