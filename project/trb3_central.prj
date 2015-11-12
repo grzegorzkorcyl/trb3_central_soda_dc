@@ -177,6 +177,8 @@ add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/div_pipe_r4_arch2/nr_r4
 
 
 #soda fifos
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_256x66.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/sync_fifo_256x66_ecp3.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/sync_fifo_512x41.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/sync_fifo_512x41_ecp3.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/async_fifo_16x8.vhd"
