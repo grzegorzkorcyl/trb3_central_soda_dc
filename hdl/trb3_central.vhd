@@ -324,18 +324,18 @@ architecture trb3_central_arch of trb3_central is
 	attribute syn_preserve of GSR_N : signal is true;
 
 	--Media Interface
---	signal med_stat_op        : std_logic_vector(c_DATA_WIDTH - 1 downto 0);
---	signal med_ctrl_op        : std_logic_vector(c_DATA_WIDTH - 1 downto 0);
---	signal med_stat_debug     : std_logic_vector(1 * 64 - 1 downto 0);
---	signal med_ctrl_debug     : std_logic_vector(1 * 64 - 1 downto 0);
---	signal med_data_out       : std_logic_vector(c_DATA_WIDTH - 1 downto 0);
---	signal med_packet_num_out : std_logic_vector(1 * 3 - 1 downto 0);
---	signal med_dataready_out  : std_logic;
---	signal med_read_out       : std_logic;
---	signal med_data_in        : std_logic_vector(c_DATA_WIDTH - 1 downto 0);
---	signal med_packet_num_in  : std_logic_vector(1 * 3 - 1 downto 0);
---	signal med_dataready_in   : std_logic;
---	signal med_read_in        : std_logic;
+	--	signal med_stat_op        : std_logic_vector(c_DATA_WIDTH - 1 downto 0);
+	--	signal med_ctrl_op        : std_logic_vector(c_DATA_WIDTH - 1 downto 0);
+	--	signal med_stat_debug     : std_logic_vector(1 * 64 - 1 downto 0);
+	--	signal med_ctrl_debug     : std_logic_vector(1 * 64 - 1 downto 0);
+	--	signal med_data_out       : std_logic_vector(c_DATA_WIDTH - 1 downto 0);
+	--	signal med_packet_num_out : std_logic_vector(1 * 3 - 1 downto 0);
+	--	signal med_dataready_out  : std_logic;
+	--	signal med_read_out       : std_logic;
+	--	signal med_data_in        : std_logic_vector(c_DATA_WIDTH - 1 downto 0);
+	--	signal med_packet_num_in  : std_logic_vector(1 * 3 - 1 downto 0);
+	--	signal med_dataready_in   : std_logic;
+	--	signal med_read_in        : std_logic;
 
 	signal med_stat_op        : std_logic_vector(5 * 16 - 1 downto 0);
 	signal med_ctrl_op        : std_logic_vector(5 * 16 - 1 downto 0);
@@ -478,6 +478,13 @@ architecture trb3_central_arch of trb3_central is
 	signal sodasrc_TX_DLM_S      : std_logic;
 	signal sodasrc_TX_DLM_word_S : std_logic_vector(7 downto 0);
 	signal LEDs_link_ok_i        : std_logic_vector(0 to 3);
+
+	signal sci2_ack      : std_logic;
+	signal sci2_write    : std_logic;
+	signal sci2_read     : std_logic;
+	signal sci2_data_in  : std_logic_vector(7 downto 0);
+	signal sci2_data_out : std_logic_vector(7 downto 0);
+	signal sci2_addr     : std_logic_vector(8 downto 0);
 
 begin
 
@@ -828,12 +835,15 @@ begin
 			SD_TXDIS_OUT(1)    => FPGA2_COMM(0),
 			SD_TXDIS_OUT(2)    => FPGA3_COMM(0),
 			SD_TXDIS_OUT(3)    => FPGA4_COMM(0),
+			
+			-- not connected to anything
 			SCI_DATA_IN        => sci2_data_in,
 			SCI_DATA_OUT       => sci2_data_out,
 			SCI_ADDR           => sci2_addr,
 			SCI_READ           => sci2_read,
 			SCI_WRITE          => sci2_write,
 			SCI_ACK            => sci2_ack,
+			
 			-- Status and control port
 			STAT_OP            => med_stat_op(63 downto 0),
 			CTRL_OP            => med_ctrl_op(63 downto 0),
@@ -897,7 +907,6 @@ begin
 			FEE_READ_IN                            => '1',
 			FEE_STATUS_BITS_OUT                    => open,
 			FEE_BUSY_OUT                           => open,
-			
 			MY_ADDRESS_IN                          => my_address,
 			COMMON_STAT_REGS                       => common_stat_regs, --open,
 			COMMON_CTRL_REGS                       => common_ctrl_regs, --open,
