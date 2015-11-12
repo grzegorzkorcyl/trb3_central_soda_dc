@@ -798,7 +798,7 @@ begin
 	---------------------------------------------------------------------------
 	THE_MEDIA_ONBOARD : trb_net16_med_ecp3_sfp_4
 		generic map(
-			FREQUENCY => MEDIA_FREQUENCY
+			FREQUENCY => 200
 		)
 		port map(
 			CLK                => clk_200_i,
@@ -857,17 +857,17 @@ begin
 
 	THE_HUB : trb_net16_hub_streaming_port
 		generic map(
-			HUB_USED_CHANNELS      => USED_CHANNELS,
-			INIT_ADDRESS           => INIT_ADDRESS,
-			MII_NUMBER             => INTERFACE_NUM,
-			MII_IS_UPLINK          => IS_UPLINK,
-			MII_IS_DOWNLINK        => IS_DOWNLINK,
-			MII_IS_UPLINK_ONLY     => IS_UPLINK_ONLY,
+			HUB_USED_CHANNELS      => (c_YES,c_YES,c_NO,c_YES),
+			INIT_ADDRESS           => x"f308",
+			MII_NUMBER             => 5, --INTERFACE_NUM,
+		    MII_IS_UPLINK     		=> (0 => 1, others => 0),
+		    MII_IS_DOWNLINK   		=> (0 => 0, others => 1),
+		    MII_IS_UPLINK_ONLY		=> (0 => 1, others => 0),
 			USE_ONEWIRE            => c_YES,
 			HARDWARE_VERSION       => HARDWARE_INFO,
 			INCLUDED_FEATURES      => INCLUDED_FEATURES,
 			INIT_ENDPOINT_ID       => x"0005",
-			CLOCK_FREQUENCY        => CLOCK_FREQUENCY,
+			CLOCK_FREQUENCY        => 100,
 			BROADCAST_SPECIAL_ADDR => BROADCAST_SPECIAL_ADDR
 		)
 		port map(
@@ -943,9 +943,9 @@ begin
 	---------------------------------------------------------------------------
 	THE_BUS_HANDLER : trb_net16_regio_bus_handler
 		generic map(
-			PORT_NUMBER    => 5,
-			PORT_ADDRESSES => (0 => x"d000", 1 => x"d100", 2 => x"e000", 3 => x"e100", 4 => x"e200", others => x"0000"),
-			PORT_ADDR_MASK => (0 => 1, 1 => 6, 2 => 2, 3 => 4, 4 => 4, others => 0)
+			PORT_NUMBER    => 2,
+			PORT_ADDRESSES => (0 => x"d000", 1 => x"d100", others => x"0000"),
+			PORT_ADDR_MASK => (0 => 1, 1 => 6, others => 0)
 		--     PORT_MASK_ENABLE => 0
 		)
 		port map(
@@ -963,59 +963,26 @@ begin
 			DAT_UNKNOWN_ADDR_OUT                        => regio_unknown_addr_in,
 			BUS_READ_ENABLE_OUT(0)                      => spictrl_read_en,
 			BUS_READ_ENABLE_OUT(1)                      => spimem_read_en,
-			BUS_READ_ENABLE_OUT(2)                      => dc_read_en,
-			BUS_READ_ENABLE_OUT(3)                      => soda_read_en,
-			BUS_READ_ENABLE_OUT(4)                      => sodasrc_read_en,
 			BUS_WRITE_ENABLE_OUT(0)                     => spictrl_write_en,
 			BUS_WRITE_ENABLE_OUT(1)                     => spimem_write_en,
-			BUS_WRITE_ENABLE_OUT(2)                     => dc_write_en,
-			BUS_WRITE_ENABLE_OUT(3)                     => soda_write_en,
-			BUS_WRITE_ENABLE_OUT(4)                     => sodasrc_write_en,
 			BUS_DATA_OUT(0 * 32 + 31 downto 0 * 32)     => spictrl_data_in,
 			BUS_DATA_OUT(1 * 32 + 31 downto 1 * 32)     => spimem_data_in,
-			BUS_DATA_OUT(2 * 32 + 31 downto 2 * 32)     => dc_data_in,
-			BUS_DATA_OUT(3 * 32 + 31 downto 3 * 32)     => soda_data_in,
-			BUS_DATA_OUT(4 * 32 + 31 downto 4 * 32)     => sodasrc_data_in,
 			BUS_ADDR_OUT(0 * 16)                        => spictrl_addr,
 			BUS_ADDR_OUT(0 * 16 + 15 downto 0 * 16 + 1) => open,
 			BUS_ADDR_OUT(1 * 16 + 5 downto 1 * 16)      => spimem_addr,
 			BUS_ADDR_OUT(1 * 16 + 15 downto 1 * 16 + 6) => open,
-			BUS_ADDR_OUT(2 * 16 + 1 downto 2 * 16)      => dc_addr,
-			BUS_ADDR_OUT(2 * 16 + 15 downto 2 * 16 + 2) => open,
-			BUS_ADDR_OUT(3 * 16 + 3 downto 3 * 16)      => soda_addr,
-			BUS_ADDR_OUT(3 * 16 + 15 downto 3 * 16 + 4) => open,
-			BUS_ADDR_OUT(4 * 16 + 3 downto 4 * 16)      => sodasrc_addr,
-			BUS_ADDR_OUT(4 * 16 + 15 downto 4 * 16 + 4) => open,
 			BUS_DATA_IN(0 * 32 + 31 downto 0 * 32)      => spictrl_data_out,
 			BUS_DATA_IN(1 * 32 + 31 downto 1 * 32)      => spimem_data_out,
-			BUS_DATA_IN(2 * 32 + 31 downto 2 * 32)      => dc_data_out,
-			BUS_DATA_IN(3 * 32 + 31 downto 3 * 32)      => soda_data_out,
-			BUS_DATA_IN(4 * 32 + 31 downto 4 * 32)      => sodasrc_data_out,
 			BUS_DATAREADY_IN(0)                         => spictrl_ack,
 			BUS_DATAREADY_IN(1)                         => spimem_ack,
-			BUS_DATAREADY_IN(2)                         => dc_ack,
-			BUS_DATAREADY_IN(3)                         => soda_ack,
-			BUS_DATAREADY_IN(4)                         => sodasrc_ack,
 			BUS_WRITE_ACK_IN(0)                         => spictrl_ack,
 			BUS_WRITE_ACK_IN(1)                         => spimem_ack,
-			BUS_WRITE_ACK_IN(2)                         => dc_ack,
-			BUS_WRITE_ACK_IN(3)                         => soda_ack,
-			BUS_WRITE_ACK_IN(4)                         => sodasrc_ack,
 			BUS_NO_MORE_DATA_IN(0)                      => spictrl_busy,
 			BUS_NO_MORE_DATA_IN(1)                      => '0',
-			BUS_NO_MORE_DATA_IN(2)                      => dc_busy,
-			BUS_NO_MORE_DATA_IN(3)                      => '0',
-			BUS_NO_MORE_DATA_IN(4)                      => '0',
 			BUS_UNKNOWN_ADDR_IN(0)                      => '0',
 			BUS_UNKNOWN_ADDR_IN(1)                      => '0',
-			BUS_UNKNOWN_ADDR_IN(2)                      => '0',
-			BUS_UNKNOWN_ADDR_IN(3)                      => '0',
-			BUS_UNKNOWN_ADDR_IN(4)                      => '0',
 			BUS_TIMEOUT_OUT(0)                          => open,
 			BUS_TIMEOUT_OUT(1)                          => open,
-			BUS_TIMEOUT_OUT(2)                          => open,
-			BUS_TIMEOUT_OUT(3)                          => open,
-			BUS_TIMEOUT_OUT(4)                          => open,
 
 			--Bus Handler (SPI CTRL)
 			--Bus Handler (SPI Memory)
