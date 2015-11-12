@@ -682,9 +682,9 @@ begin
 			DATASFP_KCHAR_IN   => tx_k_ch3,
 
 			-- Status and control port
-			STAT_OP            => med_stat_op,
-			CTRL_OP            => med_ctrl_op,
-			STAT_DEBUG         => med_stat_debug,
+			STAT_OP            => med_stat_op(1 * 16 - 1 downto 0),
+			CTRL_OP            => med_ctrl_op(1 * 16 - 1 downto 0),
+			STAT_DEBUG         => open,
 			CTRL_DEBUG         => (others => '0')
 		);
 
