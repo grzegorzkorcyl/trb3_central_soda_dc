@@ -835,7 +835,7 @@ begin
 			SD_TXDIS_OUT(1)    => FPGA2_COMM(0),
 			SD_TXDIS_OUT(2)    => FPGA3_COMM(0),
 			SD_TXDIS_OUT(3)    => FPGA4_COMM(0),
-			
+
 			-- not connected to anything
 			SCI_DATA_IN        => sci2_data_in,
 			SCI_DATA_OUT       => sci2_data_out,
@@ -843,7 +843,7 @@ begin
 			SCI_READ           => sci2_read,
 			SCI_WRITE          => sci2_write,
 			SCI_ACK            => sci2_ack,
-			
+
 			-- Status and control port
 			STAT_OP            => med_stat_op(63 + 16 downto 0 + 16),
 			CTRL_OP            => med_ctrl_op(63 + 16 downto 0 + 16),
@@ -855,20 +855,106 @@ begin
 	-- TrbNet HUB
 	--------------------------------------------------------------------------- 
 
-	THE_HUB : trb_net16_hub_streaming_port
+	--	THE_HUB : trb_net16_hub_streaming_port
+	--		generic map(
+	--			HUB_USED_CHANNELS      => (c_YES,c_YES,c_NO,c_YES),
+	--			INIT_ADDRESS           => x"f308",
+	--			MII_NUMBER             => 5, --INTERFACE_NUM,
+	--		    MII_IS_UPLINK     		=> (0 => 1, others => 0),
+	--		    MII_IS_DOWNLINK   		=> (0 => 0, others => 1),
+	--		    MII_IS_UPLINK_ONLY		=> (0 => 1, others => 0),
+	--			USE_ONEWIRE            => c_YES,
+	--			HARDWARE_VERSION       => HARDWARE_INFO,
+	--			INCLUDED_FEATURES      => INCLUDED_FEATURES,
+	--			INIT_ENDPOINT_ID       => x"0005",
+	--			CLOCK_FREQUENCY        => 100,
+	--			BROADCAST_SPECIAL_ADDR => BROADCAST_SPECIAL_ADDR
+	--		)
+	--		port map(
+	--			CLK                                    => clk_100_i,
+	--			RESET                                  => reset_i,
+	--			CLK_EN                                 => '1',
+	--
+	--			--Media interfacces
+	--			MED_DATAREADY_OUT(5 * 1 - 1 downto 0)  => med_dataready_out,
+	--			MED_DATA_OUT(5 * 16 - 1 downto 0)      => med_data_out,
+	--			MED_PACKET_NUM_OUT(5 * 3 - 1 downto 0) => med_packet_num_out,
+	--			MED_READ_IN(5 * 1 - 1 downto 0)        => med_read_in,
+	--			MED_DATAREADY_IN(5 * 1 - 1 downto 0)   => med_dataready_in,
+	--			MED_DATA_IN(5 * 16 - 1 downto 0)       => med_data_in,
+	--			MED_PACKET_NUM_IN(5 * 3 - 1 downto 0)  => med_packet_num_in,
+	--			MED_READ_OUT(5 * 1 - 1 downto 0)       => med_read_out,
+	--			MED_STAT_OP(5 * 16 - 1 downto 0)       => med_stat_op,
+	--			MED_CTRL_OP(5 * 16 - 1 downto 0)       => med_ctrl_op,
+	--
+	--			--Event information coming from CTSCTS_READOUT_TYPE_OUT
+	--			CTS_NUMBER_OUT                         => open,
+	--			CTS_CODE_OUT                           => open,
+	--			CTS_INFORMATION_OUT                    => open,
+	--			CTS_READOUT_TYPE_OUT                   => open,
+	--			CTS_START_READOUT_OUT                  => open,
+	--			--Information   sent to CTS
+	--			--status data, equipped with DHDR
+	--			CTS_DATA_IN                            => (others => '0'),
+	--			CTS_DATAREADY_IN                       => '0',
+	--			CTS_READOUT_FINISHED_IN                => '0',
+	--			CTS_READ_OUT                           => open,
+	--			CTS_LENGTH_IN                          => (others => '0'),
+	--			CTS_STATUS_BITS_IN                     => (others => '0'),
+	--			-- Data from Frontends
+	--			FEE_DATA_OUT                           => open,
+	--			FEE_DATAREADY_OUT                      => open,
+	--			FEE_READ_IN                            => '1',
+	--			FEE_STATUS_BITS_OUT                    => open,
+	--			FEE_BUSY_OUT                           => open,
+	--			MY_ADDRESS_IN                          => my_address,
+	--			COMMON_STAT_REGS                       => common_stat_regs, --open,
+	--			COMMON_CTRL_REGS                       => common_ctrl_regs, --open,
+	--			ONEWIRE                                => TEMPSENS,
+	--			ONEWIRE_MONITOR_IN                     => open,
+	--			MY_ADDRESS_OUT                         => my_address,
+	--			TIMER_TICKS_OUT                        => open,
+	--			REGIO_ADDR_OUT                         => regio_addr_out,
+	--			REGIO_READ_ENABLE_OUT                  => regio_read_enable_out,
+	--			REGIO_WRITE_ENABLE_OUT                 => regio_write_enable_out,
+	--			REGIO_DATA_OUT                         => regio_data_out,
+	--			REGIO_DATA_IN                          => regio_data_in,
+	--			REGIO_DATAREADY_IN                     => regio_dataready_in,
+	--			REGIO_NO_MORE_DATA_IN                  => regio_no_more_data_in,
+	--			REGIO_WRITE_ACK_IN                     => regio_write_ack_in,
+	--			REGIO_UNKNOWN_ADDR_IN                  => regio_unknown_addr_in,
+	--			REGIO_TIMEOUT_OUT                      => regio_timeout_out,
+	--
+	--			--status and control ports
+	--			HUB_STAT_CHANNEL                       => open,
+	--			HUB_STAT_GEN                           => open,
+	--			MPLEX_CTRL                             => (others => '0'),
+	--			MPLEX_STAT                             => open,
+	--			STAT_REGS                              => open,
+	--			STAT_CTRL_REGS                         => open,
+	--
+	--			--Fixed status and control ports
+	--			STAT_DEBUG                             => open,
+	--			CTRL_DEBUG                             => (others => '0')
+	--		);
+
+	THE_HUB : trb_net16_hub_base
 		generic map(
-			HUB_USED_CHANNELS      => (c_YES,c_YES,c_NO,c_YES),
-			INIT_ADDRESS           => x"f308",
-			MII_NUMBER             => 5, --INTERFACE_NUM,
-		    MII_IS_UPLINK     		=> (0 => 1, others => 0),
-		    MII_IS_DOWNLINK   		=> (0 => 0, others => 1),
-		    MII_IS_UPLINK_ONLY		=> (0 => 1, others => 0),
+			HUB_USED_CHANNELS      => (c_YES, c_YES, c_NO, c_YES),
+			IBUF_SECURE_MODE       => c_YES,
+			MII_NUMBER             => 5,
+			MII_IS_UPLINK          => (0 => 1, others => 0),
+			MII_IS_DOWNLINK        => (0 => 0, others => 1),
+			MII_IS_UPLINK_ONLY     => (0 => 1, others => 0),
+			INT_NUMBER             => 0,
+			--     INT_CHANNELS      => (0,1,3,3,3,3,3,3),
 			USE_ONEWIRE            => c_YES,
-			HARDWARE_VERSION       => HARDWARE_INFO,
-			INCLUDED_FEATURES      => INCLUDED_FEATURES,
-			INIT_ENDPOINT_ID       => x"0005",
-			CLOCK_FREQUENCY        => 100,
-			BROADCAST_SPECIAL_ADDR => BROADCAST_SPECIAL_ADDR
+			COMPILE_TIME           => std_logic_vector(to_unsigned(VERSION_NUMBER_TIME, 32)),
+			HARDWARE_VERSION       => x"91003200",
+			INIT_ENDPOINT_ID       => x"0000",
+			INIT_ADDRESS           => x"F308",
+			USE_VAR_ENDPOINT_ID    => c_YES,
+			BROADCAST_SPECIAL_ADDR => x"45"
 		)
 		port map(
 			CLK                                    => clk_100_i,
@@ -886,34 +972,10 @@ begin
 			MED_READ_OUT(5 * 1 - 1 downto 0)       => med_read_out,
 			MED_STAT_OP(5 * 16 - 1 downto 0)       => med_stat_op,
 			MED_CTRL_OP(5 * 16 - 1 downto 0)       => med_ctrl_op,
-
-			--Event information coming from CTSCTS_READOUT_TYPE_OUT
-			CTS_NUMBER_OUT                         => open,
-			CTS_CODE_OUT                           => open,
-			CTS_INFORMATION_OUT                    => open,
-			CTS_READOUT_TYPE_OUT                   => open,
-			CTS_START_READOUT_OUT                  => open,
-			--Information   sent to CTS
-			--status data, equipped with DHDR
-			CTS_DATA_IN                            => (others => '0'),
-			CTS_DATAREADY_IN                       => '0',
-			CTS_READOUT_FINISHED_IN                => '0',
-			CTS_READ_OUT                           => open,
-			CTS_LENGTH_IN                          => (others => '0'),
-			CTS_STATUS_BITS_IN                     => (others => '0'),
-			-- Data from Frontends
-			FEE_DATA_OUT                           => open,
-			FEE_DATAREADY_OUT                      => open,
-			FEE_READ_IN                            => '1',
-			FEE_STATUS_BITS_OUT                    => open,
-			FEE_BUSY_OUT                           => open,
-			MY_ADDRESS_IN                          => my_address,
-			COMMON_STAT_REGS                       => common_stat_regs, --open,
-			COMMON_CTRL_REGS                       => common_ctrl_regs, --open,
-			ONEWIRE                                => TEMPSENS,
-			ONEWIRE_MONITOR_IN                     => open,
+			COMMON_STAT_REGS                       => common_stat_reg,
+			COMMON_CTRL_REGS                       => common_ctrl_reg,
 			MY_ADDRESS_OUT                         => my_address,
-			TIMER_TICKS_OUT                        => open,
+			--REGIO INTERFACE
 			REGIO_ADDR_OUT                         => regio_addr_out,
 			REGIO_READ_ENABLE_OUT                  => regio_read_enable_out,
 			REGIO_WRITE_ENABLE_OUT                 => regio_write_enable_out,
@@ -924,18 +986,14 @@ begin
 			REGIO_WRITE_ACK_IN                     => regio_write_ack_in,
 			REGIO_UNKNOWN_ADDR_IN                  => regio_unknown_addr_in,
 			REGIO_TIMEOUT_OUT                      => regio_timeout_out,
-
-			--status and control ports
-			HUB_STAT_CHANNEL                       => open,
-			HUB_STAT_GEN                           => open,
+			REGIO_VAR_ENDPOINT_ID(1 downto 0)      => CODE_LINE,
+			REGIO_VAR_ENDPOINT_ID(15 downto 2)     => (others => '0'),
+			ONEWIRE                                => TEMPSENS,
+			ONEWIRE_MONITOR_OUT                    => open,
+			--Status ports (for debugging)
 			MPLEX_CTRL                             => (others => '0'),
-			MPLEX_STAT                             => open,
-			STAT_REGS                              => open,
-			STAT_CTRL_REGS                         => open,
-
-			--Fixed status and control ports
-			STAT_DEBUG                             => open,
-			CTRL_DEBUG                             => (others => '0')
+			CTRL_DEBUG                             => (others => '0'),
+			STAT_DEBUG                             => open
 		);
 
 	---------------------------------------------------------------------------
