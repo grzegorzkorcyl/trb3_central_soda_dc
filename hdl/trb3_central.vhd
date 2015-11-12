@@ -147,8 +147,8 @@ entity trb3_central is
 		-- SODA pinout
 		SODA_SRC_TXP_OUT, SODA_SRC_TXN_OUT         : out   std_logic;
 		SODA_SRC_RXP_IN, SODA_SRC_RXN_IN           : in    std_logic;
-		SODA_ENDP_RXP_IN, SODA_ENDP_RXN_IN         : in    std_logic_vector(3 downto 0);
-		SODA_ENDP_TXP_OUT, SODA_ENDP_TXN_OUT       : out   std_logic_vector(3 downto 0);
+		ENDP_RXP_IN, ENDP_RXN_IN                   : in    std_logic_vector(3 downto 0);
+		ENDP_TXP_OUT, ENDP_TXN_OUT                 : out   std_logic_vector(3 downto 0);
 		SODA_READOUT_TXP_OUT, SODA_READOUT_TXN_OUT : out   std_logic;
 
 		CODE_LINE                                  : in    std_logic_vector(1 downto 0)
@@ -324,18 +324,31 @@ architecture trb3_central_arch of trb3_central is
 	attribute syn_preserve of GSR_N : signal is true;
 
 	--Media Interface
-	signal med_stat_op        : std_logic_vector(c_DATA_WIDTH - 1 downto 0);
-	signal med_ctrl_op        : std_logic_vector(c_DATA_WIDTH - 1 downto 0);
-	signal med_stat_debug     : std_logic_vector(1 * 64 - 1 downto 0);
-	signal med_ctrl_debug     : std_logic_vector(1 * 64 - 1 downto 0);
-	signal med_data_out       : std_logic_vector(c_DATA_WIDTH - 1 downto 0);
-	signal med_packet_num_out : std_logic_vector(1 * 3 - 1 downto 0);
-	signal med_dataready_out  : std_logic;
-	signal med_read_out       : std_logic;
-	signal med_data_in        : std_logic_vector(c_DATA_WIDTH - 1 downto 0);
-	signal med_packet_num_in  : std_logic_vector(1 * 3 - 1 downto 0);
-	signal med_dataready_in   : std_logic;
-	signal med_read_in        : std_logic;
+--	signal med_stat_op        : std_logic_vector(c_DATA_WIDTH - 1 downto 0);
+--	signal med_ctrl_op        : std_logic_vector(c_DATA_WIDTH - 1 downto 0);
+--	signal med_stat_debug     : std_logic_vector(1 * 64 - 1 downto 0);
+--	signal med_ctrl_debug     : std_logic_vector(1 * 64 - 1 downto 0);
+--	signal med_data_out       : std_logic_vector(c_DATA_WIDTH - 1 downto 0);
+--	signal med_packet_num_out : std_logic_vector(1 * 3 - 1 downto 0);
+--	signal med_dataready_out  : std_logic;
+--	signal med_read_out       : std_logic;
+--	signal med_data_in        : std_logic_vector(c_DATA_WIDTH - 1 downto 0);
+--	signal med_packet_num_in  : std_logic_vector(1 * 3 - 1 downto 0);
+--	signal med_dataready_in   : std_logic;
+--	signal med_read_in        : std_logic;
+
+	signal med_stat_op        : std_logic_vector(5 * 16 - 1 downto 0);
+	signal med_ctrl_op        : std_logic_vector(5 * 16 - 1 downto 0);
+	signal med_stat_debug     : std_logic_vector(5 * 64 - 1 downto 0);
+	signal med_ctrl_debug     : std_logic_vector(5 * 64 - 1 downto 0);
+	signal med_data_out       : std_logic_vector(5 * 16 - 1 downto 0);
+	signal med_packet_num_out : std_logic_vector(5 * 3 - 1 downto 0);
+	signal med_dataready_out  : std_logic_vector(5 * 1 - 1 downto 0);
+	signal med_read_out       : std_logic_vector(5 * 1 - 1 downto 0);
+	signal med_data_in        : std_logic_vector(5 * 16 - 1 downto 0);
+	signal med_packet_num_in  : std_logic_vector(5 * 3 - 1 downto 0);
+	signal med_dataready_in   : std_logic_vector(5 * 1 - 1 downto 0);
+	signal med_read_in        : std_logic_vector(5 * 1 - 1 downto 0);
 
 	--Hub
 	signal common_stat_regs       : std_logic_vector(std_COMSTATREG * 32 - 1 downto 0);
@@ -371,12 +384,11 @@ architecture trb3_central_arch of trb3_central is
 	signal spi_bram_rd_d : std_logic_vector(7 downto 0);
 	signal spi_bram_we   : std_logic;
 
-
 	signal trigger_busy_i : std_logic;
 
 	signal led_time_ref_i : std_logic;
 
-	signal do_reboot_i         : std_logic;
+	signal do_reboot_i : std_logic;
 	-- soda signals
 
 	signal reset_SODAclock_S      : std_logic;
@@ -465,7 +477,7 @@ architecture trb3_central_arch of trb3_central is
 	signal sodasrc_data_out      : std_logic_vector(31 downto 0);
 	signal sodasrc_TX_DLM_S      : std_logic;
 	signal sodasrc_TX_DLM_word_S : std_logic_vector(7 downto 0);
-	signal LEDs_link_ok_i : std_logic_vector(0 to 3);
+	signal LEDs_link_ok_i        : std_logic_vector(0 to 3);
 
 begin
 
@@ -617,14 +629,15 @@ begin
 			CLK_EN             => '1',
 
 			--Internal Connection
-			MED_DATA_IN        => med_data_out,
-			MED_PACKET_NUM_IN  => med_packet_num_out,
-			MED_DATAREADY_IN   => med_dataready_out,
-			MED_READ_OUT       => med_read_in,
-			MED_DATA_OUT       => med_data_in,
-			MED_PACKET_NUM_OUT => med_packet_num_in,
-			MED_DATAREADY_OUT  => med_dataready_in,
-			MED_READ_IN        => med_read_out,
+			-- connected to the first port of the streaming hub
+			MED_DATA_IN        => med_data_out(1 * 16 - 1 downto 0),
+			MED_PACKET_NUM_IN  => med_packet_num_out(1 * 3 - 1 downto 0),
+			MED_DATAREADY_IN   => med_dataready_out(0),
+			MED_READ_OUT       => med_read_in(0),
+			MED_DATA_OUT       => med_data_in(1 * 16 - 1 downto 0),
+			MED_PACKET_NUM_OUT => med_packet_num_in(1 * 3 - 1 downto 0),
+			MED_DATAREADY_OUT  => med_dataready_in(0),
+			MED_READ_IN        => med_read_out(0),
 			REFCLK2CORE_OUT    => open,
 			CLK_RX_HALF_OUT    => open,
 			CLK_RX_FULL_OUT    => open,
@@ -668,120 +681,16 @@ begin
 			CTRL_DEBUG         => (others => '0')
 		);
 
-	---------------------------------------------------------------------------
-	-- SODA connections to the endpoints 
-	---------------------------------------------------------------------------
---	THE_FEE_SERDES : entity work.serdesQuadBufLayerMUX
---		port map(
---			refClk                 => clk_SODA200_i,
---			refClk_P               => '1',
---			refClk_N               => '0',
---			sysClk                 => clk_100_i,
---			reset                  => reset_i,
---			reset_fibers           => reset_fibers_S,
---			clk_SODA200            => clk_SODA200_i,
---			txAsyncClk             => clk_100_i, -- slowcontrol_clock
---			rxAsyncClk             => PACKETIN_clock,
---			txpll_clocks           => txpll_clocks_S,
---			G0_txAsyncData         => fiber_data32out_S(0),
---			G0_txAsyncDataWrite    => fiber_data32write_S(0),
---			G0_txAsyncFifoFull     => fiber_data32fifofull_S(0),
---			G0_rxAsyncData         => fiber_data32in_S(0),
---			G0_rxAsyncDataRead     => fiber_data32read_S(0),
---			G0_rxAsyncDataOverflow => open,
---			G0_rxAsyncDataPresent  => fiber_data32present_S(0),
---			G0_txLocked            => fiber_txlocked_S(0),
---			G0_rxLocked            => fiber_rxlocked_S(0),
---			G0_error               => fiber_rxerror_S(0),
---			G0_TX_DLM              => TXfee_DLM_S(0),
---			G0_TX_DLM_WORD         => TXfee_DLM_word_S(0),
---			G0_RX_DLM              => RXfee_DLM_S(0),
---			G0_RX_DLM_WORD         => RXfee_DLM_word_S(0),
---			G0_LOS                 => FPGA1_COMM(2),
---			G0_txP                 => SODA_ENDP_TXP_OUT(0),
---			G0_txN                 => SODA_ENDP_TXN_OUT(0),
---			G0_rxP                 => SODA_ENDP_RXP_IN(0),
---			G0_rxN                 => SODA_ENDP_RXN_IN(0),
---			G1_txAsyncData         => fiber_data32out_S(1),
---			G1_txAsyncDataWrite    => fiber_data32write_S(1),
---			G1_txAsyncFifoFull     => fiber_data32fifofull_S(1),
---			G1_rxAsyncData         => fiber_data32in_S(1),
---			G1_rxAsyncDataRead     => fiber_data32read_S(1),
---			G1_rxAsyncDataOverflow => open,
---			G1_rxAsyncDataPresent  => fiber_data32present_S(1),
---			G1_txLocked            => fiber_txlocked_S(1),
---			G1_rxLocked            => fiber_rxlocked_S(1),
---			G1_error               => fiber_rxerror_S(1),
---			G1_TX_DLM              => TXfee_DLM_S(1),
---			G1_TX_DLM_WORD         => TXfee_DLM_word_S(1),
---			G1_RX_DLM              => RXfee_DLM_S(1),
---			G1_RX_DLM_WORD         => RXfee_DLM_word_S(1),
---			G1_LOS                 => FPGA2_COMM(2),
---			G1_txP                 => SODA_ENDP_TXP_OUT(1),
---			G1_txN                 => SODA_ENDP_TXN_OUT(1),
---			G1_rxP                 => SODA_ENDP_RXP_IN(1),
---			G1_rxN                 => SODA_ENDP_RXN_IN(1),
---			G2_txAsyncData         => fiber_data32out_S(2),
---			G2_txAsyncDataWrite    => fiber_data32write_S(2),
---			G2_txAsyncFifoFull     => fiber_data32fifofull_S(2),
---			G2_rxAsyncData         => fiber_data32in_S(2),
---			G2_rxAsyncDataRead     => fiber_data32read_S(2),
---			G2_rxAsyncDataOverflow => open,
---			G2_rxAsyncDataPresent  => fiber_data32present_S(2),
---			G2_txLocked            => fiber_txlocked_S(2),
---			G2_rxLocked            => fiber_rxlocked_S(2),
---			G2_error               => fiber_rxerror_S(2),
---			G2_TX_DLM              => TXfee_DLM_S(2),
---			G2_TX_DLM_WORD         => TXfee_DLM_word_S(2),
---			G2_RX_DLM              => RXfee_DLM_S(2),
---			G2_RX_DLM_WORD         => RXfee_DLM_word_S(2),
---			G2_LOS                 => FPGA3_COMM(2),
---			G2_txP                 => SODA_ENDP_TXP_OUT(2),
---			G2_txN                 => SODA_ENDP_TXN_OUT(2),
---			G2_rxP                 => SODA_ENDP_RXP_IN(2),
---			G2_rxN                 => SODA_ENDP_RXN_IN(2),
---			G3_txAsyncData         => fiber_data32out_S(3),
---			G3_txAsyncDataWrite    => fiber_data32write_S(3),
---			G3_txAsyncFifoFull     => fiber_data32fifofull_S(3),
---			G3_rxAsyncData         => fiber_data32in_S(3),
---			G3_rxAsyncDataRead     => fiber_data32read_S(3),
---			G3_rxAsyncDataOverflow => open,
---			G3_rxAsyncDataPresent  => fiber_data32present_S(3),
---			G3_txLocked            => fiber_txlocked_S(3),
---			G3_rxLocked            => fiber_rxlocked_S(3),
---			G3_error               => fiber_rxerror_S(3),
---			G3_TX_DLM              => TXfee_DLM_S(3),
---			G3_TX_DLM_WORD         => TXfee_DLM_word_S(3),
---			G3_RX_DLM              => RXfee_DLM_S(3),
---			G3_RX_DLM_WORD         => RXfee_DLM_word_S(3),
---			G3_LOS                 => FPGA4_COMM(2),
---			G3_txP                 => SODA_ENDP_TXP_OUT(3),
---			G3_txN                 => SODA_ENDP_TXN_OUT(3),
---			G3_rxP                 => SODA_ENDP_RXP_IN(3),
---			G3_rxN                 => SODA_ENDP_RXN_IN(3),
---			LEDs_link_ok           => LEDs_link_ok_i,
---			LEDs_rx                => open, --LEDs_rx_i,
---			LEDs_tx                => open, --LEDs_tx_i,
---			GT0_QPLLOUTCLK_IN      => '0',
---			GT0_QPLLOUTREFCLK_IN   => '0',
---			testPin                => open,
---			testword0              => open,
---			testword0clock         => open --testword0clock_i
---		);
-
-	generate_DLM_signals : for i in 0 to NROFFIBERS - 1 generate -- change from to --> downto
-		TXfee_DLM_S(i)      <= TXBTM_DLM_S(i);
-		TXfee_DLM_word_S(i) <= TXBTM_DLM_WORD_S(i);
-		RXBTM_DLM_S(i)      <= RXfee_DLM_S(i);
-		RXBTM_DLM_WORD_S(i) <= RXfee_DLM_word_S(i);
-	end generate;
-
 	sync_reset_SODAclock : entity work.sync_bit
 		port map(
 			clock    => clk_SODA200_i,
 			data_in  => reset_i,
 			data_out => reset_SODAclock_S
 		);
+
+	---------------------------------------------------------------------------
+	-- Recover SODA superburst data 
+	--------------------------------------------------------------------------- 
 
 	soda_packet_handler1 : soda_packet_handler
 		port map(
@@ -858,210 +767,168 @@ begin
 	---------------------------------------------------------------------------
 	-- Data preparation
 	--------------------------------------------------------------------------- 
-	
+
 	dataconversion_for_serdes_inst : entity work.dataconversion_for_serdes
-	port map (
-		DATA_CLK         => PACKETOUT_clock,
-		CLK              => clk_100_i,
-		RESET            => reset_i,
-		TX_READY         => tx_ready_ch3,
-		SFP_MOD0         => SFP_MOD0(2),
-		SFP_LOS          => SFP_LOS(2),
-		TX_DATA          => tx_data_ch3,
-		TX_K             => tx_k_ch3,
-		DATA_IN_ALLOWED  => data64b_muxed_allowed_S,
-		DATA_IN          => data64b_muxed,
-		DATA_IN_WRITE    => data64b_muxed_write,
-		DATA_IN_FIRST    => data64b_muxed_first,
-		DATA_IN_LAST     => data64b_muxed_last,
-		DATA_IN_ERROR    => data64b_muxed_error
-	);
+		port map(
+			DATA_CLK        => PACKETOUT_clock,
+			CLK             => clk_100_i,
+			RESET           => reset_i,
+			TX_READY        => tx_ready_ch3,
+			SFP_MOD0        => SFP_MOD0(2),
+			SFP_LOS         => SFP_LOS(2),
+			TX_DATA         => tx_data_ch3,
+			TX_K            => tx_k_ch3,
+			DATA_IN_ALLOWED => data64b_muxed_allowed_S,
+			DATA_IN         => data64b_muxed,
+			DATA_IN_WRITE   => data64b_muxed_write,
+			DATA_IN_FIRST   => data64b_muxed_first,
+			DATA_IN_LAST    => data64b_muxed_last,
+			DATA_IN_ERROR   => data64b_muxed_error
+		);
 
 	---------------------------------------------------------------------------
-	-- SODA HUB
-	--------------------------------------------------------------------------- 
---	THE_SODA_HUB : soda_hub
---		port map(
---			SYSCLK               => clk_100_i,
---			SODACLK              => clk_SODA200_i,
---			RESET                => reset_i,
---			CLEAR                => '0',
---			CLK_EN               => '1',
---
---			--	SINGLE DUBPLEX UP-LINK TO THE TOP
---			RXUP_DLM_IN          => RXtop_DLM_S,
---			RXUP_DLM_WORD_IN     => RXtop_DLM_word_S,
---			TXUP_DLM_OUT         => TXtop_DLM_S,
---			TXUP_DLM_WORD_OUT    => TXtop_DLM_word_S,
---			TXUP_DLM_PREVIEW_OUT => open,
---			UPLINK_PHASE_IN      => c_PHASE_H,
---
---			--	MULTIPLE DUPLEX DOWN-LINKS TO THE BOTTOM
---			RXDN_DLM_IN          => RXBTM_DLM_S,
---			RXDN_DLM_WORD_IN     => RXBTM_DLM_WORD_S,
---			TXDN_DLM_OUT         => TXBTM_DLM_S,
---			TXDN_DLM_WORD_OUT    => TXBTM_DLM_WORD_S,
---			TXDN_DLM_PREVIEW_OUT => open,
---			DNLINK_PHASE_IN      => (others => c_PHASE_H),
---			SODA_DATA_IN         => soda_data_in,
---			SODA_DATA_OUT        => soda_data_out,
---			SODA_ADDR_IN         => soda_addr,
---			SODA_READ_IN         => soda_read_en,
---			SODA_WRITE_IN        => soda_write_en,
---			SODA_ACK_OUT         => soda_ack,
---			LEDS_OUT             => open,
---			LINK_DEBUG_IN        => (others => '0')
---		);
-
+	-- The TrbNet media interface (to other FPGA)
 	---------------------------------------------------------------------------
-	-- The Soda Central
-	---------------------------------------------------------------------------         
---	soda_source1 : soda_source
---		port map(
---			SYSCLK              => clk_100_i,
---			SODACLK             => clk_SODA200_i,
---			RESET               => reset_i,
---			--Internal Connection
---			SODA_BURST_PULSE_IN => SODA_burst_pulse_S,
---			SODA_CYCLE_IN       => soda_40mhz_cycle_S,
---			RX_DLM_WORD_IN      => TXtop_DLM_word_S,
---			RX_DLM_IN           => TXtop_DLM_S,
---			TX_DLM_OUT          => sodasrc_TX_DLM_S,
---			TX_DLM_WORD_OUT     => sodasrc_TX_DLM_word_S,
---			TX_DLM_PREVIEW_OUT  => open,
---			LINK_PHASE_IN       => c_PHASE_H,
---			SODA_DATA_IN        => sodasrc_data_in,
---			SODA_DATA_OUT       => sodasrc_data_out,
---			SODA_ADDR_IN        => sodasrc_addr,
---			SODA_READ_IN        => sodasrc_read_en,
---			SODA_WRITE_IN       => sodasrc_write_en,
---			SODA_ACK_OUT        => sodasrc_ack,
---			LEDS_OUT            => open
---		);
-
-	---------------------------------------------------------------------------
-	-- Burst- and 40MHz cycle generator
-	---------------------------------------------------------------------------         
---	THE_SOB_SOURCE : soda_start_of_burst_control
---		generic map(
---			CLOCK_PERIOD => cSODA_CLOCK_PERIOD, -- clock-period in ns
---			CYCLE_PERIOD => cSODA_CYCLE_PERIOD, -- cycle-period in ns
---			BURST_PERIOD => cBURST_PERIOD -- burst-period in ns
---		)
---		port map(
---			SODA_CLK             => clk_SODA200_i,
---			RESET                => reset_i,
---			SODA_BURST_PULSE_OUT => SODA_burst_pulse_S,
---			SODA_40MHZ_CYCLE_OUT => soda_40mhz_cycle_S
---		);
-
-	---------------------------------------------------------------------------
-	-- TrbNEt endpoint
-	--------------------------------------------------------------------------- 
-	THE_ENDPOINT : trb_net16_endpoint_hades_full_handler
+	THE_MEDIA_ONBOARD : trb_net16_med_ecp3_sfp_4
 		generic map(
-			REGIO_NUM_STAT_REGS       => REGIO_NUM_STAT_REGS, --4,    --16 stat reg
-			REGIO_NUM_CTRL_REGS       => REGIO_NUM_CTRL_REGS, --3,    --8 cotrol reg
-			ADDRESS_MASK              => x"FFFF",
-			BROADCAST_BITMASK         => x"FF",
-			BROADCAST_SPECIAL_ADDR    => x"45",
-			REGIO_COMPILE_TIME        => conv_std_logic_vector(VERSION_NUMBER_TIME, 32),
-			REGIO_HARDWARE_VERSION    => x"91000001",
-			REGIO_INIT_ADDRESS        => REGIO_INIT_ADDRESS,
-			REGIO_USE_VAR_ENDPOINT_ID => c_YES,
-			CLOCK_FREQUENCY           => 100,
-			TIMING_TRIGGER_RAW        => c_YES,
-			--Configure data handler
-			DATA_INTERFACE_NUMBER     => 1,
-			DATA_BUFFER_DEPTH         => 13, --13
-			DATA_BUFFER_WIDTH         => 32,
-			DATA_BUFFER_FULL_THRESH   => 2 ** 13 - 800, --2**13-1024
-			TRG_RELEASE_AFTER_DATA    => c_YES,
-			HEADER_BUFFER_DEPTH       => 9,
-			HEADER_BUFFER_FULL_THRESH => 2 ** 9 - 16
+			FREQUENCY => MEDIA_FREQUENCY
 		)
 		port map(
-			CLK                                => clk_100_i,
-			RESET                              => reset_i,
-			CLK_EN                             => '1',
-			MED_DATAREADY_OUT                  => med_dataready_out,
-			MED_DATA_OUT                       => med_data_out,
-			MED_PACKET_NUM_OUT                 => med_packet_num_out,
-			MED_READ_IN                        => med_read_in,
-			MED_DATAREADY_IN                   => med_dataready_in,
-			MED_DATA_IN                        => med_data_in,
-			MED_PACKET_NUM_IN                  => med_packet_num_in,
-			MED_READ_OUT                       => med_read_out,
-			MED_STAT_OP_IN                     => med_stat_op,
-			MED_CTRL_OP_OUT                    => med_ctrl_op,
-
-			--Timing trigger in
-			TRG_TIMING_TRG_RECEIVED_IN         => '0',
-			--LVL1 trigger to FEE
-			LVL1_TRG_DATA_VALID_OUT            => open,
-			LVL1_VALID_TIMING_TRG_OUT          => open,
-			LVL1_VALID_NOTIMING_TRG_OUT        => open,
-			LVL1_INVALID_TRG_OUT               => open,
-			LVL1_TRG_TYPE_OUT                  => open,
-			LVL1_TRG_NUMBER_OUT                => open,
-			LVL1_TRG_CODE_OUT                  => open,
-			LVL1_TRG_INFORMATION_OUT           => open,
-			LVL1_INT_TRG_NUMBER_OUT            => open,
-
-			--Information about trigger handler errors
-			TRG_MULTIPLE_TRG_OUT               => open,
-			TRG_TIMEOUT_DETECTED_OUT           => open,
-			TRG_SPURIOUS_TRG_OUT               => open,
-			TRG_MISSING_TMG_TRG_OUT            => open,
-			TRG_SPIKE_DETECTED_OUT             => open,
-
-			--Response from FEE
-			FEE_TRG_RELEASE_IN(0)              => '0',
-			FEE_TRG_STATUSBITS_IN              => (others => '0'),
-			FEE_DATA_IN                        => (others => '0'),
-			FEE_DATA_WRITE_IN(0)               => '0',
-			FEE_DATA_FINISHED_IN(0)            => '0',
-			FEE_DATA_ALMOST_FULL_OUT(0)        => open,
-
-			-- Slow Control Data Port
-			REGIO_COMMON_STAT_REG_IN           => common_stat_reg, --0x00
-			REGIO_COMMON_CTRL_REG_OUT          => common_ctrl_reg, --0x20
-			REGIO_COMMON_STAT_STROBE_OUT       => open,
-			REGIO_COMMON_CTRL_STROBE_OUT       => open,
-			REGIO_STAT_REG_IN                  => (others => '0'), --start 0x80
-			REGIO_CTRL_REG_OUT                 => open, --start 0xc0
-			REGIO_STAT_STROBE_OUT              => open,
-			REGIO_CTRL_STROBE_OUT              => open,
-			REGIO_VAR_ENDPOINT_ID(1 downto 0)  => CODE_LINE,
-			REGIO_VAR_ENDPOINT_ID(15 downto 2) => (others => '0'),
-			BUS_ADDR_OUT                       => regio_addr_out,
-			BUS_READ_ENABLE_OUT                => regio_read_enable_out,
-			BUS_WRITE_ENABLE_OUT               => regio_write_enable_out,
-			BUS_DATA_OUT                       => regio_data_out,
-			BUS_DATA_IN                        => regio_data_in,
-			BUS_DATAREADY_IN                   => regio_dataready_in,
-			BUS_NO_MORE_DATA_IN                => regio_no_more_data_in,
-			BUS_WRITE_ACK_IN                   => regio_write_ack_in,
-			BUS_UNKNOWN_ADDR_IN                => regio_unknown_addr_in,
-			BUS_TIMEOUT_OUT                    => regio_timeout_out,
-			ONEWIRE_INOUT                      => TEMPSENS,
-			ONEWIRE_MONITOR_OUT                => open,
-			TIME_GLOBAL_OUT                    => open,
-			TIME_LOCAL_OUT                     => open,
-			TIME_SINCE_LAST_TRG_OUT            => open,
-			TIME_TICKS_OUT                     => open,
-			STAT_DEBUG_IPU                     => open,
-			STAT_DEBUG_1                       => open,
-			STAT_DEBUG_2                       => open,
-			STAT_DEBUG_DATA_HANDLER_OUT        => open,
-			STAT_DEBUG_IPU_HANDLER_OUT         => open,
-			STAT_TRIGGER_OUT                   => open,
-			CTRL_MPLEX                         => (others => '0'),
-			IOBUF_CTRL_GEN                     => (others => '0'),
-			STAT_ONEWIRE                       => open,
-			STAT_ADDR_DEBUG                    => open,
-			DEBUG_LVL1_HANDLER_OUT             => open
+			CLK                => clk_200_i,
+			SYSCLK             => clk_100_i,
+			RESET              => reset_i,
+			CLEAR              => clear_i,
+			CLK_EN             => '1',
+			--Internal Connection
+			MED_DATA_IN        => med_data_out(63 downto 0),
+			MED_PACKET_NUM_IN  => med_packet_num_out(11 downto 0),
+			MED_DATAREADY_IN   => med_dataready_out(3 downto 0),
+			MED_READ_OUT       => med_read_in(3 downto 0),
+			MED_DATA_OUT       => med_data_in(63 downto 0),
+			MED_PACKET_NUM_OUT => med_packet_num_in(11 downto 0),
+			MED_DATAREADY_OUT  => med_dataready_in(3 downto 0),
+			MED_READ_IN        => med_read_out(3 downto 0),
+			REFCLK2CORE_OUT    => open,
+			--SFP Connection
+			SD_RXD_P_IN        => ENDP_RXP_IN(5 downto 2),
+			SD_RXD_N_IN        => ENDP_RXN_IN(5 downto 2),
+			SD_TXD_P_OUT       => ENDP_TXP_OUT(5 downto 2),
+			SD_TXD_N_OUT       => ENDP_TXN_OUT(5 downto 2),
+			SD_REFCLK_P_IN     => open,
+			SD_REFCLK_N_IN     => open,
+			SD_PRSNT_N_IN(0)   => FPGA1_COMM(2),
+			SD_PRSNT_N_IN(1)   => FPGA2_COMM(2),
+			SD_PRSNT_N_IN(2)   => FPGA3_COMM(2),
+			SD_PRSNT_N_IN(3)   => FPGA4_COMM(2),
+			SD_LOS_IN(0)       => FPGA1_COMM(2),
+			SD_LOS_IN(1)       => FPGA2_COMM(2),
+			SD_LOS_IN(2)       => FPGA3_COMM(2),
+			SD_LOS_IN(3)       => FPGA4_COMM(2),
+			SD_TXDIS_OUT(0)    => FPGA1_COMM(0),
+			SD_TXDIS_OUT(1)    => FPGA2_COMM(0),
+			SD_TXDIS_OUT(2)    => FPGA3_COMM(0),
+			SD_TXDIS_OUT(3)    => FPGA4_COMM(0),
+			SCI_DATA_IN        => sci2_data_in,
+			SCI_DATA_OUT       => sci2_data_out,
+			SCI_ADDR           => sci2_addr,
+			SCI_READ           => sci2_read,
+			SCI_WRITE          => sci2_write,
+			SCI_ACK            => sci2_ack,
+			-- Status and control port
+			STAT_OP            => med_stat_op(63 downto 0),
+			CTRL_OP            => med_ctrl_op(63 downto 0),
+			STAT_DEBUG         => med_stat_debug(3 * 64 + 63 downto 0 * 64),
+			CTRL_DEBUG         => (others => '0')
 		);
+
+	---------------------------------------------------------------------------
+	-- TrbNet HUB
+	--------------------------------------------------------------------------- 
+
+	THE_HUB : trb_net16_hub_streaming_port
+		generic map(
+			HUB_USED_CHANNELS      => USED_CHANNELS,
+			INIT_ADDRESS           => INIT_ADDRESS,
+			MII_NUMBER             => INTERFACE_NUM,
+			MII_IS_UPLINK          => IS_UPLINK,
+			MII_IS_DOWNLINK        => IS_DOWNLINK,
+			MII_IS_UPLINK_ONLY     => IS_UPLINK_ONLY,
+			USE_ONEWIRE            => c_YES,
+			HARDWARE_VERSION       => HARDWARE_INFO,
+			INCLUDED_FEATURES      => INCLUDED_FEATURES,
+			INIT_ENDPOINT_ID       => x"0005",
+			CLOCK_FREQUENCY        => CLOCK_FREQUENCY,
+			BROADCAST_SPECIAL_ADDR => BROADCAST_SPECIAL_ADDR
+		)
+		port map(
+			CLK                                    => clk_100_i,
+			RESET                                  => reset_i,
+			CLK_EN                                 => '1',
+
+			--Media interfacces
+			MED_DATAREADY_OUT(5 * 1 - 1 downto 0)  => med_dataready_out,
+			MED_DATA_OUT(5 * 16 - 1 downto 0)      => med_data_out,
+			MED_PACKET_NUM_OUT(5 * 3 - 1 downto 0) => med_packet_num_out,
+			MED_READ_IN(5 * 1 - 1 downto 0)        => med_read_in,
+			MED_DATAREADY_IN(5 * 1 - 1 downto 0)   => med_dataready_in,
+			MED_DATA_IN(5 * 16 - 1 downto 0)       => med_data_in,
+			MED_PACKET_NUM_IN(5 * 3 - 1 downto 0)  => med_packet_num_in,
+			MED_READ_OUT(5 * 1 - 1 downto 0)       => med_read_out,
+			MED_STAT_OP(5 * 16 - 1 downto 0)       => med_stat_op,
+			MED_CTRL_OP(5 * 16 - 1 downto 0)       => med_ctrl_op,
+
+			--Event information coming from CTSCTS_READOUT_TYPE_OUT
+			CTS_NUMBER_OUT                         => open,
+			CTS_CODE_OUT                           => open,
+			CTS_INFORMATION_OUT                    => open,
+			CTS_READOUT_TYPE_OUT                   => open,
+			CTS_START_READOUT_OUT                  => open,
+			--Information   sent to CTS
+			--status data, equipped with DHDR
+			CTS_DATA_IN                            => (others => '0'),
+			CTS_DATAREADY_IN                       => '0',
+			CTS_READOUT_FINISHED_IN                => '0',
+			CTS_READ_OUT                           => open,
+			CTS_LENGTH_IN                          => (others => '0'),
+			CTS_STATUS_BITS_IN                     => (others => '0'),
+			-- Data from Frontends
+			FEE_DATA_OUT                           => open,
+			FEE_DATAREADY_OUT                      => open,
+			FEE_READ_IN                            => '1',
+			FEE_STATUS_BITS_OUT                    => open,
+			FEE_BUSY_OUT                           => open,
+			
+			MY_ADDRESS_IN                          => my_address,
+			COMMON_STAT_REGS                       => common_stat_regs, --open,
+			COMMON_CTRL_REGS                       => common_ctrl_regs, --open,
+			ONEWIRE                                => TEMPSENS,
+			ONEWIRE_MONITOR_IN                     => open,
+			MY_ADDRESS_OUT                         => my_address,
+			TIMER_TICKS_OUT                        => open,
+			REGIO_ADDR_OUT                         => regio_addr_out,
+			REGIO_READ_ENABLE_OUT                  => regio_read_enable_out,
+			REGIO_WRITE_ENABLE_OUT                 => regio_write_enable_out,
+			REGIO_DATA_OUT                         => regio_data_out,
+			REGIO_DATA_IN                          => regio_data_in,
+			REGIO_DATAREADY_IN                     => regio_dataready_in,
+			REGIO_NO_MORE_DATA_IN                  => regio_no_more_data_in,
+			REGIO_WRITE_ACK_IN                     => regio_write_ack_in,
+			REGIO_UNKNOWN_ADDR_IN                  => regio_unknown_addr_in,
+			REGIO_TIMEOUT_OUT                      => regio_timeout_out,
+
+			--status and control ports
+			HUB_STAT_CHANNEL                       => open,
+			HUB_STAT_GEN                           => open,
+			MPLEX_CTRL                             => (others => '0'),
+			MPLEX_STAT                             => open,
+			STAT_REGS                              => open,
+			STAT_CTRL_REGS                         => open,
+
+			--Fixed status and control ports
+			STAT_DEBUG                             => open,
+			CTRL_DEBUG                             => (others => '0')
+		);
+
 	---------------------------------------------------------------------------
 	-- Bus Handler
 	---------------------------------------------------------------------------
@@ -1211,7 +1078,6 @@ begin
 
 	do_reboot_i <= common_ctrl_regs(15);
 
-
 	---------------------------------------------------------------------------
 	-- FPGA communication
 	---------------------------------------------------------------------------
@@ -1257,10 +1123,10 @@ begin
 	--   LED_RED                        <= '1';
 
 
-	LED_GREEN  <= LEDs_link_ok_i(0); -- debug(0);
-	LED_ORANGE <= LEDs_link_ok_i(1); -- debug(1);
-	LED_RED    <= LEDs_link_ok_i(2); -- debug(2);
-	LED_YELLOW <= LEDs_link_ok_i(3); -- link_ok;
+	LED_GREEN  <= LEDs_link_ok_i(0);    -- debug(0);
+	LED_ORANGE <= LEDs_link_ok_i(1);    -- debug(1);
+	LED_RED    <= LEDs_link_ok_i(2);    -- debug(2);
+	LED_YELLOW <= LEDs_link_ok_i(3);    -- link_ok;
 
 	---------------------------------------------------------------------------
 	-- Test Connector
