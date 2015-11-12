@@ -671,103 +671,103 @@ begin
 	---------------------------------------------------------------------------
 	-- SODA connections to the endpoints 
 	---------------------------------------------------------------------------
-	THE_FEE_SERDES : entity work.serdesQuadBufLayerMUX
-		port map(
-			refClk                 => clk_SODA200_i,
-			refClk_P               => '1',
-			refClk_N               => '0',
-			sysClk                 => clk_100_i,
-			reset                  => reset_i,
-			reset_fibers           => reset_fibers_S,
-			clk_SODA200            => clk_SODA200_i,
-			txAsyncClk             => clk_100_i, -- slowcontrol_clock
-			rxAsyncClk             => PACKETIN_clock,
-			txpll_clocks           => txpll_clocks_S,
-			G0_txAsyncData         => fiber_data32out_S(0),
-			G0_txAsyncDataWrite    => fiber_data32write_S(0),
-			G0_txAsyncFifoFull     => fiber_data32fifofull_S(0),
-			G0_rxAsyncData         => fiber_data32in_S(0),
-			G0_rxAsyncDataRead     => fiber_data32read_S(0),
-			G0_rxAsyncDataOverflow => open,
-			G0_rxAsyncDataPresent  => fiber_data32present_S(0),
-			G0_txLocked            => fiber_txlocked_S(0),
-			G0_rxLocked            => fiber_rxlocked_S(0),
-			G0_error               => fiber_rxerror_S(0),
-			G0_TX_DLM              => TXfee_DLM_S(0),
-			G0_TX_DLM_WORD         => TXfee_DLM_word_S(0),
-			G0_RX_DLM              => RXfee_DLM_S(0),
-			G0_RX_DLM_WORD         => RXfee_DLM_word_S(0),
-			G0_LOS                 => FPGA1_COMM(2),
-			G0_txP                 => SODA_ENDP_TXP_OUT(0),
-			G0_txN                 => SODA_ENDP_TXN_OUT(0),
-			G0_rxP                 => SODA_ENDP_RXP_IN(0),
-			G0_rxN                 => SODA_ENDP_RXN_IN(0),
-			G1_txAsyncData         => fiber_data32out_S(1),
-			G1_txAsyncDataWrite    => fiber_data32write_S(1),
-			G1_txAsyncFifoFull     => fiber_data32fifofull_S(1),
-			G1_rxAsyncData         => fiber_data32in_S(1),
-			G1_rxAsyncDataRead     => fiber_data32read_S(1),
-			G1_rxAsyncDataOverflow => open,
-			G1_rxAsyncDataPresent  => fiber_data32present_S(1),
-			G1_txLocked            => fiber_txlocked_S(1),
-			G1_rxLocked            => fiber_rxlocked_S(1),
-			G1_error               => fiber_rxerror_S(1),
-			G1_TX_DLM              => TXfee_DLM_S(1),
-			G1_TX_DLM_WORD         => TXfee_DLM_word_S(1),
-			G1_RX_DLM              => RXfee_DLM_S(1),
-			G1_RX_DLM_WORD         => RXfee_DLM_word_S(1),
-			G1_LOS                 => FPGA2_COMM(2),
-			G1_txP                 => SODA_ENDP_TXP_OUT(1),
-			G1_txN                 => SODA_ENDP_TXN_OUT(1),
-			G1_rxP                 => SODA_ENDP_RXP_IN(1),
-			G1_rxN                 => SODA_ENDP_RXN_IN(1),
-			G2_txAsyncData         => fiber_data32out_S(2),
-			G2_txAsyncDataWrite    => fiber_data32write_S(2),
-			G2_txAsyncFifoFull     => fiber_data32fifofull_S(2),
-			G2_rxAsyncData         => fiber_data32in_S(2),
-			G2_rxAsyncDataRead     => fiber_data32read_S(2),
-			G2_rxAsyncDataOverflow => open,
-			G2_rxAsyncDataPresent  => fiber_data32present_S(2),
-			G2_txLocked            => fiber_txlocked_S(2),
-			G2_rxLocked            => fiber_rxlocked_S(2),
-			G2_error               => fiber_rxerror_S(2),
-			G2_TX_DLM              => TXfee_DLM_S(2),
-			G2_TX_DLM_WORD         => TXfee_DLM_word_S(2),
-			G2_RX_DLM              => RXfee_DLM_S(2),
-			G2_RX_DLM_WORD         => RXfee_DLM_word_S(2),
-			G2_LOS                 => FPGA3_COMM(2),
-			G2_txP                 => SODA_ENDP_TXP_OUT(2),
-			G2_txN                 => SODA_ENDP_TXN_OUT(2),
-			G2_rxP                 => SODA_ENDP_RXP_IN(2),
-			G2_rxN                 => SODA_ENDP_RXN_IN(2),
-			G3_txAsyncData         => fiber_data32out_S(3),
-			G3_txAsyncDataWrite    => fiber_data32write_S(3),
-			G3_txAsyncFifoFull     => fiber_data32fifofull_S(3),
-			G3_rxAsyncData         => fiber_data32in_S(3),
-			G3_rxAsyncDataRead     => fiber_data32read_S(3),
-			G3_rxAsyncDataOverflow => open,
-			G3_rxAsyncDataPresent  => fiber_data32present_S(3),
-			G3_txLocked            => fiber_txlocked_S(3),
-			G3_rxLocked            => fiber_rxlocked_S(3),
-			G3_error               => fiber_rxerror_S(3),
-			G3_TX_DLM              => TXfee_DLM_S(3),
-			G3_TX_DLM_WORD         => TXfee_DLM_word_S(3),
-			G3_RX_DLM              => RXfee_DLM_S(3),
-			G3_RX_DLM_WORD         => RXfee_DLM_word_S(3),
-			G3_LOS                 => FPGA4_COMM(2),
-			G3_txP                 => SODA_ENDP_TXP_OUT(3),
-			G3_txN                 => SODA_ENDP_TXN_OUT(3),
-			G3_rxP                 => SODA_ENDP_RXP_IN(3),
-			G3_rxN                 => SODA_ENDP_RXN_IN(3),
-			LEDs_link_ok           => LEDs_link_ok_i,
-			LEDs_rx                => open, --LEDs_rx_i,
-			LEDs_tx                => open, --LEDs_tx_i,
-			GT0_QPLLOUTCLK_IN      => '0',
-			GT0_QPLLOUTREFCLK_IN   => '0',
-			testPin                => open,
-			testword0              => open,
-			testword0clock         => open --testword0clock_i
-		);
+--	THE_FEE_SERDES : entity work.serdesQuadBufLayerMUX
+--		port map(
+--			refClk                 => clk_SODA200_i,
+--			refClk_P               => '1',
+--			refClk_N               => '0',
+--			sysClk                 => clk_100_i,
+--			reset                  => reset_i,
+--			reset_fibers           => reset_fibers_S,
+--			clk_SODA200            => clk_SODA200_i,
+--			txAsyncClk             => clk_100_i, -- slowcontrol_clock
+--			rxAsyncClk             => PACKETIN_clock,
+--			txpll_clocks           => txpll_clocks_S,
+--			G0_txAsyncData         => fiber_data32out_S(0),
+--			G0_txAsyncDataWrite    => fiber_data32write_S(0),
+--			G0_txAsyncFifoFull     => fiber_data32fifofull_S(0),
+--			G0_rxAsyncData         => fiber_data32in_S(0),
+--			G0_rxAsyncDataRead     => fiber_data32read_S(0),
+--			G0_rxAsyncDataOverflow => open,
+--			G0_rxAsyncDataPresent  => fiber_data32present_S(0),
+--			G0_txLocked            => fiber_txlocked_S(0),
+--			G0_rxLocked            => fiber_rxlocked_S(0),
+--			G0_error               => fiber_rxerror_S(0),
+--			G0_TX_DLM              => TXfee_DLM_S(0),
+--			G0_TX_DLM_WORD         => TXfee_DLM_word_S(0),
+--			G0_RX_DLM              => RXfee_DLM_S(0),
+--			G0_RX_DLM_WORD         => RXfee_DLM_word_S(0),
+--			G0_LOS                 => FPGA1_COMM(2),
+--			G0_txP                 => SODA_ENDP_TXP_OUT(0),
+--			G0_txN                 => SODA_ENDP_TXN_OUT(0),
+--			G0_rxP                 => SODA_ENDP_RXP_IN(0),
+--			G0_rxN                 => SODA_ENDP_RXN_IN(0),
+--			G1_txAsyncData         => fiber_data32out_S(1),
+--			G1_txAsyncDataWrite    => fiber_data32write_S(1),
+--			G1_txAsyncFifoFull     => fiber_data32fifofull_S(1),
+--			G1_rxAsyncData         => fiber_data32in_S(1),
+--			G1_rxAsyncDataRead     => fiber_data32read_S(1),
+--			G1_rxAsyncDataOverflow => open,
+--			G1_rxAsyncDataPresent  => fiber_data32present_S(1),
+--			G1_txLocked            => fiber_txlocked_S(1),
+--			G1_rxLocked            => fiber_rxlocked_S(1),
+--			G1_error               => fiber_rxerror_S(1),
+--			G1_TX_DLM              => TXfee_DLM_S(1),
+--			G1_TX_DLM_WORD         => TXfee_DLM_word_S(1),
+--			G1_RX_DLM              => RXfee_DLM_S(1),
+--			G1_RX_DLM_WORD         => RXfee_DLM_word_S(1),
+--			G1_LOS                 => FPGA2_COMM(2),
+--			G1_txP                 => SODA_ENDP_TXP_OUT(1),
+--			G1_txN                 => SODA_ENDP_TXN_OUT(1),
+--			G1_rxP                 => SODA_ENDP_RXP_IN(1),
+--			G1_rxN                 => SODA_ENDP_RXN_IN(1),
+--			G2_txAsyncData         => fiber_data32out_S(2),
+--			G2_txAsyncDataWrite    => fiber_data32write_S(2),
+--			G2_txAsyncFifoFull     => fiber_data32fifofull_S(2),
+--			G2_rxAsyncData         => fiber_data32in_S(2),
+--			G2_rxAsyncDataRead     => fiber_data32read_S(2),
+--			G2_rxAsyncDataOverflow => open,
+--			G2_rxAsyncDataPresent  => fiber_data32present_S(2),
+--			G2_txLocked            => fiber_txlocked_S(2),
+--			G2_rxLocked            => fiber_rxlocked_S(2),
+--			G2_error               => fiber_rxerror_S(2),
+--			G2_TX_DLM              => TXfee_DLM_S(2),
+--			G2_TX_DLM_WORD         => TXfee_DLM_word_S(2),
+--			G2_RX_DLM              => RXfee_DLM_S(2),
+--			G2_RX_DLM_WORD         => RXfee_DLM_word_S(2),
+--			G2_LOS                 => FPGA3_COMM(2),
+--			G2_txP                 => SODA_ENDP_TXP_OUT(2),
+--			G2_txN                 => SODA_ENDP_TXN_OUT(2),
+--			G2_rxP                 => SODA_ENDP_RXP_IN(2),
+--			G2_rxN                 => SODA_ENDP_RXN_IN(2),
+--			G3_txAsyncData         => fiber_data32out_S(3),
+--			G3_txAsyncDataWrite    => fiber_data32write_S(3),
+--			G3_txAsyncFifoFull     => fiber_data32fifofull_S(3),
+--			G3_rxAsyncData         => fiber_data32in_S(3),
+--			G3_rxAsyncDataRead     => fiber_data32read_S(3),
+--			G3_rxAsyncDataOverflow => open,
+--			G3_rxAsyncDataPresent  => fiber_data32present_S(3),
+--			G3_txLocked            => fiber_txlocked_S(3),
+--			G3_rxLocked            => fiber_rxlocked_S(3),
+--			G3_error               => fiber_rxerror_S(3),
+--			G3_TX_DLM              => TXfee_DLM_S(3),
+--			G3_TX_DLM_WORD         => TXfee_DLM_word_S(3),
+--			G3_RX_DLM              => RXfee_DLM_S(3),
+--			G3_RX_DLM_WORD         => RXfee_DLM_word_S(3),
+--			G3_LOS                 => FPGA4_COMM(2),
+--			G3_txP                 => SODA_ENDP_TXP_OUT(3),
+--			G3_txN                 => SODA_ENDP_TXN_OUT(3),
+--			G3_rxP                 => SODA_ENDP_RXP_IN(3),
+--			G3_rxN                 => SODA_ENDP_RXN_IN(3),
+--			LEDs_link_ok           => LEDs_link_ok_i,
+--			LEDs_rx                => open, --LEDs_rx_i,
+--			LEDs_tx                => open, --LEDs_tx_i,
+--			GT0_QPLLOUTCLK_IN      => '0',
+--			GT0_QPLLOUTREFCLK_IN   => '0',
+--			testPin                => open,
+--			testword0              => open,
+--			testword0clock         => open --testword0clock_i
+--		);
 
 	generate_DLM_signals : for i in 0 to NROFFIBERS - 1 generate -- change from to --> downto
 		TXfee_DLM_S(i)      <= TXBTM_DLM_S(i);
@@ -795,8 +795,8 @@ begin
 			START_OF_CALIBRATION_OUT => open,
 			SODA_CMD_VALID_OUT       => open,
 			SODA_CMD_WORD_OUT        => open,
-			RX_DLM_IN                => TXfee_DLM_S(0),
-			RX_DLM_WORD_IN           => TXfee_DLM_word_S(0)
+			RX_DLM_IN                => RXtop_DLM_S, --TXfee_DLM_S(0),
+			RX_DLM_WORD_IN           => RXtop_DLM_word_S --TXfee_DLM_word_S(0)
 		);
 
 	---------------------------------------------------------------------------
@@ -880,80 +880,80 @@ begin
 	---------------------------------------------------------------------------
 	-- SODA HUB
 	--------------------------------------------------------------------------- 
-	THE_SODA_HUB : soda_hub
-		port map(
-			SYSCLK               => clk_100_i,
-			SODACLK              => clk_SODA200_i,
-			RESET                => reset_i,
-			CLEAR                => '0',
-			CLK_EN               => '1',
-
-			--	SINGLE DUBPLEX UP-LINK TO THE TOP
-			RXUP_DLM_IN          => RXtop_DLM_S,
-			RXUP_DLM_WORD_IN     => RXtop_DLM_word_S,
-			TXUP_DLM_OUT         => TXtop_DLM_S,
-			TXUP_DLM_WORD_OUT    => TXtop_DLM_word_S,
-			TXUP_DLM_PREVIEW_OUT => open,
-			UPLINK_PHASE_IN      => c_PHASE_H,
-
-			--	MULTIPLE DUPLEX DOWN-LINKS TO THE BOTTOM
-			RXDN_DLM_IN          => RXBTM_DLM_S,
-			RXDN_DLM_WORD_IN     => RXBTM_DLM_WORD_S,
-			TXDN_DLM_OUT         => TXBTM_DLM_S,
-			TXDN_DLM_WORD_OUT    => TXBTM_DLM_WORD_S,
-			TXDN_DLM_PREVIEW_OUT => open,
-			DNLINK_PHASE_IN      => (others => c_PHASE_H),
-			SODA_DATA_IN         => soda_data_in,
-			SODA_DATA_OUT        => soda_data_out,
-			SODA_ADDR_IN         => soda_addr,
-			SODA_READ_IN         => soda_read_en,
-			SODA_WRITE_IN        => soda_write_en,
-			SODA_ACK_OUT         => soda_ack,
-			LEDS_OUT             => open,
-			LINK_DEBUG_IN        => (others => '0')
-		);
+--	THE_SODA_HUB : soda_hub
+--		port map(
+--			SYSCLK               => clk_100_i,
+--			SODACLK              => clk_SODA200_i,
+--			RESET                => reset_i,
+--			CLEAR                => '0',
+--			CLK_EN               => '1',
+--
+--			--	SINGLE DUBPLEX UP-LINK TO THE TOP
+--			RXUP_DLM_IN          => RXtop_DLM_S,
+--			RXUP_DLM_WORD_IN     => RXtop_DLM_word_S,
+--			TXUP_DLM_OUT         => TXtop_DLM_S,
+--			TXUP_DLM_WORD_OUT    => TXtop_DLM_word_S,
+--			TXUP_DLM_PREVIEW_OUT => open,
+--			UPLINK_PHASE_IN      => c_PHASE_H,
+--
+--			--	MULTIPLE DUPLEX DOWN-LINKS TO THE BOTTOM
+--			RXDN_DLM_IN          => RXBTM_DLM_S,
+--			RXDN_DLM_WORD_IN     => RXBTM_DLM_WORD_S,
+--			TXDN_DLM_OUT         => TXBTM_DLM_S,
+--			TXDN_DLM_WORD_OUT    => TXBTM_DLM_WORD_S,
+--			TXDN_DLM_PREVIEW_OUT => open,
+--			DNLINK_PHASE_IN      => (others => c_PHASE_H),
+--			SODA_DATA_IN         => soda_data_in,
+--			SODA_DATA_OUT        => soda_data_out,
+--			SODA_ADDR_IN         => soda_addr,
+--			SODA_READ_IN         => soda_read_en,
+--			SODA_WRITE_IN        => soda_write_en,
+--			SODA_ACK_OUT         => soda_ack,
+--			LEDS_OUT             => open,
+--			LINK_DEBUG_IN        => (others => '0')
+--		);
 
 	---------------------------------------------------------------------------
 	-- The Soda Central
 	---------------------------------------------------------------------------         
-	soda_source1 : soda_source
-		port map(
-			SYSCLK              => clk_100_i,
-			SODACLK             => clk_SODA200_i,
-			RESET               => reset_i,
-			--Internal Connection
-			SODA_BURST_PULSE_IN => SODA_burst_pulse_S,
-			SODA_CYCLE_IN       => soda_40mhz_cycle_S,
-			RX_DLM_WORD_IN      => TXtop_DLM_word_S,
-			RX_DLM_IN           => TXtop_DLM_S,
-			TX_DLM_OUT          => sodasrc_TX_DLM_S,
-			TX_DLM_WORD_OUT     => sodasrc_TX_DLM_word_S,
-			TX_DLM_PREVIEW_OUT  => open,
-			LINK_PHASE_IN       => c_PHASE_H,
-			SODA_DATA_IN        => sodasrc_data_in,
-			SODA_DATA_OUT       => sodasrc_data_out,
-			SODA_ADDR_IN        => sodasrc_addr,
-			SODA_READ_IN        => sodasrc_read_en,
-			SODA_WRITE_IN       => sodasrc_write_en,
-			SODA_ACK_OUT        => sodasrc_ack,
-			LEDS_OUT            => open
-		);
+--	soda_source1 : soda_source
+--		port map(
+--			SYSCLK              => clk_100_i,
+--			SODACLK             => clk_SODA200_i,
+--			RESET               => reset_i,
+--			--Internal Connection
+--			SODA_BURST_PULSE_IN => SODA_burst_pulse_S,
+--			SODA_CYCLE_IN       => soda_40mhz_cycle_S,
+--			RX_DLM_WORD_IN      => TXtop_DLM_word_S,
+--			RX_DLM_IN           => TXtop_DLM_S,
+--			TX_DLM_OUT          => sodasrc_TX_DLM_S,
+--			TX_DLM_WORD_OUT     => sodasrc_TX_DLM_word_S,
+--			TX_DLM_PREVIEW_OUT  => open,
+--			LINK_PHASE_IN       => c_PHASE_H,
+--			SODA_DATA_IN        => sodasrc_data_in,
+--			SODA_DATA_OUT       => sodasrc_data_out,
+--			SODA_ADDR_IN        => sodasrc_addr,
+--			SODA_READ_IN        => sodasrc_read_en,
+--			SODA_WRITE_IN       => sodasrc_write_en,
+--			SODA_ACK_OUT        => sodasrc_ack,
+--			LEDS_OUT            => open
+--		);
 
 	---------------------------------------------------------------------------
 	-- Burst- and 40MHz cycle generator
 	---------------------------------------------------------------------------         
-	THE_SOB_SOURCE : soda_start_of_burst_control
-		generic map(
-			CLOCK_PERIOD => cSODA_CLOCK_PERIOD, -- clock-period in ns
-			CYCLE_PERIOD => cSODA_CYCLE_PERIOD, -- cycle-period in ns
-			BURST_PERIOD => cBURST_PERIOD -- burst-period in ns
-		)
-		port map(
-			SODA_CLK             => clk_SODA200_i,
-			RESET                => reset_i,
-			SODA_BURST_PULSE_OUT => SODA_burst_pulse_S,
-			SODA_40MHZ_CYCLE_OUT => soda_40mhz_cycle_S
-		);
+--	THE_SOB_SOURCE : soda_start_of_burst_control
+--		generic map(
+--			CLOCK_PERIOD => cSODA_CLOCK_PERIOD, -- clock-period in ns
+--			CYCLE_PERIOD => cSODA_CYCLE_PERIOD, -- cycle-period in ns
+--			BURST_PERIOD => cBURST_PERIOD -- burst-period in ns
+--		)
+--		port map(
+--			SODA_CLK             => clk_SODA200_i,
+--			RESET                => reset_i,
+--			SODA_BURST_PULSE_OUT => SODA_burst_pulse_S,
+--			SODA_40MHZ_CYCLE_OUT => soda_40mhz_cycle_S
+--		);
 
 	---------------------------------------------------------------------------
 	-- TrbNEt endpoint
