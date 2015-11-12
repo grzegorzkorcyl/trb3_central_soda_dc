@@ -119,18 +119,6 @@ begin
 		end if;
 	end process;
 
-	SODA_sync : process(SODA_clock)     -- synchronise SODA commands
-	begin
-		if (rising_edge(SODA_clock)) then
-			if reset_SODAclock_S = '1' then
-				SODA_enable <= '1';
-			else
-				SODA_enable <= SODA_enable0_S;
-			end if;
-			reset_SODAclock_S <= reset;
-		end if;
-	end process;
-
 	sync_superburstwrite : DC_posedge_to_pulse port map(
 			clock_in  => SODA_clock,
 			clock_out => packet_out_clock,

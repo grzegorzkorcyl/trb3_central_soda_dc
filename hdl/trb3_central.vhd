@@ -371,26 +371,12 @@ architecture trb3_central_arch of trb3_central is
 	signal spi_bram_rd_d : std_logic_vector(7 downto 0);
 	signal spi_bram_we   : std_logic;
 
-	signal debug : std_logic_vector(63 downto 0);
-
-	signal next_reset, make_reset_via_network_q : std_logic;
-	signal reset_counter                        : std_logic_vector(11 downto 0);
-	signal link_ok                              : std_logic;
-
-	signal cts_rdo_trigger : std_logic;
-
-	signal cts_trigger_out     : std_logic;
-	signal external_send_reset : std_logic;
-	--bit 1 ms-tick, 0 us-tick
-	signal timer_ticks         : std_logic_vector(1 downto 0);
 
 	signal trigger_busy_i : std_logic;
 
 	signal led_time_ref_i : std_logic;
 
 	signal do_reboot_i         : std_logic;
-	signal killswitch_reboot_i : std_logic;
-
 	-- soda signals
 
 	signal reset_SODAclock_S      : std_logic;
@@ -421,30 +407,6 @@ architecture trb3_central_arch of trb3_central is
 	signal RXtop_DLM_word_S : std_logic_vector(7 downto 0) := (others => '0');
 	signal TXtop_DLM_S      : std_logic;
 	signal TXtop_DLM_word_S : std_logic_vector(7 downto 0) := (others => '0');
-
-	signal DLM_to_uplink_S        : std_logic;
-	signal DLM_WORD_to_uplink_S   : std_logic_vector(7 downto 0);
-	signal DLM_from_uplink_S      : std_logic;
-	signal DLM_WORD_from_uplink_S : std_logic_vector(7 downto 0);
-
-	signal DLM_from_downlink_S      : std_logic_vector(3 downto 0);
-	signal DLM_WORD_from_downlink_S : std_logic_vector(8 * 4 - 1 downto 0);
-	signal DLM_to_downlink_S        : std_logic_vector(3 downto 0);
-	signal DLM_WORD_to_downlink_S   : std_logic_vector(8 * 4 - 1 downto 0);
-
-	signal sci1_ack      : std_logic;
-	signal sci1_write    : std_logic;
-	signal sci1_read     : std_logic;
-	signal sci1_data_in  : std_logic_vector(7 downto 0);
-	signal sci1_data_out : std_logic_vector(7 downto 0);
-	signal sci1_addr     : std_logic_vector(8 downto 0);
-
-	signal sci2_ack      : std_logic;
-	signal sci2_write    : std_logic;
-	signal sci2_read     : std_logic;
-	signal sci2_data_in  : std_logic_vector(7 downto 0);
-	signal sci2_data_out : std_logic_vector(7 downto 0);
-	signal sci2_addr     : std_logic_vector(8 downto 0);
 
 	signal soda_read_en  : std_logic;
 	signal soda_write_en : std_logic;
@@ -884,7 +846,7 @@ begin
 			data_out_first       => data64b_muxed_first,
 			data_out_last        => data64b_muxed_last,
 			data_out_error       => data64b_muxed_error,
-			no_packet_limit      => no_packet_limit_S,
+			no_packet_limit      => open,
 
 			-- testpoints
 			testword0            => open,
@@ -896,54 +858,24 @@ begin
 	---------------------------------------------------------------------------
 	-- Data preparation
 	--------------------------------------------------------------------------- 
-
-	data64b_muxed_allowed_S <= '1' when (data64b_muxed_allowed = '1') and (data64b_muxed_allowed0_S = '1') else '0';
-
-	process(PACKETOUT_clock)
-		constant MINCLOCKSBETWEENPACKETS : integer                  := ADCCLOCKFREQUENCY / 500000; -- 2048;
-		variable counting                : boolean                  := FALSE;
-		variable counterpacket           : integer range 0 to 65535 := 0;
-		variable counterwait             : integer range 0 to 65535 := 0;
-	begin
-		if (rising_edge(PACKETOUT_clock)) then
-			data64b_muxed_error_S <= '0';
-			if (data64b_muxed_write = '1') and (data64b_muxed_last = '1') then
-				data64b_muxed_allowed0_S <= '0';
-				counterwait              := counterpacket;
-			elsif (counterwait < MINCLOCKSBETWEENPACKETS) and (no_packet_limit_S = '0') then
-				data64b_muxed_allowed0_S <= '0';
-				counterwait              := counterwait + 1;
-			else
-				data64b_muxed_allowed0_S <= data64b_muxed_allowed;
-			end if;
-			if (data64b_muxed_write = '1') and (data64b_muxed_first = '1') then
-				counting      := TRUE;
-				counterpacket := 0;
-			elsif (data64b_muxed_write = '1') and (data64b_muxed_last = '1') then
-				counting := FALSE;
-			else
-				if (counting) and (counterpacket < 65535) then
-					counterpacket := counterpacket + 1;
-				end if;
-			end if;
-			if (data64b_muxed_write = '1') then
-				if (data64b_muxed_first = '1') and (data64b_muxed_last = '1') then
-					data64b_muxed_error_S <= '1';
-				elsif data64b_muxed_first = '1' then
-					if data64b_muxed_busy_S = '1' then
-						data64b_muxed_error_S <= '1';
-					end if;
-					data64b_muxed_busy_S <= '1';
-				elsif data64b_muxed_last = '1' then
-					if data64b_muxed_busy_S = '0' then
-						data64b_muxed_error_S <= '1';
-					end if;
-					data64b_muxed_busy_S <= '0';
-				else
-				end if;
-			end if;
-		end if;
-	end process;
+	
+	dataconversion_for_serdes_inst : entity work.dataconversion_for_serdes
+	port map (
+		DATA_CLK         => PACKETOUT_clock,
+		CLK              => clk_100_i,
+		RESET            => reset_i,
+		TX_READY         => tx_ready_ch3,
+		SFP_MOD0         => SFP_MOD0(2),
+		SFP_LOS          => SFP_LOS(2),
+		TX_DATA          => tx_data_ch3,
+		TX_K             => tx_k_ch3,
+		DATA_IN_ALLOWED  => data64b_muxed_allowed_S,
+		DATA_IN          => data64b_muxed,
+		DATA_IN_WRITE    => data64b_muxed_write,
+		DATA_IN_FIRST    => data64b_muxed_first,
+		DATA_IN_LAST     => data64b_muxed_last,
+		DATA_IN_ERROR    => data64b_muxed_error
+	);
 
 	---------------------------------------------------------------------------
 	-- SODA HUB

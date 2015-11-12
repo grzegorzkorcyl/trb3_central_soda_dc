@@ -153,7 +153,6 @@ add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_superburst2packet64.
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_time_energy_LUTs.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_CF_MAX_correction.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_split_data.vhd"
-add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_superburst2packet64.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_energy_correction.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_timeshift_lookuptable.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/shift_register.vhd"
