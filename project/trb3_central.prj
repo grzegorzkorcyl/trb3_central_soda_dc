@@ -157,6 +157,8 @@ add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_energy_correction.vh
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_timeshift_lookuptable.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/shift_register.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_time_lookuptable.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/dataconversion_for_serdes.vhd"
+
 
 
 #soda trb3 tdc data concentrator
