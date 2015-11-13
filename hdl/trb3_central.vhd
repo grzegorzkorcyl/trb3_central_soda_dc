@@ -925,12 +925,12 @@ begin
 			RESET                => reset_i,
 			CLEAR                => '0',
 			CLK_EN               => '1',
-
+			
 			--	SINGLE DUBPLEX UP-LINK TO THE TOP
 			RXUP_DLM_IN          => ext_sodasrc_TX_DLM_S,
 			RXUP_DLM_WORD_IN     => ext_sodasrc_TX_DLM_WORD_S,
 			TXUP_DLM_OUT         => TXtop_DLM_S,
-			TXUP_DLM_WORD_OUT    => ext_sodasrc_TX_DLM_WORD_S,
+			TXUP_DLM_WORD_OUT    => TXtop_DLM_word_S,
 			TXUP_DLM_PREVIEW_OUT => open,
 			UPLINK_PHASE_IN      => c_PHASE_H,
 
