@@ -687,6 +687,8 @@ begin
 			STAT_DEBUG         => open,
 			CTRL_DEBUG         => (others => '0')
 		);
+		
+	SFP_TXDIS(4) <= '0';
 
 	sync_reset_SODAclock : entity work.sync_bit
 		port map(
