@@ -479,12 +479,16 @@ architecture trb3_central_arch of trb3_central is
 	signal sodasrc_TX_DLM_word_S : std_logic_vector(7 downto 0);
 	signal LEDs_link_ok_i        : std_logic_vector(0 to 3);
 
-	signal sci2_ack      : std_logic;
-	signal sci2_write    : std_logic;
-	signal sci2_read     : std_logic;
-	signal sci2_data_in  : std_logic_vector(7 downto 0);
-	signal sci2_data_out : std_logic_vector(7 downto 0);
-	signal sci2_addr     : std_logic_vector(8 downto 0);
+	signal sci2_ack                 : std_logic;
+	signal sci2_write               : std_logic;
+	signal sci2_read                : std_logic;
+	signal sci2_data_in             : std_logic_vector(7 downto 0);
+	signal sci2_data_out            : std_logic_vector(7 downto 0);
+	signal sci2_addr                : std_logic_vector(8 downto 0);
+	signal DLM_from_downlink_S      : std_logic_vector(3 downto 0);
+	signal DLM_to_downlink_S        : std_logic_vector(3 downto 0);
+	signal DLM_WORD_to_downlink_S   : std_logic_vector(4 * 8 - 1 downto 0);
+	signal DLM_WORD_from_downlink_S : std_logic_vector(4 * 8 - 1 downto 0);
 
 begin
 
@@ -687,7 +691,7 @@ begin
 			STAT_DEBUG         => open,
 			CTRL_DEBUG         => (others => '0')
 		);
-		
+
 	SFP_TXDIS(4) <= '0';
 
 	sync_reset_SODAclock : entity work.sync_bit
@@ -798,12 +802,64 @@ begin
 	---------------------------------------------------------------------------
 	-- The TrbNet media interface (to other FPGA)
 	---------------------------------------------------------------------------
-	THE_MEDIA_ONBOARD : trb_net16_med_ecp3_sfp_4
-		generic map(
-			FREQUENCY => 200
-		)
+	--	THE_MEDIA_ONBOARD : trb_net16_med_ecp3_sfp_4
+	--		generic map(
+	--			FREQUENCY => 200
+	--		)
+	--		port map(
+	--			CLK                => clk_200_i,
+	--			SYSCLK             => clk_100_i,
+	--			RESET              => reset_i,
+	--			CLEAR              => clear_i,
+	--			CLK_EN             => '1',
+	--			--Internal Connection
+	--			MED_DATA_IN        => med_data_out(63 + 16 downto 0 + 16),
+	--			MED_PACKET_NUM_IN  => med_packet_num_out(11 + 3 downto 0 + 3),
+	--			MED_DATAREADY_IN   => med_dataready_out(3 + 1 downto 0 + 1),
+	--			MED_READ_OUT       => med_read_in(3 + 1 downto 0 + 1),
+	--			MED_DATA_OUT       => med_data_in(63 + 16 downto 0 + 16),
+	--			MED_PACKET_NUM_OUT => med_packet_num_in(11 + 3 downto 0 + 3),
+	--			MED_DATAREADY_OUT  => med_dataready_in(3 + 1 downto 0 + 1),
+	--			MED_READ_IN        => med_read_out(3 + 1 downto 0 + 1),
+	--			REFCLK2CORE_OUT    => open,
+	--			--SFP Connection
+	--			SD_RXD_P_IN        => ENDP_RXP_IN,
+	--			SD_RXD_N_IN        => ENDP_RXN_IN,
+	--			SD_TXD_P_OUT       => ENDP_TXP_OUT,
+	--			SD_TXD_N_OUT       => ENDP_TXN_OUT,
+	--			SD_REFCLK_P_IN     => open,
+	--			SD_REFCLK_N_IN     => open,
+	--			SD_PRSNT_N_IN(0)   => FPGA1_COMM(2),
+	--			SD_PRSNT_N_IN(1)   => FPGA2_COMM(2),
+	--			SD_PRSNT_N_IN(2)   => FPGA3_COMM(2),
+	--			SD_PRSNT_N_IN(3)   => FPGA4_COMM(2),
+	--			SD_LOS_IN(0)       => FPGA1_COMM(2),
+	--			SD_LOS_IN(1)       => FPGA2_COMM(2),
+	--			SD_LOS_IN(2)       => FPGA3_COMM(2),
+	--			SD_LOS_IN(3)       => FPGA4_COMM(2),
+	--			SD_TXDIS_OUT(0)    => FPGA1_COMM(0),
+	--			SD_TXDIS_OUT(1)    => FPGA2_COMM(0),
+	--			SD_TXDIS_OUT(2)    => FPGA3_COMM(0),
+	--			SD_TXDIS_OUT(3)    => FPGA4_COMM(0),
+	--
+	--			-- not connected to anything
+	--			SCI_DATA_IN        => sci2_data_in,
+	--			SCI_DATA_OUT       => sci2_data_out,
+	--			SCI_ADDR           => sci2_addr,
+	--			SCI_READ           => sci2_read,
+	--			SCI_WRITE          => sci2_write,
+	--			SCI_ACK            => sci2_ack,
+	--
+	--			-- Status and control port
+	--			STAT_OP            => med_stat_op(63 + 16 downto 0 + 16),
+	--			CTRL_OP            => med_ctrl_op(63 + 16 downto 0 + 16),
+	--			STAT_DEBUG         => open, --med_stat_debug(3 * 64 + 63 downto 0 * 64),
+	--			CTRL_DEBUG         => (others => '0')
+	--		);
+
+	THE_MEDIA_DOWNLINK : entity work.trb_net16_med_syncfull_ecp3_sfp
 		port map(
-			CLK                => clk_200_i,
+			CLK                => clk_SODA200_i,
 			SYSCLK             => clk_100_i,
 			RESET              => reset_i,
 			CLEAR              => clear_i,
@@ -818,13 +874,14 @@ begin
 			MED_DATAREADY_OUT  => med_dataready_in(3 + 1 downto 0 + 1),
 			MED_READ_IN        => med_read_out(3 + 1 downto 0 + 1),
 			REFCLK2CORE_OUT    => open,
+
 			--SFP Connection
 			SD_RXD_P_IN        => ENDP_RXP_IN,
 			SD_RXD_N_IN        => ENDP_RXN_IN,
 			SD_TXD_P_OUT       => ENDP_TXP_OUT,
 			SD_TXD_N_OUT       => ENDP_TXN_OUT,
-			SD_REFCLK_P_IN     => open,
-			SD_REFCLK_N_IN     => open,
+			SD_REFCLK_P_IN     => '0',
+			SD_REFCLK_N_IN     => '0',
 			SD_PRSNT_N_IN(0)   => FPGA1_COMM(2),
 			SD_PRSNT_N_IN(1)   => FPGA2_COMM(2),
 			SD_PRSNT_N_IN(2)   => FPGA3_COMM(2),
@@ -838,7 +895,12 @@ begin
 			SD_TXDIS_OUT(2)    => FPGA3_COMM(0),
 			SD_TXDIS_OUT(3)    => FPGA4_COMM(0),
 
-			-- not connected to anything
+			--Synchronous signals
+			RX_DLM             => DLM_from_downlink_S,
+			RX_DLM_WORD        => DLM_WORD_from_downlink_S,
+			TX_DLM             => DLM_to_downlink_S,
+			TX_DLM_WORD        => DLM_WORD_to_downlink_S,
+			--Control Interface
 			SCI_DATA_IN        => sci2_data_in,
 			SCI_DATA_OUT       => sci2_data_out,
 			SCI_ADDR           => sci2_addr,
@@ -849,154 +911,144 @@ begin
 			-- Status and control port
 			STAT_OP            => med_stat_op(63 + 16 downto 0 + 16),
 			CTRL_OP            => med_ctrl_op(63 + 16 downto 0 + 16),
-			STAT_DEBUG         => open, --med_stat_debug(3 * 64 + 63 downto 0 * 64),
+			STAT_DEBUG         => open,
 			CTRL_DEBUG         => (others => '0')
+		);
+
+	---------------------------------------------------------------------------
+	-- SODA
+	--------------------------------------------------------------------------- 
+	THE_SODA_HUB : soda_hub
+		port map(
+			SYSCLK               => clk_100_i,
+			SODACLK              => clk_SODA200_i,
+			RESET                => reset_i,
+			CLEAR                => '0',
+			CLK_EN               => '1',
+
+			--	SINGLE DUBPLEX UP-LINK TO THE TOP
+			RXUP_DLM_IN          => ext_sodasrc_TX_DLM_S,
+			RXUP_DLM_WORD_IN     => ext_sodasrc_TX_DLM_WORD_S,
+			TXUP_DLM_OUT         => TXtop_DLM_S,
+			TXUP_DLM_WORD_OUT    => ext_sodasrc_TX_DLM_WORD_S,
+			TXUP_DLM_PREVIEW_OUT => open,
+			UPLINK_PHASE_IN      => c_PHASE_H,
+
+			--	MULTIPLE DUPLEX DOWN-LINKS TO THE BOTTOM
+			RXDN_DLM_IN(0)       => DLM_from_downlink_S(0),
+			RXDN_DLM_IN(1)       => DLM_from_downlink_S(1),
+			RXDN_DLM_IN(2)       => DLM_from_downlink_S(2),
+			RXDN_DLM_IN(3)       => DLM_from_downlink_S(3),
+			RXDN_DLM_WORD_IN(0)  => DLM_WORD_from_downlink_S(0 * 8 + 7 downto 0 * 8),
+			RXDN_DLM_WORD_IN(1)  => DLM_WORD_from_downlink_S(1 * 8 + 7 downto 1 * 8),
+			RXDN_DLM_WORD_IN(2)  => DLM_WORD_from_downlink_S(2 * 8 + 7 downto 2 * 8),
+			RXDN_DLM_WORD_IN(3)  => DLM_WORD_from_downlink_S(3 * 8 + 7 downto 3 * 8),
+			TXDN_DLM_OUT(0)      => DLM_to_downlink_S(0),
+			TXDN_DLM_OUT(1)      => DLM_to_downlink_S(1),
+			TXDN_DLM_OUT(2)      => DLM_to_downlink_S(2),
+			TXDN_DLM_OUT(3)      => DLM_to_downlink_S(3),
+			TXDN_DLM_WORD_OUT(0) => DLM_WORD_to_downlink_S(0 * 8 + 7 downto 0 * 8),
+			TXDN_DLM_WORD_OUT(1) => DLM_WORD_to_downlink_S(1 * 8 + 7 downto 1 * 8),
+			TXDN_DLM_WORD_OUT(2) => DLM_WORD_to_downlink_S(2 * 8 + 7 downto 2 * 8),
+			TXDN_DLM_WORD_OUT(3) => DLM_WORD_to_downlink_S(3 * 8 + 7 downto 3 * 8),
+			TXDN_DLM_PREVIEW_OUT => open,
+			DNLINK_PHASE_IN      => (others => c_PHASE_H),
+			SODA_DATA_IN         => soda_data_in,
+			SODA_DATA_OUT        => soda_data_out,
+			SODA_ADDR_IN         => soda_addr,
+			SODA_READ_IN         => soda_read_en,
+			SODA_WRITE_IN        => soda_write_en,
+			SODA_ACK_OUT         => soda_ack,
+			LEDS_OUT             => open,
+			LINK_DEBUG_IN        => (others => '0')
 		);
 
 	---------------------------------------------------------------------------
 	-- TrbNet HUB
 	--------------------------------------------------------------------------- 
 
-		THE_HUB : trb_net16_hub_streaming_port
-			generic map(
-				HUB_USED_CHANNELS      => (c_YES,c_YES,c_NO,c_YES),
-				INIT_ADDRESS           => x"f30a",
-				MII_NUMBER             => 5, --INTERFACE_NUM,
-			    MII_IS_UPLINK     		=> (0 => 1, others => 0),
-			    MII_IS_DOWNLINK   		=> (0 => 0, others => 1),
-			    MII_IS_UPLINK_ONLY		=> (0 => 1, others => 0),
-				USE_ONEWIRE            => c_YES,
-				HARDWARE_VERSION       => HARDWARE_INFO,
-				INCLUDED_FEATURES      => INCLUDED_FEATURES,
-				INIT_ENDPOINT_ID       => x"0005",
-				CLOCK_FREQUENCY        => 100,
-				BROADCAST_SPECIAL_ADDR => BROADCAST_SPECIAL_ADDR
-			)
-			port map(
-				CLK                                    => clk_100_i,
-				RESET                                  => reset_i,
-				CLK_EN                                 => '1',
-	
-				--Media interfacces
-				MED_DATAREADY_OUT(5 * 1 - 1 downto 0)  => med_dataready_out,
-				MED_DATA_OUT(5 * 16 - 1 downto 0)      => med_data_out,
-				MED_PACKET_NUM_OUT(5 * 3 - 1 downto 0) => med_packet_num_out,
-				MED_READ_IN(5 * 1 - 1 downto 0)        => med_read_in,
-				MED_DATAREADY_IN(5 * 1 - 1 downto 0)   => med_dataready_in,
-				MED_DATA_IN(5 * 16 - 1 downto 0)       => med_data_in,
-				MED_PACKET_NUM_IN(5 * 3 - 1 downto 0)  => med_packet_num_in,
-				MED_READ_OUT(5 * 1 - 1 downto 0)       => med_read_out,
-				MED_STAT_OP(5 * 16 - 1 downto 0)       => med_stat_op,
-				MED_CTRL_OP(5 * 16 - 1 downto 0)       => med_ctrl_op,
-	
-				--Event information coming from CTSCTS_READOUT_TYPE_OUT
-				CTS_NUMBER_OUT                         => open,
-				CTS_CODE_OUT                           => open,
-				CTS_INFORMATION_OUT                    => open,
-				CTS_READOUT_TYPE_OUT                   => open,
-				CTS_START_READOUT_OUT                  => open,
-				--Information   sent to CTS
-				--status data, equipped with DHDR
-				CTS_DATA_IN                            => (others => '0'),
-				CTS_DATAREADY_IN                       => '0',
-				CTS_READOUT_FINISHED_IN                => '0',
-				CTS_READ_OUT                           => open,
-				CTS_LENGTH_IN                          => (others => '0'),
-				CTS_STATUS_BITS_IN                     => (others => '0'),
-				-- Data from Frontends
-				FEE_DATA_OUT                           => open,
-				FEE_DATAREADY_OUT                      => open,
-				FEE_READ_IN                            => '1',
-				FEE_STATUS_BITS_OUT                    => open,
-				FEE_BUSY_OUT                           => open,
-				MY_ADDRESS_IN                          => my_address,
-				COMMON_STAT_REGS                       => common_stat_regs, --open,
-				COMMON_CTRL_REGS                       => common_ctrl_regs, --open,
-				ONEWIRE                                => TEMPSENS,
-				ONEWIRE_MONITOR_IN                     => open,
-				MY_ADDRESS_OUT                         => my_address,
-				TIMER_TICKS_OUT                        => open,
-				REGIO_ADDR_OUT                         => regio_addr_out,
-				REGIO_READ_ENABLE_OUT                  => regio_read_enable_out,
-				REGIO_WRITE_ENABLE_OUT                 => regio_write_enable_out,
-				REGIO_DATA_OUT                         => regio_data_out,
-				REGIO_DATA_IN                          => regio_data_in,
-				REGIO_DATAREADY_IN                     => regio_dataready_in,
-				REGIO_NO_MORE_DATA_IN                  => regio_no_more_data_in,
-				REGIO_WRITE_ACK_IN                     => regio_write_ack_in,
-				REGIO_UNKNOWN_ADDR_IN                  => regio_unknown_addr_in,
-				REGIO_TIMEOUT_OUT                      => regio_timeout_out,
-	
-				--status and control ports
-				HUB_STAT_CHANNEL                       => open,
-				HUB_STAT_GEN                           => open,
-				MPLEX_CTRL                             => (others => '0'),
-				MPLEX_STAT                             => open,
-				STAT_REGS                              => open,
-				STAT_CTRL_REGS                         => open,
-	
-				--Fixed status and control ports
-				STAT_DEBUG                             => open,
-				CTRL_DEBUG                             => (others => '0')
-			);
+	THE_HUB : trb_net16_hub_streaming_port
+		generic map(
+			HUB_USED_CHANNELS      => (c_YES, c_YES, c_NO, c_YES),
+			INIT_ADDRESS           => x"f30a",
+			MII_NUMBER             => 5, --INTERFACE_NUM,
+			MII_IS_UPLINK          => (0 => 1, others => 0),
+			MII_IS_DOWNLINK        => (0 => 0, others => 1),
+			MII_IS_UPLINK_ONLY     => (0 => 1, others => 0),
+			USE_ONEWIRE            => c_YES,
+			HARDWARE_VERSION       => HARDWARE_INFO,
+			INCLUDED_FEATURES      => INCLUDED_FEATURES,
+			INIT_ENDPOINT_ID       => x"0005",
+			CLOCK_FREQUENCY        => 100,
+			BROADCAST_SPECIAL_ADDR => BROADCAST_SPECIAL_ADDR
+		)
+		port map(
+			CLK                                    => clk_100_i,
+			RESET                                  => reset_i,
+			CLK_EN                                 => '1',
 
---	THE_HUB : trb_net16_hub_base
---		generic map(
---			HUB_USED_CHANNELS      => (c_YES, c_YES, c_NO, c_YES),
---			IBUF_SECURE_MODE       => c_YES,
---			MII_NUMBER             => 5,
---			MII_IS_UPLINK          => (0 => 1, others => 0),
---			MII_IS_DOWNLINK        => (0 => 0, others => 1),
---			MII_IS_UPLINK_ONLY     => (0 => 1, others => 0),
---			INT_NUMBER             => 0,
---			--     INT_CHANNELS      => (0,1,3,3,3,3,3,3),
---			USE_ONEWIRE            => c_YES,
---			COMPILE_TIME           => std_logic_vector(to_unsigned(VERSION_NUMBER_TIME, 32)),
---			HARDWARE_VERSION       => x"91003200",
---			INIT_ENDPOINT_ID       => x"0000",
---			INIT_ADDRESS           => x"F308",
---			USE_VAR_ENDPOINT_ID    => c_YES,
---			BROADCAST_SPECIAL_ADDR => x"45"
---		)
---		port map(
---			CLK                                    => clk_100_i,
---			RESET                                  => reset_i,
---			CLK_EN                                 => '1',
---
---			--Media interfacces
---			MED_DATAREADY_OUT(5 * 1 - 1 downto 0)  => med_dataready_out,
---			MED_DATA_OUT(5 * 16 - 1 downto 0)      => med_data_out,
---			MED_PACKET_NUM_OUT(5 * 3 - 1 downto 0) => med_packet_num_out,
---			MED_READ_IN(5 * 1 - 1 downto 0)        => med_read_in,
---			MED_DATAREADY_IN(5 * 1 - 1 downto 0)   => med_dataready_in,
---			MED_DATA_IN(5 * 16 - 1 downto 0)       => med_data_in,
---			MED_PACKET_NUM_IN(5 * 3 - 1 downto 0)  => med_packet_num_in,
---			MED_READ_OUT(5 * 1 - 1 downto 0)       => med_read_out,
---			MED_STAT_OP(5 * 16 - 1 downto 0)       => med_stat_op,
---			MED_CTRL_OP(5 * 16 - 1 downto 0)       => med_ctrl_op,
---			COMMON_STAT_REGS                       => common_stat_reg,
---			COMMON_CTRL_REGS                       => common_ctrl_reg,
---			MY_ADDRESS_OUT                         => my_address,
---			--REGIO INTERFACE
---			REGIO_ADDR_OUT                         => regio_addr_out,
---			REGIO_READ_ENABLE_OUT                  => regio_read_enable_out,
---			REGIO_WRITE_ENABLE_OUT                 => regio_write_enable_out,
---			REGIO_DATA_OUT                         => regio_data_out,
---			REGIO_DATA_IN                          => regio_data_in,
---			REGIO_DATAREADY_IN                     => regio_dataready_in,
---			REGIO_NO_MORE_DATA_IN                  => regio_no_more_data_in,
---			REGIO_WRITE_ACK_IN                     => regio_write_ack_in,
---			REGIO_UNKNOWN_ADDR_IN                  => regio_unknown_addr_in,
---			REGIO_TIMEOUT_OUT                      => regio_timeout_out,
---			REGIO_VAR_ENDPOINT_ID(1 downto 0)      => CODE_LINE,
---			REGIO_VAR_ENDPOINT_ID(15 downto 2)     => (others => '0'),
---			ONEWIRE                                => TEMPSENS,
---			ONEWIRE_MONITOR_OUT                    => open,
---			--Status ports (for debugging)
---			MPLEX_CTRL                             => (others => '0'),
---			CTRL_DEBUG                             => (others => '0'),
---			STAT_DEBUG                             => open
---		);
+			--Media interfacces
+			MED_DATAREADY_OUT(5 * 1 - 1 downto 0)  => med_dataready_out,
+			MED_DATA_OUT(5 * 16 - 1 downto 0)      => med_data_out,
+			MED_PACKET_NUM_OUT(5 * 3 - 1 downto 0) => med_packet_num_out,
+			MED_READ_IN(5 * 1 - 1 downto 0)        => med_read_in,
+			MED_DATAREADY_IN(5 * 1 - 1 downto 0)   => med_dataready_in,
+			MED_DATA_IN(5 * 16 - 1 downto 0)       => med_data_in,
+			MED_PACKET_NUM_IN(5 * 3 - 1 downto 0)  => med_packet_num_in,
+			MED_READ_OUT(5 * 1 - 1 downto 0)       => med_read_out,
+			MED_STAT_OP(5 * 16 - 1 downto 0)       => med_stat_op,
+			MED_CTRL_OP(5 * 16 - 1 downto 0)       => med_ctrl_op,
+
+			--Event information coming from CTSCTS_READOUT_TYPE_OUT
+			CTS_NUMBER_OUT                         => open,
+			CTS_CODE_OUT                           => open,
+			CTS_INFORMATION_OUT                    => open,
+			CTS_READOUT_TYPE_OUT                   => open,
+			CTS_START_READOUT_OUT                  => open,
+			--Information   sent to CTS
+			--status data, equipped with DHDR
+			CTS_DATA_IN                            => (others => '0'),
+			CTS_DATAREADY_IN                       => '0',
+			CTS_READOUT_FINISHED_IN                => '0',
+			CTS_READ_OUT                           => open,
+			CTS_LENGTH_IN                          => (others => '0'),
+			CTS_STATUS_BITS_IN                     => (others => '0'),
+			-- Data from Frontends
+			FEE_DATA_OUT                           => open,
+			FEE_DATAREADY_OUT                      => open,
+			FEE_READ_IN                            => '1',
+			FEE_STATUS_BITS_OUT                    => open,
+			FEE_BUSY_OUT                           => open,
+			MY_ADDRESS_IN                          => my_address,
+			COMMON_STAT_REGS                       => common_stat_regs, --open,
+			COMMON_CTRL_REGS                       => common_ctrl_regs, --open,
+			ONEWIRE                                => TEMPSENS,
+			ONEWIRE_MONITOR_IN                     => open,
+			MY_ADDRESS_OUT                         => my_address,
+			TIMER_TICKS_OUT                        => open,
+			REGIO_ADDR_OUT                         => regio_addr_out,
+			REGIO_READ_ENABLE_OUT                  => regio_read_enable_out,
+			REGIO_WRITE_ENABLE_OUT                 => regio_write_enable_out,
+			REGIO_DATA_OUT                         => regio_data_out,
+			REGIO_DATA_IN                          => regio_data_in,
+			REGIO_DATAREADY_IN                     => regio_dataready_in,
+			REGIO_NO_MORE_DATA_IN                  => regio_no_more_data_in,
+			REGIO_WRITE_ACK_IN                     => regio_write_ack_in,
+			REGIO_UNKNOWN_ADDR_IN                  => regio_unknown_addr_in,
+			REGIO_TIMEOUT_OUT                      => regio_timeout_out,
+
+			--status and control ports
+			HUB_STAT_CHANNEL                       => open,
+			HUB_STAT_GEN                           => open,
+			MPLEX_CTRL                             => (others => '0'),
+			MPLEX_STAT                             => open,
+			STAT_REGS                              => open,
+			STAT_CTRL_REGS                         => open,
+
+			--Fixed status and control ports
+			STAT_DEBUG                             => open,
+			CTRL_DEBUG                             => (others => '0')
+		);
 
 	---------------------------------------------------------------------------
 	-- Bus Handler
