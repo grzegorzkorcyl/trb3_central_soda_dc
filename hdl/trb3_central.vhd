@@ -802,118 +802,118 @@ begin
 	---------------------------------------------------------------------------
 	-- The TrbNet media interface (to other FPGA)
 	---------------------------------------------------------------------------
-		THE_MEDIA_ONBOARD : trb_net16_med_ecp3_sfp_4
-			generic map(
-				FREQUENCY => 200
-			)
-			port map(
-				CLK                => clk_200_i,
-				SYSCLK             => clk_100_i,
-				RESET              => reset_i,
-				CLEAR              => clear_i,
-				CLK_EN             => '1',
-				--Internal Connection
-				MED_DATA_IN        => med_data_out(63 + 16 downto 0 + 16),
-				MED_PACKET_NUM_IN  => med_packet_num_out(11 + 3 downto 0 + 3),
-				MED_DATAREADY_IN   => med_dataready_out(3 + 1 downto 0 + 1),
-				MED_READ_OUT       => med_read_in(3 + 1 downto 0 + 1),
-				MED_DATA_OUT       => med_data_in(63 + 16 downto 0 + 16),
-				MED_PACKET_NUM_OUT => med_packet_num_in(11 + 3 downto 0 + 3),
-				MED_DATAREADY_OUT  => med_dataready_in(3 + 1 downto 0 + 1),
-				MED_READ_IN        => med_read_out(3 + 1 downto 0 + 1),
-				REFCLK2CORE_OUT    => open,
-				--SFP Connection
-				SD_RXD_P_IN        => ENDP_RXP_IN,
-				SD_RXD_N_IN        => ENDP_RXN_IN,
-				SD_TXD_P_OUT       => ENDP_TXP_OUT,
-				SD_TXD_N_OUT       => ENDP_TXN_OUT,
-				SD_REFCLK_P_IN     => open,
-				SD_REFCLK_N_IN     => open,
-				SD_PRSNT_N_IN(0)   => FPGA1_COMM(2),
-				SD_PRSNT_N_IN(1)   => FPGA2_COMM(2),
-				SD_PRSNT_N_IN(2)   => FPGA3_COMM(2),
-				SD_PRSNT_N_IN(3)   => FPGA4_COMM(2),
-				SD_LOS_IN(0)       => FPGA1_COMM(2),
-				SD_LOS_IN(1)       => FPGA2_COMM(2),
-				SD_LOS_IN(2)       => FPGA3_COMM(2),
-				SD_LOS_IN(3)       => FPGA4_COMM(2),
-				SD_TXDIS_OUT(0)    => FPGA1_COMM(0),
-				SD_TXDIS_OUT(1)    => FPGA2_COMM(0),
-				SD_TXDIS_OUT(2)    => FPGA3_COMM(0),
-				SD_TXDIS_OUT(3)    => FPGA4_COMM(0),
-	
-				-- not connected to anything
-				SCI_DATA_IN        => sci2_data_in,
-				SCI_DATA_OUT       => sci2_data_out,
-				SCI_ADDR           => sci2_addr,
-				SCI_READ           => sci2_read,
-				SCI_WRITE          => sci2_write,
-				SCI_ACK            => sci2_ack,
-	
-				-- Status and control port
-				STAT_OP            => med_stat_op(63 + 16 downto 0 + 16),
-				CTRL_OP            => med_ctrl_op(63 + 16 downto 0 + 16),
-				STAT_DEBUG         => open, --med_stat_debug(3 * 64 + 63 downto 0 * 64),
-				CTRL_DEBUG         => (others => '0')
-			);
+--		THE_MEDIA_ONBOARD : trb_net16_med_ecp3_sfp_4
+--			generic map(
+--				FREQUENCY => 200
+--			)
+--			port map(
+--				CLK                => clk_200_i,
+--				SYSCLK             => clk_100_i,
+--				RESET              => reset_i,
+--				CLEAR              => clear_i,
+--				CLK_EN             => '1',
+--				--Internal Connection
+--				MED_DATA_IN        => med_data_out(63 + 16 downto 0 + 16),
+--				MED_PACKET_NUM_IN  => med_packet_num_out(11 + 3 downto 0 + 3),
+--				MED_DATAREADY_IN   => med_dataready_out(3 + 1 downto 0 + 1),
+--				MED_READ_OUT       => med_read_in(3 + 1 downto 0 + 1),
+--				MED_DATA_OUT       => med_data_in(63 + 16 downto 0 + 16),
+--				MED_PACKET_NUM_OUT => med_packet_num_in(11 + 3 downto 0 + 3),
+--				MED_DATAREADY_OUT  => med_dataready_in(3 + 1 downto 0 + 1),
+--				MED_READ_IN        => med_read_out(3 + 1 downto 0 + 1),
+--				REFCLK2CORE_OUT    => open,
+--				--SFP Connection
+--				SD_RXD_P_IN        => ENDP_RXP_IN,
+--				SD_RXD_N_IN        => ENDP_RXN_IN,
+--				SD_TXD_P_OUT       => ENDP_TXP_OUT,
+--				SD_TXD_N_OUT       => ENDP_TXN_OUT,
+--				SD_REFCLK_P_IN     => open,
+--				SD_REFCLK_N_IN     => open,
+--				SD_PRSNT_N_IN(0)   => FPGA1_COMM(2),
+--				SD_PRSNT_N_IN(1)   => FPGA2_COMM(2),
+--				SD_PRSNT_N_IN(2)   => FPGA3_COMM(2),
+--				SD_PRSNT_N_IN(3)   => FPGA4_COMM(2),
+--				SD_LOS_IN(0)       => FPGA1_COMM(2),
+--				SD_LOS_IN(1)       => FPGA2_COMM(2),
+--				SD_LOS_IN(2)       => FPGA3_COMM(2),
+--				SD_LOS_IN(3)       => FPGA4_COMM(2),
+--				SD_TXDIS_OUT(0)    => FPGA1_COMM(0),
+--				SD_TXDIS_OUT(1)    => FPGA2_COMM(0),
+--				SD_TXDIS_OUT(2)    => FPGA3_COMM(0),
+--				SD_TXDIS_OUT(3)    => FPGA4_COMM(0),
+--	
+--				-- not connected to anything
+--				SCI_DATA_IN        => sci2_data_in,
+--				SCI_DATA_OUT       => sci2_data_out,
+--				SCI_ADDR           => sci2_addr,
+--				SCI_READ           => sci2_read,
+--				SCI_WRITE          => sci2_write,
+--				SCI_ACK            => sci2_ack,
+--	
+--				-- Status and control port
+--				STAT_OP            => med_stat_op(63 + 16 downto 0 + 16),
+--				CTRL_OP            => med_ctrl_op(63 + 16 downto 0 + 16),
+--				STAT_DEBUG         => open, --med_stat_debug(3 * 64 + 63 downto 0 * 64),
+--				CTRL_DEBUG         => (others => '0')
+--			);
 
---	THE_MEDIA_DOWNLINK : entity work.trb_net16_med_syncfull_ecp3_sfp
---		port map(
---			CLK                => clk_SODA200_i,
---			SYSCLK             => clk_100_i,
---			RESET              => reset_i,
---			CLEAR              => clear_i,
---			CLK_EN             => '1',
---			--Internal Connection
---			MED_DATA_IN        => med_data_out(63 + 16 downto 0 + 16),
---			MED_PACKET_NUM_IN  => med_packet_num_out(11 + 3 downto 0 + 3),
---			MED_DATAREADY_IN   => med_dataready_out(3 + 1 downto 0 + 1),
---			MED_READ_OUT       => med_read_in(3 + 1 downto 0 + 1),
---			MED_DATA_OUT       => med_data_in(63 + 16 downto 0 + 16),
---			MED_PACKET_NUM_OUT => med_packet_num_in(11 + 3 downto 0 + 3),
---			MED_DATAREADY_OUT  => med_dataready_in(3 + 1 downto 0 + 1),
---			MED_READ_IN        => med_read_out(3 + 1 downto 0 + 1),
---			REFCLK2CORE_OUT    => open,
---
---			--SFP Connection
---			SD_RXD_P_IN        => ENDP_RXP_IN,
---			SD_RXD_N_IN        => ENDP_RXN_IN,
---			SD_TXD_P_OUT       => ENDP_TXP_OUT,
---			SD_TXD_N_OUT       => ENDP_TXN_OUT,
---			SD_REFCLK_P_IN     => '0',
---			SD_REFCLK_N_IN     => '0',
---			SD_PRSNT_N_IN(0)   => FPGA1_COMM(2),
---			SD_PRSNT_N_IN(1)   => FPGA2_COMM(2),
---			SD_PRSNT_N_IN(2)   => FPGA3_COMM(2),
---			SD_PRSNT_N_IN(3)   => FPGA4_COMM(2),
---			SD_LOS_IN(0)       => FPGA1_COMM(2),
---			SD_LOS_IN(1)       => FPGA2_COMM(2),
---			SD_LOS_IN(2)       => FPGA3_COMM(2),
---			SD_LOS_IN(3)       => FPGA4_COMM(2),
---			SD_TXDIS_OUT(0)    => FPGA1_COMM(0),
---			SD_TXDIS_OUT(1)    => FPGA2_COMM(0),
---			SD_TXDIS_OUT(2)    => FPGA3_COMM(0),
---			SD_TXDIS_OUT(3)    => FPGA4_COMM(0),
---
---			--Synchronous signals
---			RX_DLM             => DLM_from_downlink_S,
---			RX_DLM_WORD        => DLM_WORD_from_downlink_S,
---			TX_DLM             => DLM_to_downlink_S,
---			TX_DLM_WORD        => DLM_WORD_to_downlink_S,
---			--Control Interface
---			SCI_DATA_IN        => sci2_data_in,
---			SCI_DATA_OUT       => sci2_data_out,
---			SCI_ADDR           => sci2_addr,
---			SCI_READ           => sci2_read,
---			SCI_WRITE          => sci2_write,
---			SCI_ACK            => sci2_ack,
---
---			-- Status and control port
---			STAT_OP            => med_stat_op(63 + 16 downto 0 + 16),
---			CTRL_OP            => med_ctrl_op(63 + 16 downto 0 + 16),
---			STAT_DEBUG         => open,
---			CTRL_DEBUG         => (others => '0')
---		);
+	THE_MEDIA_DOWNLINK : entity work.trb_net16_med_syncfull_ecp3_sfp
+		port map(
+			CLK                => clk_SODA200_i,
+			SYSCLK             => clk_100_i,
+			RESET              => reset_i,
+			CLEAR              => clear_i,
+			CLK_EN             => '1',
+			--Internal Connection
+			MED_DATA_IN        => med_data_out(63 + 16 downto 0 + 16),
+			MED_PACKET_NUM_IN  => med_packet_num_out(11 + 3 downto 0 + 3),
+			MED_DATAREADY_IN   => med_dataready_out(3 + 1 downto 0 + 1),
+			MED_READ_OUT       => med_read_in(3 + 1 downto 0 + 1),
+			MED_DATA_OUT       => med_data_in(63 + 16 downto 0 + 16),
+			MED_PACKET_NUM_OUT => med_packet_num_in(11 + 3 downto 0 + 3),
+			MED_DATAREADY_OUT  => med_dataready_in(3 + 1 downto 0 + 1),
+			MED_READ_IN        => med_read_out(3 + 1 downto 0 + 1),
+			REFCLK2CORE_OUT    => open,
+
+			--SFP Connection
+			SD_RXD_P_IN        => ENDP_RXP_IN,
+			SD_RXD_N_IN        => ENDP_RXN_IN,
+			SD_TXD_P_OUT       => ENDP_TXP_OUT,
+			SD_TXD_N_OUT       => ENDP_TXN_OUT,
+			SD_REFCLK_P_IN     => '0',
+			SD_REFCLK_N_IN     => '0',
+			SD_PRSNT_N_IN(0)   => FPGA1_COMM(2),
+			SD_PRSNT_N_IN(1)   => FPGA2_COMM(2),
+			SD_PRSNT_N_IN(2)   => FPGA3_COMM(2),
+			SD_PRSNT_N_IN(3)   => FPGA4_COMM(2),
+			SD_LOS_IN(0)       => FPGA1_COMM(2),
+			SD_LOS_IN(1)       => FPGA2_COMM(2),
+			SD_LOS_IN(2)       => FPGA3_COMM(2),
+			SD_LOS_IN(3)       => FPGA4_COMM(2),
+			SD_TXDIS_OUT(0)    => FPGA1_COMM(0),
+			SD_TXDIS_OUT(1)    => FPGA2_COMM(0),
+			SD_TXDIS_OUT(2)    => FPGA3_COMM(0),
+			SD_TXDIS_OUT(3)    => FPGA4_COMM(0),
+
+			--Synchronous signals
+			RX_DLM             => DLM_from_downlink_S,
+			RX_DLM_WORD        => DLM_WORD_from_downlink_S,
+			TX_DLM             => DLM_to_downlink_S,
+			TX_DLM_WORD        => DLM_WORD_to_downlink_S,
+			--Control Interface
+			SCI_DATA_IN        => sci2_data_in,
+			SCI_DATA_OUT       => sci2_data_out,
+			SCI_ADDR           => sci2_addr,
+			SCI_READ           => sci2_read,
+			SCI_WRITE          => sci2_write,
+			SCI_ACK            => sci2_ack,
+
+			-- Status and control port
+			STAT_OP            => med_stat_op(63 + 16 downto 0 + 16),
+			CTRL_OP            => med_ctrl_op(63 + 16 downto 0 + 16),
+			STAT_DEBUG         => open,
+			CTRL_DEBUG         => (others => '0')
+		);
 
 	---------------------------------------------------------------------------
 	-- SODA
