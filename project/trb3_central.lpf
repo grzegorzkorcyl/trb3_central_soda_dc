@@ -559,17 +559,17 @@ GSR_NET NET "GSR_N";
 # Locate Serdes and media interfaces
 #################################################################
 #LOCATE COMP "GBE/imp_gen.serdes_intclk_gen.PCS_SERDES/clk_int.SERDES_GBE/PCSD_INST" SITE "PCSB" ;
-LOCATE COMP "GBE/physical_impl_gen.physical/impl_gen.gbe_serdes/PCSD_INST" SITE "PCSB";
+#LOCATE COMP "GBE/physical_impl_gen.physical/impl_gen.gbe_serdes/PCSD_INST" SITE "PCSB";
 #LOCATE COMP "gen_single_sfp_THE_MEDIA_UPLINK/gen_serdes_0_200_ctc_THE_SERDES/PCSD_INST" SITE "PCSA" ;
 #LOCATE COMP "gen_four_sfp_THE_MEDIA_UPLINK/gen_serdes_200_THE_SERDES/PCSD_INST" SITE "PCSA" ;
 
-LOCATE COMP "THE_MEDIA_ONBOARD/gen_serdes_200.THE_SERDES/PCSD_INST" SITE "PCSC" ;
+#LOCATE COMP "THE_MEDIA_ONBOARD/gen_serdes_200.THE_SERDES/PCSD_INST" SITE "PCSC" ;
 #LOCATE COMP "THE_MEDIA_ONBOARD/gen_serdes_125_THE_SERDES/PCSD_INST" SITE "PCSC" ;
 
 
 #SODA locations
 LOCATE COMP   "THE_MEDIA_UPLINK/THE_SERDES/PCSD_INST" SITE "PCSA";
-LOCATE COMP   "THE_MEDIA_DOWNLINK/THE_SERDES/PCSD_INST" SITE "PCSC" ;
+LOCATE COMP   "THE_MEDIA_DOWNLINK/THE_SERDES/PCSD_INST" SITE "PCSD" ;
 #LOCATE COMP   "THE_FEE_SERDES/serdesQuadMUXwrapper1/med_ecp3_quad_sfp_sync1/THE_SERDES/PCSD_INST" SITE "PCSC";
 
 LOCATE COMP "CODE_LINE_1" SITE "AA20" ;
