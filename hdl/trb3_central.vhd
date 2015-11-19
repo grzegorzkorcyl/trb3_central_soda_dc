@@ -490,15 +490,45 @@ architecture trb3_central_arch of trb3_central is
 	signal DLM_to_downlink_S        : std_logic_vector(3 downto 0);
 	signal DLM_WORD_to_downlink_S   : std_logic_vector(4 * 8 - 1 downto 0);
 	signal DLM_WORD_from_downlink_S : std_logic_vector(4 * 8 - 1 downto 0);
-	
-	signal cts_ext_control : std_logic_vector(31 downto 0);
-	signal cts_ext_status : std_logic_vector(31 downto 0);
-	signal cts_ext_debug : std_logic_vector(31 downto 0);
-	signal cts_ext_header : std_logic_vector(1 downto 0);
+
+	signal cts_rdo_trigger            : std_logic;
+	signal cts_rdo_trg_data_valid     : std_logic;
+	signal cts_rdo_valid_timing_trg   : std_logic;
+	signal cts_rdo_valid_notiming_trg : std_logic;
+	signal cts_rdo_invalid_trg        : std_logic;
+
+	signal cts_trg_send        : std_logic;
+	signal cts_trg_type        : std_logic_vector(3 downto 0);
+	signal cts_trg_number      : std_logic_vector(15 downto 0);
+	signal cts_trg_information : std_logic_vector(23 downto 0);
+	signal cts_trg_code        : std_logic_vector(7 downto 0);
+	signal cts_trg_status_bits : std_logic_vector(31 downto 0);
+	signal cts_trg_busy        : std_logic;
+
+	signal cts_ipu_send        : std_logic;
+	signal cts_ipu_type        : std_logic_vector(3 downto 0);
+	signal cts_ipu_number      : std_logic_vector(15 downto 0);
+	signal cts_ipu_information : std_logic_vector(7 downto 0);
+	signal cts_ipu_code        : std_logic_vector(7 downto 0);
+	signal cts_ipu_status_bits : std_logic_vector(31 downto 0);
+	signal cts_ipu_busy        : std_logic;
+
+	signal cts_rdo_trg_status_bits_cts : std_logic_vector(31 downto 0) := (others => '0');
+	signal cts_rdo_data                : std_logic_vector(31 downto 0);
+	signal cts_rdo_write               : std_logic;
+	signal cts_rdo_finished            : std_logic;
+
 	signal cts_ext_trigger : std_logic;
-	signal cts_rdo_trg_data_valid : std_logic;
-	
-   
+	signal cts_ext_status  : std_logic_vector(31 downto 0) := (others => '0');
+	signal cts_ext_control : std_logic_vector(31 downto 0);
+	signal cts_ext_debug   : std_logic_vector(31 downto 0);
+	signal cts_ext_header  : std_logic_vector(1 downto 0);
+
+	signal cts_rdo_additional_data            : std_logic_vector(32 * 1 - 1 downto 0);
+	signal cts_rdo_additional_write           : std_logic_vector(1 - 1 downto 0)      := (others => '0');
+	signal cts_rdo_additional_finished        : std_logic_vector(1 - 1 downto 0)      := (others => '1');
+	signal cts_rdo_trg_status_bits_additional : std_logic_vector(32 * 1 - 1 downto 0) := (others => '0');
+
 begin
 
 	---------------------------------------------------------------------------
@@ -736,39 +766,33 @@ begin
 
 	THE_CTS : entity work.CTS
 		generic map(
-			EXTERNAL_TRIGGER_ID  => ETM_ID, -- fill in trigger logic enumeration id of external trigger logic
+			EXTERNAL_TRIGGER_ID  => x"60", -- fill in trigger logic enumeration id of external trigger logic
 
-			TRIGGER_COIN_COUNT   => TRIGGER_COIN_COUNT,
-			TRIGGER_PULSER_COUNT => TRIGGER_PULSER_COUNT,
-			TRIGGER_RAND_PULSER  => TRIGGER_RAND_PULSER,
+			TRIGGER_COIN_COUNT   => 0,  --TRIGGER_COIN_COUNT,
+			TRIGGER_PULSER_COUNT => 2,  --TRIGGER_PULSER_COUNT,
+			TRIGGER_RAND_PULSER  => 0,  --TRIGGER_RAND_PULSER,
 			TRIGGER_INPUT_COUNT  => 0,  -- obsolete! now all inputs are routed via an input multiplexer!
-			TRIGGER_ADDON_COUNT  => TRIGGER_ADDON_COUNT,
-			PERIPH_TRIGGER_COUNT => PERIPH_TRIGGER_COUNT,
-			OUTPUT_MULTIPLEXERS  => CTS_OUTPUT_MULTIPLEXERS,
-			ADDON_LINE_COUNT     => CTS_ADDON_LINE_COUNT,
+			TRIGGER_ADDON_COUNT  => 1,  --TRIGGER_ADDON_COUNT,
+			PERIPH_TRIGGER_COUNT => 0,  --PERIPH_TRIGGER_COUNT,
+			OUTPUT_MULTIPLEXERS  => 0,  --CTS_OUTPUT_MULTIPLEXERS,
+			ADDON_LINE_COUNT     => 38, --CTS_ADDON_LINE_COUNT,
 			ADDON_GROUPS         => 7,
 			ADDON_GROUP_UPPER    => (3, 7, 11, 15, 16, 17, others => 0)
 		)
 		port map(
 			CLK                        => clk_100_i,
 			RESET                      => reset_i,
-
-			--TRIGGERS_IN => trigger_in_buf_i,
 			TRIGGER_BUSY_OUT           => trigger_busy_i,
-			TIME_REFERENCE_OUT         => cts_trigger_out,
-			
-			ADDON_TRIGGERS_IN          => cts_addon_triggers_in,
-			ADDON_GROUP_ACTIVITY_OUT   => cts_addon_activity_i,
-			ADDON_GROUP_SELECTED_OUT   => cts_addon_selected_i,
-			
-			EXT_TRIGGER_IN             => cts_ext_trigger,
+			TIME_REFERENCE_OUT         => open, --cts_trigger_out,
+			ADDON_TRIGGERS_IN          => (others => '0'),
+			ADDON_GROUP_ACTIVITY_OUT   => open,
+			ADDON_GROUP_SELECTED_OUT   => open,
+			EXT_TRIGGER_IN             => cts_ext_trigger, -- my local trigger
 			EXT_STATUS_IN              => cts_ext_status,
 			EXT_CONTROL_OUT            => cts_ext_control,
 			EXT_HEADER_BITS_IN         => cts_ext_header,
-			
-			PERIPH_TRIGGER_IN          => cts_periph_trigger_i,
-			OUTPUT_MULTIPLEXERS_OUT    => cts_output_multiplexers_i,
-			
+			PERIPH_TRIGGER_IN          => (others => '0'),
+			OUTPUT_MULTIPLEXERS_OUT    => open,
 			CTS_TRG_SEND_OUT           => cts_trg_send,
 			CTS_TRG_TYPE_OUT           => cts_trg_type,
 			CTS_TRG_NUMBER_OUT         => cts_trg_number,
@@ -776,7 +800,6 @@ begin
 			CTS_TRG_RND_CODE_OUT       => cts_trg_code,
 			CTS_TRG_STATUS_BITS_IN     => cts_trg_status_bits,
 			CTS_TRG_BUSY_IN            => cts_trg_busy,
-			
 			CTS_IPU_SEND_OUT           => cts_ipu_send,
 			CTS_IPU_TYPE_OUT           => cts_ipu_type,
 			CTS_IPU_NUMBER_OUT         => cts_ipu_number,
@@ -784,21 +807,18 @@ begin
 			CTS_IPU_RND_CODE_OUT       => cts_ipu_code,
 			CTS_IPU_STATUS_BITS_IN     => cts_ipu_status_bits,
 			CTS_IPU_BUSY_IN            => cts_ipu_busy,
-			
-			CTS_REGIO_ADDR_IN          => cts_regio_addr,
-			CTS_REGIO_DATA_IN          => cts_regio_data_out,
-			CTS_REGIO_READ_ENABLE_IN   => cts_regio_read,
-			CTS_REGIO_WRITE_ENABLE_IN  => cts_regio_write,
-			CTS_REGIO_DATA_OUT         => cts_regio_data_in,
-			CTS_REGIO_DATAREADY_OUT    => cts_regio_dataready,
-			CTS_REGIO_WRITE_ACK_OUT    => cts_regio_write_ack,
-			CTS_REGIO_UNKNOWN_ADDR_OUT => cts_regio_unknown_addr,
-			
+			CTS_REGIO_ADDR_IN          => (others => '0'),
+			CTS_REGIO_DATA_IN          => (others => '0'),
+			CTS_REGIO_READ_ENABLE_IN   => '0',
+			CTS_REGIO_WRITE_ENABLE_IN  => '0',
+			CTS_REGIO_DATA_OUT         => open,
+			CTS_REGIO_DATAREADY_OUT    => open,
+			CTS_REGIO_WRITE_ACK_OUT    => open,
+			CTS_REGIO_UNKNOWN_ADDR_OUT => open,
 			LVL1_TRG_DATA_VALID_IN     => cts_rdo_trg_data_valid,
 			LVL1_VALID_TIMING_TRG_IN   => cts_rdo_valid_timing_trg,
 			LVL1_VALID_NOTIMING_TRG_IN => cts_rdo_valid_notiming_trg,
 			LVL1_INVALID_TRG_IN        => cts_rdo_invalid_trg,
-			
 			FEE_TRG_STATUSBITS_OUT     => cts_rdo_trg_status_bits_cts,
 			FEE_DATA_OUT               => cts_rdo_data,
 			FEE_DATA_WRITE_OUT         => cts_rdo_write,
@@ -807,22 +827,19 @@ begin
 
 	soda_trigger : entity work.soda_cts_module
 		port map(
-			CLK               => clk_100_i,
-			RESET_IN          => reset_i,
-
-			EXT_TRG_IN        => superburst_update_S,
-			
-			TRG_SYNC_OUT      => cts_ext_trigger,
-			TRIGGER_IN        => cts_rdo_trg_data_valid,
-			DATA_OUT          => cts_rdo_additional(0).data,
-			WRITE_OUT         => cts_rdo_additional(0).data_write,
-			FINISHED_OUT      => cts_rdo_additional(0).data_finished,
-			STATUSBIT_OUT     => cts_rdo_additional(0).statusbits,
-			
-			CONTROL_REG_IN    => cts_ext_control,
-			STATUS_REG_OUT    => cts_ext_status,
-			HEADER_REG_OUT    => cts_ext_header,
-			DEBUG             => cts_ext_debug
+			CLK            => clk_100_i,
+			RESET_IN       => reset_i,
+			EXT_TRG_IN     => superburst_update_S,
+			TRG_SYNC_OUT   => cts_ext_trigger,
+			TRIGGER_IN     => cts_rdo_trg_data_valid,
+			DATA_OUT       => cts_rdo_additional_data,
+			WRITE_OUT      => cts_rdo_additional_write(0),
+			FINISHED_OUT   => cts_rdo_additional_finished(0),
+			STATUSBIT_OUT  => cts_rdo_trg_status_bits_additional,
+			CONTROL_REG_IN => cts_ext_control,
+			STATUS_REG_OUT => cts_ext_status,
+			HEADER_REG_OUT => cts_ext_header,
+			DEBUG          => cts_ext_debug
 		);
 
 	---------------------------------------------------------------------------
@@ -1071,88 +1088,231 @@ begin
 	-- TrbNet HUB
 	--------------------------------------------------------------------------- 
 
-	THE_HUB : trb_net16_hub_streaming_port
+	THE_HUB : entity work.trb_net16_hub_streaming_port_sctrl_cts
 		generic map(
-			HUB_USED_CHANNELS      => (c_YES, c_YES, c_NO, c_YES),
-			INIT_ADDRESS           => x"f30a",
-			MII_NUMBER             => 5, --INTERFACE_NUM,
-			MII_IS_UPLINK          => (0 => 1, others => 0),
-			MII_IS_DOWNLINK        => (0 => 0, others => 1),
-			MII_IS_UPLINK_ONLY     => (0 => 1, others => 0),
-			USE_ONEWIRE            => c_YES,
-			HARDWARE_VERSION       => HARDWARE_INFO,
-			INCLUDED_FEATURES      => INCLUDED_FEATURES,
-			INIT_ENDPOINT_ID       => x"0005",
-			CLOCK_FREQUENCY        => 100,
-			BROADCAST_SPECIAL_ADDR => BROADCAST_SPECIAL_ADDR
+			INIT_ADDRESS                  => x"F3C0",
+			MII_NUMBER                    => 5, --INTERFACE_NUM,
+			MII_IS_UPLINK                 => (0 => 1, others => 0),
+			MII_IS_DOWNLINK               => (0 => 0, others => 1),
+			MII_IS_UPLINK_ONLY            => (0 => 1, others => 0),
+			--			MII_NUMBER                    => INTERFACE_NUM,
+			--			MII_IS_UPLINK                 => IS_UPLINK,
+			--			MII_IS_DOWNLINK               => IS_DOWNLINK,
+			--			MII_IS_UPLINK_ONLY            => IS_UPLINK_ONLY,
+			HARDWARE_VERSION              => HARDWARE_INFO,
+			INIT_ENDPOINT_ID              => x"0005",
+			BROADCAST_BITMASK             => x"7E",
+			CLOCK_FREQUENCY               => 100,
+			USE_ONEWIRE                   => c_YES,
+			BROADCAST_SPECIAL_ADDR        => x"35",
+			RDO_ADDITIONAL_PORT           => 1, --cts_rdo_additional_ports,
+			RDO_DATA_BUFFER_DEPTH         => 9,
+			RDO_DATA_BUFFER_FULL_THRESH   => 2 ** 9 - 128,
+			RDO_HEADER_BUFFER_DEPTH       => 9,
+			RDO_HEADER_BUFFER_FULL_THRESH => 2 ** 9 - 16
 		)
 		port map(
-			CLK                                    => clk_100_i,
-			RESET                                  => reset_i,
-			CLK_EN                                 => '1',
+			CLK                                                => clk_100_i,
+			RESET                                              => reset_i,
+			CLK_EN                                             => '1',
 
-			--Media interfacces
-			MED_DATAREADY_OUT(5 * 1 - 1 downto 0)  => med_dataready_out,
-			MED_DATA_OUT(5 * 16 - 1 downto 0)      => med_data_out,
-			MED_PACKET_NUM_OUT(5 * 3 - 1 downto 0) => med_packet_num_out,
-			MED_READ_IN(5 * 1 - 1 downto 0)        => med_read_in,
-			MED_DATAREADY_IN(5 * 1 - 1 downto 0)   => med_dataready_in,
-			MED_DATA_IN(5 * 16 - 1 downto 0)       => med_data_in,
-			MED_PACKET_NUM_IN(5 * 3 - 1 downto 0)  => med_packet_num_in,
-			MED_READ_OUT(5 * 1 - 1 downto 0)       => med_read_out,
-			MED_STAT_OP(5 * 16 - 1 downto 0)       => med_stat_op,
-			MED_CTRL_OP(5 * 16 - 1 downto 0)       => med_ctrl_op,
+			-- Media interfacces ---------------------------------------------------------------
+			MED_DATAREADY_OUT(INTERFACE_NUM * 1 - 1 downto 0)  => med_dataready_out,
+			MED_DATA_OUT(INTERFACE_NUM * 16 - 1 downto 0)      => med_data_out,
+			MED_PACKET_NUM_OUT(INTERFACE_NUM * 3 - 1 downto 0) => med_packet_num_out,
+			MED_READ_IN(INTERFACE_NUM * 1 - 1 downto 0)        => med_read_in,
+			MED_DATAREADY_IN(INTERFACE_NUM * 1 - 1 downto 0)   => med_dataready_in,
+			MED_DATA_IN(INTERFACE_NUM * 16 - 1 downto 0)       => med_data_in,
+			MED_PACKET_NUM_IN(INTERFACE_NUM * 3 - 1 downto 0)  => med_packet_num_in,
+			MED_READ_OUT(INTERFACE_NUM * 1 - 1 downto 0)       => med_read_out,
+			MED_STAT_OP(INTERFACE_NUM * 16 - 1 downto 0)       => med_stat_op,
+			MED_CTRL_OP(INTERFACE_NUM * 16 - 1 downto 0)       => med_ctrl_op,
 
-			--Event information coming from CTSCTS_READOUT_TYPE_OUT
-			CTS_NUMBER_OUT                         => open,
-			CTS_CODE_OUT                           => open,
-			CTS_INFORMATION_OUT                    => open,
-			CTS_READOUT_TYPE_OUT                   => open,
-			CTS_START_READOUT_OUT                  => open,
-			--Information   sent to CTS
-			--status data, equipped with DHDR
-			CTS_DATA_IN                            => (others => '0'),
-			CTS_DATAREADY_IN                       => '0',
-			CTS_READOUT_FINISHED_IN                => '0',
-			CTS_READ_OUT                           => open,
-			CTS_LENGTH_IN                          => (others => '0'),
-			CTS_STATUS_BITS_IN                     => (others => '0'),
+			-- Gbe Read-out Path ---------------------------------------------------------------
+			--Event information coming from CTS for GbE
+			GBE_CTS_NUMBER_OUT                                 => open,
+			GBE_CTS_CODE_OUT                                   => open,
+			GBE_CTS_INFORMATION_OUT                            => open,
+			GBE_CTS_READOUT_TYPE_OUT                           => open,
+			GBE_CTS_START_READOUT_OUT                          => open,
+			--Information sent to CTS
+			GBE_CTS_READOUT_FINISHED_IN                        => '0',
+			GBE_CTS_STATUS_BITS_IN                             => (others => '0'),
 			-- Data from Frontends
-			FEE_DATA_OUT                           => open,
-			FEE_DATAREADY_OUT                      => open,
-			FEE_READ_IN                            => '1',
-			FEE_STATUS_BITS_OUT                    => open,
-			FEE_BUSY_OUT                           => open,
-			MY_ADDRESS_IN                          => my_address,
-			COMMON_STAT_REGS                       => common_stat_regs, --open,
-			COMMON_CTRL_REGS                       => common_ctrl_regs, --open,
-			ONEWIRE                                => TEMPSENS,
-			ONEWIRE_MONITOR_IN                     => open,
-			MY_ADDRESS_OUT                         => my_address,
-			TIMER_TICKS_OUT                        => open,
-			REGIO_ADDR_OUT                         => regio_addr_out,
-			REGIO_READ_ENABLE_OUT                  => regio_read_enable_out,
-			REGIO_WRITE_ENABLE_OUT                 => regio_write_enable_out,
-			REGIO_DATA_OUT                         => regio_data_out,
-			REGIO_DATA_IN                          => regio_data_in,
-			REGIO_DATAREADY_IN                     => regio_dataready_in,
-			REGIO_NO_MORE_DATA_IN                  => regio_no_more_data_in,
-			REGIO_WRITE_ACK_IN                     => regio_write_ack_in,
-			REGIO_UNKNOWN_ADDR_IN                  => regio_unknown_addr_in,
-			REGIO_TIMEOUT_OUT                      => regio_timeout_out,
+			GBE_FEE_DATA_OUT                                   => open,
+			GBE_FEE_DATAREADY_OUT                              => open,
+			GBE_FEE_READ_IN                                    => '1',
+			GBE_FEE_STATUS_BITS_OUT                            => open,
+			GBE_FEE_BUSY_OUT                                   => open,
+
+			-- CTS Request Sending -------------------------------------------------------------
+			--LVL1 trigger
+			CTS_TRG_SEND_IN                                    => cts_trg_send,
+			CTS_TRG_TYPE_IN                                    => cts_trg_type,
+			CTS_TRG_NUMBER_IN                                  => cts_trg_number,
+			CTS_TRG_INFORMATION_IN                             => cts_trg_information,
+			CTS_TRG_RND_CODE_IN                                => cts_trg_code,
+			CTS_TRG_STATUS_BITS_OUT                            => cts_trg_status_bits,
+			CTS_TRG_BUSY_OUT                                   => cts_trg_busy,
+			--IPU Channel
+			CTS_IPU_SEND_IN                                    => cts_ipu_send,
+			CTS_IPU_TYPE_IN                                    => cts_ipu_type,
+			CTS_IPU_NUMBER_IN                                  => cts_ipu_number,
+			CTS_IPU_INFORMATION_IN                             => cts_ipu_information,
+			CTS_IPU_RND_CODE_IN                                => cts_ipu_code,
+			-- Receiver port
+			CTS_IPU_STATUS_BITS_OUT                            => cts_ipu_status_bits,
+			CTS_IPU_BUSY_OUT                                   => cts_ipu_busy,
+
+			-- CTS Data Readout ----------------------------------------------------------------
+			--Trigger to CTS out
+			RDO_TRIGGER_IN                                     => cts_rdo_trigger,
+			RDO_TRG_DATA_VALID_OUT                             => cts_rdo_trg_data_valid,
+			RDO_VALID_TIMING_TRG_OUT                           => cts_rdo_valid_timing_trg,
+			RDO_VALID_NOTIMING_TRG_OUT                         => cts_rdo_valid_notiming_trg,
+			RDO_INVALID_TRG_OUT                                => cts_rdo_invalid_trg,
+			RDO_TRG_TYPE_OUT                                   => open, --cts_rdo_trg_type,
+			RDO_TRG_CODE_OUT                                   => open, --cts_rdo_trg_code,
+			RDO_TRG_INFORMATION_OUT                            => open, --cts_rdo_trg_information,
+			RDO_TRG_NUMBER_OUT                                 => open, --cts_rdo_trg_number,
+
+			--Data from CTS in
+			RDO_TRG_STATUSBITS_IN                              => cts_rdo_trg_status_bits_cts,
+			RDO_DATA_IN                                        => cts_rdo_data,
+			RDO_DATA_WRITE_IN                                  => cts_rdo_write,
+			RDO_DATA_FINISHED_IN                               => cts_rdo_finished,
+			--Data from additional modules
+			RDO_ADDITIONAL_STATUSBITS_IN                       => cts_rdo_trg_status_bits_additional,
+			RDO_ADDITIONAL_DATA                                => cts_rdo_additional_data,
+			RDO_ADDITIONAL_WRITE                               => cts_rdo_additional_write,
+			RDO_ADDITIONAL_FINISHED                            => cts_rdo_additional_finished,
+
+			-- Slow Control --------------------------------------------------------------------
+			COMMON_STAT_REGS                                   => common_stat_regs, --open,
+			COMMON_CTRL_REGS                                   => common_ctrl_regs, --open,
+			ONEWIRE                                            => TEMPSENS,
+			ONEWIRE_MONITOR_IN                                 => open,
+			MY_ADDRESS_OUT                                     => my_address,
+			UNIQUE_ID_OUT                                      => open,
+			TIMER_TICKS_OUT                                    => open,
+			EXTERNAL_SEND_RESET                                => '0',
+			REGIO_ADDR_OUT                                     => regio_addr_out,
+			REGIO_READ_ENABLE_OUT                              => regio_read_enable_out,
+			REGIO_WRITE_ENABLE_OUT                             => regio_write_enable_out,
+			REGIO_DATA_OUT                                     => regio_data_out,
+			REGIO_DATA_IN                                      => regio_data_in,
+			REGIO_DATAREADY_IN                                 => regio_dataready_in,
+			REGIO_NO_MORE_DATA_IN                              => regio_no_more_data_in,
+			REGIO_WRITE_ACK_IN                                 => regio_write_ack_in,
+			REGIO_UNKNOWN_ADDR_IN                              => regio_unknown_addr_in,
+			REGIO_TIMEOUT_OUT                                  => regio_timeout_out,
+
+			--Gbe Sctrl Input
+			GSC_INIT_DATAREADY_IN                              => '0',
+			GSC_INIT_DATA_IN                                   => (others => '0'),
+			GSC_INIT_PACKET_NUM_IN                             => (others => '0'),
+			GSC_INIT_READ_OUT                                  => open,
+			GSC_REPLY_DATAREADY_OUT                            => open,
+			GSC_REPLY_DATA_OUT                                 => open,
+			GSC_REPLY_PACKET_NUM_OUT                           => open,
+			GSC_REPLY_READ_IN                                  => '1',
+			GSC_BUSY_OUT                                       => open,
 
 			--status and control ports
-			HUB_STAT_CHANNEL                       => open,
-			HUB_STAT_GEN                           => open,
-			MPLEX_CTRL                             => (others => '0'),
-			MPLEX_STAT                             => open,
-			STAT_REGS                              => open,
-			STAT_CTRL_REGS                         => open,
+			HUB_STAT_CHANNEL                                   => open,
+			HUB_STAT_GEN                                       => open,
+			MPLEX_CTRL                                         => (others => '0'),
+			MPLEX_STAT                                         => open,
+			STAT_REGS                                          => open,
+			STAT_CTRL_REGS                                     => open,
 
 			--Fixed status and control ports
-			STAT_DEBUG                             => open,
-			CTRL_DEBUG                             => (others => '0')
+			STAT_DEBUG                                         => open,
+			CTRL_DEBUG                                         => (others => '0')
 		);
+
+	--	THE_HUB : trb_net16_hub_streaming_port
+	--		generic map(
+	--			HUB_USED_CHANNELS      => (c_YES, c_YES, c_NO, c_YES),
+	--			INIT_ADDRESS           => x"f30a",
+	--			MII_NUMBER             => 5, --INTERFACE_NUM,
+	--			MII_IS_UPLINK          => (0 => 1, others => 0),
+	--			MII_IS_DOWNLINK        => (0 => 0, others => 1),
+	--			MII_IS_UPLINK_ONLY     => (0 => 1, others => 0),
+	--			USE_ONEWIRE            => c_YES,
+	--			HARDWARE_VERSION       => HARDWARE_INFO,
+	--			INCLUDED_FEATURES      => INCLUDED_FEATURES,
+	--			INIT_ENDPOINT_ID       => x"0005",
+	--			CLOCK_FREQUENCY        => 100,
+	--			BROADCAST_SPECIAL_ADDR => BROADCAST_SPECIAL_ADDR
+	--		)
+	--		port map(
+	--			CLK                                    => clk_100_i,
+	--			RESET                                  => reset_i,
+	--			CLK_EN                                 => '1',
+	--
+	--			--Media interfacces
+	--			MED_DATAREADY_OUT(5 * 1 - 1 downto 0)  => med_dataready_out,
+	--			MED_DATA_OUT(5 * 16 - 1 downto 0)      => med_data_out,
+	--			MED_PACKET_NUM_OUT(5 * 3 - 1 downto 0) => med_packet_num_out,
+	--			MED_READ_IN(5 * 1 - 1 downto 0)        => med_read_in,
+	--			MED_DATAREADY_IN(5 * 1 - 1 downto 0)   => med_dataready_in,
+	--			MED_DATA_IN(5 * 16 - 1 downto 0)       => med_data_in,
+	--			MED_PACKET_NUM_IN(5 * 3 - 1 downto 0)  => med_packet_num_in,
+	--			MED_READ_OUT(5 * 1 - 1 downto 0)       => med_read_out,
+	--			MED_STAT_OP(5 * 16 - 1 downto 0)       => med_stat_op,
+	--			MED_CTRL_OP(5 * 16 - 1 downto 0)       => med_ctrl_op,
+	--
+	--			--Event information coming from CTSCTS_READOUT_TYPE_OUT
+	--			CTS_NUMBER_OUT                         => open,
+	--			CTS_CODE_OUT                           => open,
+	--			CTS_INFORMATION_OUT                    => open,
+	--			CTS_READOUT_TYPE_OUT                   => open,
+	--			CTS_START_READOUT_OUT                  => open,
+	--			--Information   sent to CTS
+	--			--status data, equipped with DHDR
+	--			CTS_DATA_IN                            => (others => '0'),
+	--			CTS_DATAREADY_IN                       => '0',
+	--			CTS_READOUT_FINISHED_IN                => '0',
+	--			CTS_READ_OUT                           => open,
+	--			CTS_LENGTH_IN                          => (others => '0'),
+	--			CTS_STATUS_BITS_IN                     => (others => '0'),
+	--			-- Data from Frontends
+	--			FEE_DATA_OUT                           => open,
+	--			FEE_DATAREADY_OUT                      => open,
+	--			FEE_READ_IN                            => '1',
+	--			FEE_STATUS_BITS_OUT                    => open,
+	--			FEE_BUSY_OUT                           => open,
+	--			MY_ADDRESS_IN                          => my_address,
+	--			COMMON_STAT_REGS                       => common_stat_regs, --open,
+	--			COMMON_CTRL_REGS                       => common_ctrl_regs, --open,
+	--			ONEWIRE                                => TEMPSENS,
+	--			ONEWIRE_MONITOR_IN                     => open,
+	--			MY_ADDRESS_OUT                         => my_address,
+	--			TIMER_TICKS_OUT                        => open,
+	--			REGIO_ADDR_OUT                         => regio_addr_out,
+	--			REGIO_READ_ENABLE_OUT                  => regio_read_enable_out,
+	--			REGIO_WRITE_ENABLE_OUT                 => regio_write_enable_out,
+	--			REGIO_DATA_OUT                         => regio_data_out,
+	--			REGIO_DATA_IN                          => regio_data_in,
+	--			REGIO_DATAREADY_IN                     => regio_dataready_in,
+	--			REGIO_NO_MORE_DATA_IN                  => regio_no_more_data_in,
+	--			REGIO_WRITE_ACK_IN                     => regio_write_ack_in,
+	--			REGIO_UNKNOWN_ADDR_IN                  => regio_unknown_addr_in,
+	--			REGIO_TIMEOUT_OUT                      => regio_timeout_out,
+	--
+	--			--status and control ports
+	--			HUB_STAT_CHANNEL                       => open,
+	--			HUB_STAT_GEN                           => open,
+	--			MPLEX_CTRL                             => (others => '0'),
+	--			MPLEX_STAT                             => open,
+	--			STAT_REGS                              => open,
+	--			STAT_CTRL_REGS                         => open,
+	--
+	--			--Fixed status and control ports
+	--			STAT_DEBUG                             => open,
+	--			CTRL_DEBUG                             => (others => '0')
+	--		);
 
 	---------------------------------------------------------------------------
 	-- Bus Handler
