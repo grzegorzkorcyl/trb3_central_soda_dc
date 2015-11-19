@@ -293,7 +293,7 @@ begin
 
 	channel_mask_i <= (others => '1');
 	channel_edge_select_i <= (others => '1');
-	periph_trigger_mask_i <= (others => "0");
+	periph_trigger_mask_i <= (others => (others => '0'));
 
    proc_output: process(CLK_IN) is
       variable channels_delay_v : std_logic_vector(15 downto 0) := (others => '1');
