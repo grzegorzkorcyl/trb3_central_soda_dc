@@ -36,7 +36,9 @@ begin
 		reset_i <= '0';
 		
 		wait for 1 us;
-		
+		cts_ext_trigger <= '1';
+		wait for 100 ns;
+		cts_ext_trigger <= '0';
 		
 		wait;
 	end process;
