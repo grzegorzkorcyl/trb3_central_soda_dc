@@ -528,6 +528,9 @@ architecture trb3_central_arch of trb3_central is
 	signal cts_rdo_additional_write           : std_logic_vector(1 - 1 downto 0)      := (others => '0');
 	signal cts_rdo_additional_finished        : std_logic_vector(1 - 1 downto 0)      := (others => '1');
 	signal cts_rdo_trg_status_bits_additional : std_logic_vector(32 * 1 - 1 downto 0) := (others => '0');
+	signal update_vec                         : std_logic_vector(2 downto 0)          := "000";
+	signal update_toggle                      : std_logic                             := '0';
+	signal update_synced                      : std_logic                             := '0';
 
 begin
 
@@ -760,6 +763,22 @@ begin
 			RX_DLM_WORD_IN           => RXtop_DLM_word_S --TXfee_DLM_word_S(0)
 		);
 
+	process(clk_SODA200_i)
+	begin
+		if rising_edge(clk_SODA200_i) then
+			update_toggle <= update_toggle xor superburst_update_S;
+		end if;
+	end process;
+
+	process(clk_100_i)
+	begin
+		if rising_edge(clk_100_i) then
+			update_vec <= update_vec(1 downto 0) & update_toggle;
+		end if;
+	end process;
+
+	update_synced <= update_vec(2) xor update_vec(1);
+
 	---------------------------------------------------------------------------
 	-- CTS instance for generating artificial trigger out of superburst update 
 	--------------------------------------------------------------------------- 
@@ -829,7 +848,7 @@ begin
 		port map(
 			CLK            => clk_100_i,
 			RESET_IN       => reset_i,
-			EXT_TRG_IN     => superburst_update_S,
+			EXT_TRG_IN     => update_synced,
 			TRG_SYNC_OUT   => cts_ext_trigger,
 			TRIGGER_IN     => cts_rdo_trg_data_valid,
 			DATA_OUT       => cts_rdo_additional_data,
