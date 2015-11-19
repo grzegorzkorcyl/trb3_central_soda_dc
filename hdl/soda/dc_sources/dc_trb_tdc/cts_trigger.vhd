@@ -231,7 +231,7 @@ begin
          CLK_IN => CLK_IN,
          RST_IN => RESET_IN,
          DATA_IN => triggers_i(i),
-         DATA_OUT => open, --trigger_inputs_i(i),
+         DATA_OUT => trigger_inputs_i(i),
          CONFIG_IN => trigger_input_configs_i(i)
       );
    end generate;
@@ -294,6 +294,7 @@ begin
 	channel_mask_i <= (others => '1');
 	channel_edge_select_i <= (others => '1');
 	periph_trigger_mask_i <= (others => (others => '0'));
+	trigger_input_configs_i <= (others => (others => '0'));
 
    proc_output: process(CLK_IN) is
       variable channels_delay_v : std_logic_vector(15 downto 0) := (others => '1');
