@@ -374,32 +374,32 @@ begin
 
 -- AddOn Leds
 -----------------------------------------
-   process(CLK_IN) is
-      variable from : integer;
-   begin
-      if rising_edge(CLK_IN) then
-         from := 0;
-         if CLK_1KHZ_IN ='1' then
-            addon_group_activity_i <= (others => '0');
-         
-         else
-            for i in 0 to ADDON_GROUPS-1 loop
-               addon_group_activity_i(i) <= addon_group_activity_i(i) or
-                  OR_ALL(ADDON_TRIGGERS_IN(ADDON_GROUP_UPPER(i) downto from));
-               
-               addon_group_selected_i(i) <= '0';
-               for j in 0 to TRIGGER_ADDON_COUNT-1 loop
-                  if from <= to_integer( UNSIGNED(trigger_addon_configs_i(j)) ) and 
-                     to_integer( UNSIGNED(trigger_addon_configs_i(j)) ) <= ADDON_GROUP_UPPER(i) then
-                     addon_group_selected_i(i) <= '1';
-                  end if;
-               end loop;
-               
-               from := ADDON_GROUP_UPPER(i)+1;
-            end loop;
-         end if;
-      end if;
-   end process;
+--   process(CLK_IN) is
+--      variable from : integer;
+--   begin
+--      if rising_edge(CLK_IN) then
+--         from := 0;
+--         if CLK_1KHZ_IN ='1' then
+--            addon_group_activity_i <= (others => '0');
+--         
+--         else
+--            for i in 0 to ADDON_GROUPS-1 loop
+--               addon_group_activity_i(i) <= addon_group_activity_i(i) or
+--                  OR_ALL(ADDON_TRIGGERS_IN(ADDON_GROUP_UPPER(i) downto from));
+--               
+--               addon_group_selected_i(i) <= '0';
+--               for j in 0 to TRIGGER_ADDON_COUNT-1 loop
+--                  if from <= to_integer( UNSIGNED(trigger_addon_configs_i(j)) ) and 
+--                     to_integer( UNSIGNED(trigger_addon_configs_i(j)) ) <= ADDON_GROUP_UPPER(i) then
+--                     addon_group_selected_i(i) <= '1';
+--                  end if;
+--               end loop;
+--               
+--               from := ADDON_GROUP_UPPER(i)+1;
+--            end loop;
+--         end if;
+--      end if;
+--   end process;
    
    ADDON_GROUP_ACTIVITY_OUT <= addon_group_activity_i;
    ADDON_GROUP_SELECTED_OUT <= addon_group_selected_i;
