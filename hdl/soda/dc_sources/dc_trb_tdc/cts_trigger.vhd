@@ -226,49 +226,52 @@ begin
       end loop;   
    end process;
    
-   gen_trigger_inputs: for i in 0 to EFFECTIVE_INPUT_COUNT-1 generate
-      my_trigger_input: CTS_TRG_INPUT port map (
-         CLK_IN => CLK_IN,
-         RST_IN => RESET_IN,
-         DATA_IN => triggers_i(i),
-         DATA_OUT => trigger_inputs_i(i),
-         CONFIG_IN => trigger_input_configs_i(i)
-      );
-   end generate;
-   
-   gen_coin: for i in 0 to TRIGGER_COIN_COUNT - 1 generate
-      my_coin: CTS_TRG_COIN 
-      generic map (
-         INPUT_COUNT => EFFECTIVE_INPUT_COUNT
-      )
-      port map (
-         CLK_IN => CLK_IN,
-         RST_IN => RESET_IN,
-         DATA_IN => trigger_inputs_i,
-         TRIGGER_OUT => coins_i(i),
-         CONFIG_IN => coin_config_i(i)
-      );
-   end generate;
-   
-   gen_rand_pulser: for i in 0 to TRIGGER_RAND_PULSER - 1 generate
-      my_rand_pulser: CTS_TRG_PSEUDORAND_PULSER
-      generic map (
-         DATA_XOR     => STD_LOGIC_VECTOR(TO_UNSIGNED(i, 32))
-      ) port map (
-         CLK_IN       => CLK_IN,
-         THRESHOLD_IN => rand_pulser_threshold_i(i),
-         TRIGGER_OUT  => open  --rand_pulsers_i(i)
-      );
-   end generate;
-   
-   proc_periph: process(CLK_IN) is
-   begin
-      if rising_edge(clk_in) and PERIPH_TRIGGER_COUNT > 0 then
-         for i in 0 to PERIPH_TRIGGER_COUNT - 1 loop
-            channels_i(ITC_BASE_PERIPH + i) <= OR_ALL( periph_trigger_mask_i(i) and PERIPH_TRIGGER_IN );
-         end loop;
-      end if;
-   end process;
+--   gen_trigger_inputs: for i in 0 to EFFECTIVE_INPUT_COUNT-1 generate
+--      my_trigger_input: CTS_TRG_INPUT port map (
+--         CLK_IN => CLK_IN,
+--         RST_IN => RESET_IN,
+--         DATA_IN => triggers_i(i),
+--         DATA_OUT => trigger_inputs_i(i),
+--         CONFIG_IN => trigger_input_configs_i(i)
+--      );
+--   end generate;
+--   
+--   gen_coin: for i in 0 to TRIGGER_COIN_COUNT - 1 generate
+--      my_coin: CTS_TRG_COIN 
+--      generic map (
+--         INPUT_COUNT => EFFECTIVE_INPUT_COUNT
+--      )
+--      port map (
+--         CLK_IN => CLK_IN,
+--         RST_IN => RESET_IN,
+--         DATA_IN => trigger_inputs_i,
+--         TRIGGER_OUT => coins_i(i),
+--         CONFIG_IN => coin_config_i(i)
+--      );
+--   end generate;
+--   
+--   gen_rand_pulser: for i in 0 to TRIGGER_RAND_PULSER - 1 generate
+--      my_rand_pulser: CTS_TRG_PSEUDORAND_PULSER
+--      generic map (
+--         DATA_XOR     => STD_LOGIC_VECTOR(TO_UNSIGNED(i, 32))
+--      ) port map (
+--         CLK_IN       => CLK_IN,
+--         THRESHOLD_IN => rand_pulser_threshold_i(i),
+--         TRIGGER_OUT  => rand_pulsers_i(i)
+--      );
+--   end generate;
+--   
+--   proc_periph: process(CLK_IN) is
+--   begin
+--      if rising_edge(clk_in) and PERIPH_TRIGGER_COUNT > 0 then
+--         for i in 0 to PERIPH_TRIGGER_COUNT - 1 loop
+--            channels_i(ITC_BASE_PERIPH + i) <= OR_ALL( periph_trigger_mask_i(i) and PERIPH_TRIGGER_IN );
+--         end loop;
+--      end if;
+--   end process;
+
+	channels_i(0) <= EXT_TRIGGER_IN;
+	channels_i(15 downto 1) <= (others => '0');
    
    proc_pulser: process(CLK_IN) is
    begin
