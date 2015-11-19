@@ -472,7 +472,7 @@ begin
                      td_fsm_i <= TD_FSM_FEE_ENQUEUE_CHANNEL_COUNTER;
                   end if;
 
-                  --fee_input_counter_v := fee_input_counter_v + 1;
+                  fee_input_counter_v := fee_input_counter_v + 1;
 
                when TD_FSM_FEE_ENQUEUE_CHANNEL_COUNTER =>
                   if ro_configuration_buf_i(1) = '1' then
@@ -895,7 +895,8 @@ begin
    begin
       if rising_edge(CLK) then
          if RESET ='1' then
-            ro_configuration_i <= (0 => '1', others => '0');
+         	--ro_configuration_i <= (0 => '1', others => '0');
+         	ro_configuration_i <= (others => '0');
             throttle_threshold_i <= (others => '0');
             throttle_enabled_i <= '0';
             stop_triggers_i <= '0';
