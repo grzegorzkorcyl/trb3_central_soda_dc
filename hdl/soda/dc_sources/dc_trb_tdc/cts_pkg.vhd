@@ -328,13 +328,13 @@ package body cts_pkg is
      end if;
    end MIN;
    
-   function MAX(x : integer; y : integer)
-    return integer is
-   begin
-     if x > y then
-       return x;
-     else
-       return y;
-     end if;
-   end MAX;
+--   function MAX(x : integer; y : integer)
+--    return integer is
+--   begin
+--     if x > y then
+--       return x;
+--     else
+--       return y;
+--     end if;
+--   end MAX;
 end package body cts_pkg;
