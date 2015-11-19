@@ -16,7 +16,7 @@ entity CTS_TRIGGER is
       TRIGGER_ADDON_COUNT  : integer range 0 to 15 := 2;
       ADDON_LINE_COUNT     : integer range 0 to 255 := 22;
       ADDON_GROUPS        : integer range 1 to 8 := 5;
-      ADDON_GROUP_UPPER   : CTS_GROUP_CONFIG_T  := (3,7,11,12,13, others=>0);
+      ADDON_GROUP_UPPER   : CTS_GROUP_CONFIG_T  := (3,7,11,12,13, others=>'0');
 
       PERIPH_TRIGGER_COUNT: integer range 0 to 15 := 1;
       
@@ -226,52 +226,49 @@ begin
       end loop;   
    end process;
    
---   gen_trigger_inputs: for i in 0 to EFFECTIVE_INPUT_COUNT-1 generate
---      my_trigger_input: CTS_TRG_INPUT port map (
---         CLK_IN => CLK_IN,
---         RST_IN => RESET_IN,
---         DATA_IN => triggers_i(i),
---         DATA_OUT => trigger_inputs_i(i),
---         CONFIG_IN => trigger_input_configs_i(i)
---      );
---   end generate;
---   
---   gen_coin: for i in 0 to TRIGGER_COIN_COUNT - 1 generate
---      my_coin: CTS_TRG_COIN 
---      generic map (
---         INPUT_COUNT => EFFECTIVE_INPUT_COUNT
---      )
---      port map (
---         CLK_IN => CLK_IN,
---         RST_IN => RESET_IN,
---         DATA_IN => trigger_inputs_i,
---         TRIGGER_OUT => coins_i(i),
---         CONFIG_IN => coin_config_i(i)
---      );
---   end generate;
---   
---   gen_rand_pulser: for i in 0 to TRIGGER_RAND_PULSER - 1 generate
---      my_rand_pulser: CTS_TRG_PSEUDORAND_PULSER
---      generic map (
---         DATA_XOR     => STD_LOGIC_VECTOR(TO_UNSIGNED(i, 32))
---      ) port map (
---         CLK_IN       => CLK_IN,
---         THRESHOLD_IN => rand_pulser_threshold_i(i),
---         TRIGGER_OUT  => rand_pulsers_i(i)
---      );
---   end generate;
---   
---   proc_periph: process(CLK_IN) is
---   begin
---      if rising_edge(clk_in) and PERIPH_TRIGGER_COUNT > 0 then
---         for i in 0 to PERIPH_TRIGGER_COUNT - 1 loop
---            channels_i(ITC_BASE_PERIPH + i) <= OR_ALL( periph_trigger_mask_i(i) and PERIPH_TRIGGER_IN );
---         end loop;
---      end if;
---   end process;
-
-	channels_i(0) <= EXT_TRIGGER_IN;
-	channels_i(15 downto 1) <= (others => '0');
+   gen_trigger_inputs: for i in 0 to EFFECTIVE_INPUT_COUNT-1 generate
+      my_trigger_input: CTS_TRG_INPUT port map (
+         CLK_IN => CLK_IN,
+         RST_IN => RESET_IN,
+         DATA_IN => triggers_i(i),
+         DATA_OUT => trigger_inputs_i(i),
+         CONFIG_IN => trigger_input_configs_i(i)
+      );
+   end generate;
+   
+   gen_coin: for i in 0 to TRIGGER_COIN_COUNT - 1 generate
+      my_coin: CTS_TRG_COIN 
+      generic map (
+         INPUT_COUNT => EFFECTIVE_INPUT_COUNT
+      )
+      port map (
+         CLK_IN => CLK_IN,
+         RST_IN => RESET_IN,
+         DATA_IN => trigger_inputs_i,
+         TRIGGER_OUT => coins_i(i),
+         CONFIG_IN => coin_config_i(i)
+      );
+   end generate;
+   
+   gen_rand_pulser: for i in 0 to TRIGGER_RAND_PULSER - 1 generate
+      my_rand_pulser: CTS_TRG_PSEUDORAND_PULSER
+      generic map (
+         DATA_XOR     => STD_LOGIC_VECTOR(TO_UNSIGNED(i, 32))
+      ) port map (
+         CLK_IN       => CLK_IN,
+         THRESHOLD_IN => rand_pulser_threshold_i(i),
+         TRIGGER_OUT  => rand_pulsers_i(i)
+      );
+   end generate;
+   
+   proc_periph: process(CLK_IN) is
+   begin
+      if rising_edge(clk_in) and PERIPH_TRIGGER_COUNT > 0 then
+         for i in 0 to PERIPH_TRIGGER_COUNT - 1 loop
+            channels_i(ITC_BASE_PERIPH + i) <= OR_ALL( periph_trigger_mask_i(i) and PERIPH_TRIGGER_IN );
+         end loop;
+      end if;
+   end process;
    
    proc_pulser: process(CLK_IN) is
    begin
@@ -293,12 +290,6 @@ begin
 
    
 -- Common   
-
-	channel_mask_i <= (others => '1');
-	channel_edge_select_i <= (others => '1');
-	periph_trigger_mask_i <= (others => (others => '0'));
-	trigger_input_configs_i <= (others => (others => '0'));
-
    proc_output: process(CLK_IN) is
       variable channels_delay_v : std_logic_vector(15 downto 0) := (others => '1');
    begin
@@ -372,445 +363,445 @@ begin
    end process;
    
    gen_input_counter: for i in 0 to EFFECTIVE_INPUT_COUNT-1 generate
-      INPUT_COUNTERS_OUT(i*32 + 31 downto i*32) <= std_logic_vector(trigger_input_counters_i(i));
-      INPUT_EDGE_COUNTERS_OUT(i*32 + 31 downto i*32) <= std_logic_vector(trigger_input_edge_counters_i(i));
+      INPUT_COUNTERS_OUT(i*32 + 31 downto i*32) <= trigger_input_counters_i(i);
+      INPUT_EDGE_COUNTERS_OUT(i*32 + 31 downto i*32) <= trigger_input_edge_counters_i(i);
    end generate;
 
    gen_channel_counter: for i in 0 to channels_i'HIGH generate
-      CHANNEL_COUNTERS_OUT(i*32 + 31 downto i*32) <= std_logic_vector(channel_counters_i(i));
-      CHANNEL_EDGE_COUNTERS_OUT(i*32 + 31 downto i*32) <= std_logic_vector(channel_edge_counters_i(i));
+      CHANNEL_COUNTERS_OUT(i*32 + 31 downto i*32) <= channel_counters_i(i);
+      CHANNEL_EDGE_COUNTERS_OUT(i*32 + 31 downto i*32) <= channel_edge_counters_i(i);
    end generate;
 
 -- AddOn Leds
 -----------------------------------------
---   process(CLK_IN) is
---      variable from : integer;
---   begin
---      if rising_edge(CLK_IN) then
---         from := 0;
---         if CLK_1KHZ_IN ='1' then
---            addon_group_activity_i <= (others => '0');
---         
---         else
---            for i in 0 to ADDON_GROUPS-1 loop
---               addon_group_activity_i(i) <= addon_group_activity_i(i) or
---                  OR_ALL(ADDON_TRIGGERS_IN(ADDON_GROUP_UPPER(i) downto from));
---               
---               addon_group_selected_i(i) <= '0';
---               for j in 0 to TRIGGER_ADDON_COUNT-1 loop
---                  if from <= to_integer( UNSIGNED(trigger_addon_configs_i(j)) ) and 
---                     to_integer( UNSIGNED(trigger_addon_configs_i(j)) ) <= ADDON_GROUP_UPPER(i) then
---                     addon_group_selected_i(i) <= '1';
---                  end if;
---               end loop;
---               
---               from := ADDON_GROUP_UPPER(i)+1;
---            end loop;
---         end if;
---      end if;
---   end process;
+   process(CLK_IN) is
+      variable from : integer;
+   begin
+      if rising_edge(CLK_IN) then
+         from := 0;
+         if CLK_1KHZ_IN ='1' then
+            addon_group_activity_i <= (others => '0');
+         
+         else
+            for i in 0 to ADDON_GROUPS-1 loop
+               addon_group_activity_i(i) <= addon_group_activity_i(i) or
+                  OR_ALL(ADDON_TRIGGERS_IN(ADDON_GROUP_UPPER(i) downto from));
+               
+               addon_group_selected_i(i) <= '0';
+               for j in 0 to TRIGGER_ADDON_COUNT-1 loop
+                  if from <= to_integer( UNSIGNED(trigger_addon_configs_i(j)) ) and 
+                     to_integer( UNSIGNED(trigger_addon_configs_i(j)) ) <= ADDON_GROUP_UPPER(i) then
+                     addon_group_selected_i(i) <= '1';
+                  end if;
+               end loop;
+               
+               from := ADDON_GROUP_UPPER(i)+1;
+            end loop;
+         end if;
+      end if;
+   end process;
    
    ADDON_GROUP_ACTIVITY_OUT <= addon_group_activity_i;
    ADDON_GROUP_SELECTED_OUT <= addon_group_selected_i;
    
 -- RegIO
 -----------------------------------------
---   proc_regio: process(CLK_IN) is
---      variable addr : integer range 0 to 255;
---      variable ref_addr : integer range 0 to 255;
---   begin
---      if rising_edge(CLK_IN) then
---         REGIO_DATA_OUT <= (others => '0');
---         REGIO_DATAREADY_OUT <= '0';
---         REGIO_WRITE_ACK_OUT <= '0';
---         REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN or REGIO_READ_ENABLE_IN;
---
---         addr := to_integer(unsigned(REGIO_ADDR_IN(7 downto 0)));
---         ref_addr := 0;
---         
---         if RESET_IN = '1' then
---            -- modelsim want's it that way
---            channel_mask_i <= (others => '0');
---            channel_edge_select_i <= (others => '1');
---            
---            trigger_input_configs_i <= (others => (others => '0'));
---            coin_config_i <= (others => X"000F0000");
---            pulser_interval_i <= (1 => X"00000003",  others => (others => '1'));
---            
---            rand_pulser_threshold_i <= (others => (others => '0'));
---
---            ext_control_i <= (others => '0');
---            
---            for i in 0 to TRIGGER_ADDON_COUNT - 1 loop
---               trigger_addon_configs_i(i) <= STD_LOGIC_VECTOR(TO_UNSIGNED(i mod ADDON_LINE_COUNT, 8));
---            end loop;
---            
---            for i in 0 to OUTPUT_MULTIPLEXERS - 1 loop
---               output_multiplexer_configs_i(i) <= STD_LOGIC_VECTOR(TO_UNSIGNED(i mod output_multiplexer_ins_i'length, 8));
---            end loop;
---            
---         else
---
----- Trigger Channel Masking         
---            if addr = ref_addr then
---               REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
---               REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---               REGIO_DATA_OUT <= CTS_BLOCK_HEADER(id => 16#00#, len => 1);
---            end if;
---            ref_addr := ref_addr + 1;
---            
---            if addr = ref_addr then
---               REGIO_UNKNOWN_ADDR_OUT <= '0';
---               REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---               REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
---               
---               REGIO_DATA_OUT(31 downto 0) <= channel_edge_select_i & channel_mask_i;
---               
---               if REGIO_WRITE_ENABLE_IN = '1' then
---                  channel_mask_i        <= REGIO_DATA_IN(15 downto 0);
---                  channel_edge_select_i <= REGIO_DATA_IN(31 downto 16);
---               end if;
---            end if;
---            ref_addr := ref_addr + 1;
---            
----- Trigger Channel Counters
---            if addr = ref_addr then
---               REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
---               REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---               REGIO_DATA_OUT <= CTS_BLOCK_HEADER(id => 16#01#, len => 32);
---            end if;
---            ref_addr := ref_addr + 1;
---            
---            for i in 0 to channel_counters_i'HIGH loop
---               if addr = ref_addr then
---                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
---                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                  
---                  REGIO_DATA_OUT <= std_logic_vector( channel_counters_i(i) );
---               end if;
---               ref_addr := ref_addr + 1;
---
---               if addr = ref_addr then
---                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
---                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                  
---                  REGIO_DATA_OUT <= std_logic_vector( channel_edge_counters_i(i) );
---               end if;
---               ref_addr := ref_addr + 1;
---            end loop;
---            
----- Input Module Configuration            
---            if addr = ref_addr then
---               REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
---               REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---               REGIO_DATA_OUT <= CTS_BLOCK_HEADER(
---                  id => 16#10#,
---                  len => EFFECTIVE_INPUT_COUNT,
---                  itc_base => ITC_BASE_INPUTS,
---                  itc_num  => EFFECTIVE_INPUT_COUNT
---               );
---            end if;
---            ref_addr := ref_addr + 1;            
---
----- INPUT CONFIGURATION
---            for i in 0 to EFFECTIVE_INPUT_COUNT - 1 loop
---               if addr = ref_addr then
---                  REGIO_UNKNOWN_ADDR_OUT <= '0';
---                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                  REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
---                  
---                  REGIO_DATA_OUT(10 downto 0) <= trigger_input_configs_i(i);
---                  
---                  if REGIO_WRITE_ENABLE_IN = '1' then
---                     trigger_input_configs_i(i) <= REGIO_DATA_IN(10 downto 0);
---                  end if;
---               end if;
---               ref_addr := ref_addr + 1;            
---            end loop;
---
----- Trigger Input Counters
---            if addr = ref_addr then
---               REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
---               REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---               REGIO_DATA_OUT <= CTS_BLOCK_HEADER(id => 16#11#, len => 2*EFFECTIVE_INPUT_COUNT);
---            end if;
---            ref_addr := ref_addr + 1;
---            
---            for i in 0 to EFFECTIVE_INPUT_COUNT - 1 loop
---               if addr = ref_addr then
---                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
---                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                  
---                  REGIO_DATA_OUT <= std_logic_vector( trigger_input_counters_i(i) );
---               end if;
---               ref_addr := ref_addr + 1;
---
---               if addr = ref_addr then
---                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
---                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                  
---                  REGIO_DATA_OUT <= std_logic_vector( trigger_input_edge_counters_i(i) );
---               end if;
---               ref_addr := ref_addr + 1;               
---            end loop;
---            
----- COIN CONFIGURATION
---            if TRIGGER_COIN_COUNT > 0 then
---               if addr = ref_addr then
---                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
---                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                  REGIO_DATA_OUT <= CTS_BLOCK_HEADER(
---                     id => 16#20#,
---                     len => TRIGGER_COIN_COUNT,
---                     itc_base => ITC_BASE_COINS,
---                     itc_num  => TRIGGER_COIN_COUNT
---                  );
---               end if;
---               ref_addr := ref_addr + 1;  
---               
---               for i in 0 to TRIGGER_COIN_COUNT - 1 loop
---                  if addr=ref_addr then
---                     REGIO_UNKNOWN_ADDR_OUT <= '0';
---                     REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                     REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
---                     
---                     REGIO_DATA_OUT <= coin_config_i(i);
---                     
---                     if REGIO_WRITE_ENABLE_IN = '1' then
---                        coin_config_i(i) <= REGIO_DATA_IN;
---                     end if;
---                  end if;
---                  ref_addr := ref_addr + 1;                 
---   
---               end loop;
---            end if;
---            
----- ADDON MULTIPLEXER
---            if TRIGGER_ADDON_COUNT > 0 then
---               if addr = ref_addr then
---                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
---                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                  REGIO_DATA_OUT <= CTS_BLOCK_HEADER(
---                     id => 16#15#,
---                     len => TRIGGER_ADDON_COUNT,
---                     itc_base => ITC_BASE_INPUTS + TRIGGER_INPUT_COUNT,
---                     itc_num  => TRIGGER_ADDON_COUNT
---                  );
---               end if;
---               ref_addr := ref_addr + 1;  
---               
---               for i in 0 to TRIGGER_ADDON_COUNT - 1 loop
---                  if addr=ref_addr then
---                     REGIO_UNKNOWN_ADDR_OUT <= '0';
---                     REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                     REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
---                     
---                     REGIO_DATA_OUT <= (others => '0');
---                     REGIO_DATA_OUT(trigger_addon_configs_i(i)'RANGE) <= trigger_addon_configs_i(i);
---                     
---                     if REGIO_WRITE_ENABLE_IN = '1' then
---                        trigger_addon_configs_i(i) <= REGIO_DATA_IN(trigger_addon_configs_i(i)'RANGE);
---                     end if;
---                  end if;
---                  ref_addr := ref_addr + 1;                 
---   
---               end loop;
---            end if;            
---
----- OUTPUT MULTIPLEXER MODULE (important: has to appear AFTER type 0x10 and 0x12/0x15 in order to compute the length of the bitmasks correctly)
---            if OUTPUT_MULTIPLEXERS > 0 then
---               if addr = ref_addr then
---                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
---                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                  REGIO_DATA_OUT <= CTS_BLOCK_HEADER(
---                     id => 16#13#,
---                     len => OUTPUT_MULTIPLEXERS,
---                     itc_base => 0,
---                     itc_num  => 0
---                  );
---               end if;
---               ref_addr := ref_addr + 1;  
---               
---               for i in 0 to OUTPUT_MULTIPLEXERS - 1 loop
---                  if addr=ref_addr then
---                     REGIO_UNKNOWN_ADDR_OUT <= '0';
---                     REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                     REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
---                     
---                     REGIO_DATA_OUT <= (others => '0');
---                     REGIO_DATA_OUT(output_multiplexer_configs_i(i)'RANGE) <= output_multiplexer_configs_i(i);
---                     
---                     if REGIO_WRITE_ENABLE_IN = '1' then
---                        output_multiplexer_configs_i(i) <= REGIO_DATA_IN(output_multiplexer_configs_i(i)'RANGE);
---                     end if;
---                  end if;
---                  ref_addr := ref_addr + 1;                 
---   
---               end loop;
---            end if;            
---            
----- PERIPH TRIGGER 
---            if PERIPH_TRIGGER_COUNT > 0 then
---               if addr = ref_addr then
---                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
---                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                  REGIO_DATA_OUT <= CTS_BLOCK_HEADER(
---                     id => 16#14#,
---                     len => PERIPH_TRIGGER_COUNT,
---                     itc_base => ITC_BASE_PERIPH,
---                     itc_num  => PERIPH_TRIGGER_COUNT
---                  );
---               end if;
---               ref_addr := ref_addr + 1;  
---               
---               for i in 0 to PERIPH_TRIGGER_COUNT-1 loop
---                  if addr=ref_addr then
---                     REGIO_UNKNOWN_ADDR_OUT <= '0';
---                     REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                     REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
---                     
---                     REGIO_DATA_OUT <= (others => '0');
---                     REGIO_DATA_OUT(periph_trigger_mask_i(i)'range) <= periph_trigger_mask_i(i);
---                     
---                     if REGIO_WRITE_ENABLE_IN = '1' then
---                        periph_trigger_mask_i(i) <= REGIO_DATA_IN(periph_trigger_mask_i(i)'range);
---                     end if;
---                  end if;
---                  ref_addr := ref_addr + 1;                 
---               end loop;
---            end if;     
---            
----- TRIGGER_PULSER_COUNT CONFIGURATION
---            if TRIGGER_PULSER_COUNT > 0 then
---               if addr = ref_addr then
---                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
---                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                  REGIO_DATA_OUT <= CTS_BLOCK_HEADER(
---                     id => 16#30#,
---                     len => TRIGGER_PULSER_COUNT,
---                     itc_base => ITC_BASE_PULSER,
---                     itc_num  => TRIGGER_PULSER_COUNT
---                  );
---               end if;
---               ref_addr := ref_addr + 1;  
---               
---               for i in 0 to TRIGGER_PULSER_COUNT - 1 loop
---                  if addr=ref_addr then
---                     REGIO_UNKNOWN_ADDR_OUT <= '0';
---                     REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                     REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
---                     
---                     REGIO_DATA_OUT <= pulser_interval_i(i);
---                     
---                     if REGIO_WRITE_ENABLE_IN = '1' then
---                        pulser_interval_i(i) <= REGIO_DATA_IN;
---                     end if;
---                  end if;
---                  ref_addr := ref_addr + 1;                 
---
---               end loop;
---            end if;
---            
----- Pseudo Random Pulser
---            if TRIGGER_RAND_PULSER /= 0 then
---               if addr = ref_addr then
---                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
---                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                  REGIO_DATA_OUT <= CTS_BLOCK_HEADER(
---                     id   => 16#50#,
---                     len  => TRIGGER_RAND_PULSER,
---                     itc_base => ITC_BASE_RAND_PULSER,
---                     itc_num  => TRIGGER_RAND_PULSER,
---                     last => false
---                  );
---               end if;
---               ref_addr := ref_addr + 1;
---               
---               for i in 0 to TRIGGER_RAND_PULSER - 1 loop
---                  if addr=ref_addr then
---                     REGIO_UNKNOWN_ADDR_OUT <= '0';
---                     REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                     REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
---                     
---                     REGIO_DATA_OUT <= rand_pulser_threshold_i(i);
---                     
---                     if REGIO_WRITE_ENABLE_IN = '1' then
---                        rand_pulser_threshold_i(i) <= REGIO_DATA_IN;
---                     end if;
---                  end if;
---                  ref_addr := ref_addr + 1;                 
---
---               end loop;              
---            end if;
---
----- External Trigger
---            if EXTERNAL_TRIGGER_ID /= X"00" then
---               if addr = ref_addr then
---                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
---                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                  REGIO_DATA_OUT <= CTS_BLOCK_HEADER(
---                     id => to_integer(unsigned(EXTERNAL_TRIGGER_ID)),
---                     len => 2,
---                     itc_base => ITC_BASE_EXT,
---                     itc_num  => 1,
---                     last => false
---                  );
---               end if;
---               ref_addr := ref_addr + 1;
---             
---             -- status register
---               if addr=ref_addr then
---                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
---                  REGIO_DATAREADY_OUT    <= REGIO_READ_ENABLE_IN;
---                  REGIO_DATA_OUT         <= EXT_STATUS_IN;
---               end if;
---               ref_addr := ref_addr + 1;   
---                  
---               -- control register
---               if addr=ref_addr then
---                  REGIO_UNKNOWN_ADDR_OUT <= '0';
---                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                  REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
---                  
---                  REGIO_DATA_OUT <= ext_control_i;
---                  
---                  if REGIO_WRITE_ENABLE_IN = '1' then
---                     ext_control_i <= REGIO_DATA_IN;
---                  end if;
---               end if;
---               ref_addr := ref_addr + 1;   
---            end if;
---            
----- Trigger Type Assoc
---            if addr = ref_addr then
---               REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
---               REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---               REGIO_DATA_OUT <= CTS_BLOCK_HEADER(
---                  id => 16#40#,
---                  len => 2,
---                  last => true
---               );
---            end if;
---            ref_addr := ref_addr + 1;  
---            
---            for i in 0 to 1 loop
---               if addr=ref_addr then
---                  REGIO_UNKNOWN_ADDR_OUT <= '0';
---                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
---                  REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
---                  
---                  for j in 0 to 7 loop
---                     REGIO_DATA_OUT(j*4 + 3 downto j*4) <= trigger_type_assoc_i(8*i+j);
---                     
---                     if REGIO_WRITE_ENABLE_IN = '1' then
---                        trigger_type_assoc_i(8*i+j) <= REGIO_DATA_IN(j*4 + 3 downto j*4);
---                     end if;
---                  end loop;
---               end if;
---               ref_addr := ref_addr + 1;
---            end loop;
---
---         end if;
---      end if;
---   end process;
+   proc_regio: process(CLK_IN) is
+      variable addr : integer range 0 to 255;
+      variable ref_addr : integer range 0 to 255;
+   begin
+      if rising_edge(CLK_IN) then
+         REGIO_DATA_OUT <= (others => '0');
+         REGIO_DATAREADY_OUT <= '0';
+         REGIO_WRITE_ACK_OUT <= '0';
+         REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN or REGIO_READ_ENABLE_IN;
+
+         addr := to_integer(unsigned(REGIO_ADDR_IN(7 downto 0)));
+         ref_addr := 0;
+         
+         if RESET_IN = '1' then
+            -- modelsim want's it that way
+            channel_mask_i <= (others => '0');
+            channel_edge_select_i <= (others => '1');
+            
+            trigger_input_configs_i <= (others => (others => '0'));
+            coin_config_i <= (others => X"000F0000");
+            pulser_interval_i <= (1 => X"00000003",  others => (others => '1'));
+            
+            rand_pulser_threshold_i <= (others => (others => '0'));
+
+            ext_control_i <= (others => '0');
+            
+            for i in 0 to TRIGGER_ADDON_COUNT - 1 loop
+               trigger_addon_configs_i(i) <= STD_LOGIC_VECTOR(TO_UNSIGNED(i mod ADDON_LINE_COUNT, 8));
+            end loop;
+            
+            for i in 0 to OUTPUT_MULTIPLEXERS - 1 loop
+               output_multiplexer_configs_i(i) <= STD_LOGIC_VECTOR(TO_UNSIGNED(i mod output_multiplexer_ins_i'length, 8));
+            end loop;
+            
+         else
+
+-- Trigger Channel Masking         
+            if addr = ref_addr then
+               REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
+               REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+               REGIO_DATA_OUT <= CTS_BLOCK_HEADER(id => 16#00#, len => 1);
+            end if;
+            ref_addr := ref_addr + 1;
+            
+            if addr = ref_addr then
+               REGIO_UNKNOWN_ADDR_OUT <= '0';
+               REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+               REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
+               
+               REGIO_DATA_OUT(31 downto 0) <= channel_edge_select_i & channel_mask_i;
+               
+               if REGIO_WRITE_ENABLE_IN = '1' then
+                  channel_mask_i        <= REGIO_DATA_IN(15 downto 0);
+                  channel_edge_select_i <= REGIO_DATA_IN(31 downto 16);
+               end if;
+            end if;
+            ref_addr := ref_addr + 1;
+            
+-- Trigger Channel Counters
+            if addr = ref_addr then
+               REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
+               REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+               REGIO_DATA_OUT <= CTS_BLOCK_HEADER(id => 16#01#, len => 32);
+            end if;
+            ref_addr := ref_addr + 1;
+            
+            for i in 0 to channel_counters_i'HIGH loop
+               if addr = ref_addr then
+                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
+                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                  
+                  REGIO_DATA_OUT <= std_logic_vector( channel_counters_i(i) );
+               end if;
+               ref_addr := ref_addr + 1;
+
+               if addr = ref_addr then
+                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
+                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                  
+                  REGIO_DATA_OUT <= std_logic_vector( channel_edge_counters_i(i) );
+               end if;
+               ref_addr := ref_addr + 1;
+            end loop;
+            
+-- Input Module Configuration            
+            if addr = ref_addr then
+               REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
+               REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+               REGIO_DATA_OUT <= CTS_BLOCK_HEADER(
+                  id => 16#10#,
+                  len => EFFECTIVE_INPUT_COUNT,
+                  itc_base => ITC_BASE_INPUTS,
+                  itc_num  => EFFECTIVE_INPUT_COUNT
+               );
+            end if;
+            ref_addr := ref_addr + 1;            
+
+-- INPUT CONFIGURATION
+            for i in 0 to EFFECTIVE_INPUT_COUNT - 1 loop
+               if addr = ref_addr then
+                  REGIO_UNKNOWN_ADDR_OUT <= '0';
+                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                  REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
+                  
+                  REGIO_DATA_OUT(10 downto 0) <= trigger_input_configs_i(i);
+                  
+                  if REGIO_WRITE_ENABLE_IN = '1' then
+                     trigger_input_configs_i(i) <= REGIO_DATA_IN(10 downto 0);
+                  end if;
+               end if;
+               ref_addr := ref_addr + 1;            
+            end loop;
+
+-- Trigger Input Counters
+            if addr = ref_addr then
+               REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
+               REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+               REGIO_DATA_OUT <= CTS_BLOCK_HEADER(id => 16#11#, len => 2*EFFECTIVE_INPUT_COUNT);
+            end if;
+            ref_addr := ref_addr + 1;
+            
+            for i in 0 to EFFECTIVE_INPUT_COUNT - 1 loop
+               if addr = ref_addr then
+                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
+                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                  
+                  REGIO_DATA_OUT <= std_logic_vector( trigger_input_counters_i(i) );
+               end if;
+               ref_addr := ref_addr + 1;
+
+               if addr = ref_addr then
+                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
+                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                  
+                  REGIO_DATA_OUT <= std_logic_vector( trigger_input_edge_counters_i(i) );
+               end if;
+               ref_addr := ref_addr + 1;               
+            end loop;
+            
+-- COIN CONFIGURATION
+            if TRIGGER_COIN_COUNT > 0 then
+               if addr = ref_addr then
+                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
+                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                  REGIO_DATA_OUT <= CTS_BLOCK_HEADER(
+                     id => 16#20#,
+                     len => TRIGGER_COIN_COUNT,
+                     itc_base => ITC_BASE_COINS,
+                     itc_num  => TRIGGER_COIN_COUNT
+                  );
+               end if;
+               ref_addr := ref_addr + 1;  
+               
+               for i in 0 to TRIGGER_COIN_COUNT - 1 loop
+                  if addr=ref_addr then
+                     REGIO_UNKNOWN_ADDR_OUT <= '0';
+                     REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                     REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
+                     
+                     REGIO_DATA_OUT <= coin_config_i(i);
+                     
+                     if REGIO_WRITE_ENABLE_IN = '1' then
+                        coin_config_i(i) <= REGIO_DATA_IN;
+                     end if;
+                  end if;
+                  ref_addr := ref_addr + 1;                 
+   
+               end loop;
+            end if;
+            
+-- ADDON MULTIPLEXER
+            if TRIGGER_ADDON_COUNT > 0 then
+               if addr = ref_addr then
+                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
+                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                  REGIO_DATA_OUT <= CTS_BLOCK_HEADER(
+                     id => 16#15#,
+                     len => TRIGGER_ADDON_COUNT,
+                     itc_base => ITC_BASE_INPUTS + TRIGGER_INPUT_COUNT,
+                     itc_num  => TRIGGER_ADDON_COUNT
+                  );
+               end if;
+               ref_addr := ref_addr + 1;  
+               
+               for i in 0 to TRIGGER_ADDON_COUNT - 1 loop
+                  if addr=ref_addr then
+                     REGIO_UNKNOWN_ADDR_OUT <= '0';
+                     REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                     REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
+                     
+                     REGIO_DATA_OUT <= (others => '0');
+                     REGIO_DATA_OUT(trigger_addon_configs_i(i)'RANGE) <= trigger_addon_configs_i(i);
+                     
+                     if REGIO_WRITE_ENABLE_IN = '1' then
+                        trigger_addon_configs_i(i) <= REGIO_DATA_IN(trigger_addon_configs_i(i)'RANGE);
+                     end if;
+                  end if;
+                  ref_addr := ref_addr + 1;                 
+   
+               end loop;
+            end if;            
+
+-- OUTPUT MULTIPLEXER MODULE (important: has to appear AFTER type 0x10 and 0x12/0x15 in order to compute the length of the bitmasks correctly)
+            if OUTPUT_MULTIPLEXERS > 0 then
+               if addr = ref_addr then
+                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
+                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                  REGIO_DATA_OUT <= CTS_BLOCK_HEADER(
+                     id => 16#13#,
+                     len => OUTPUT_MULTIPLEXERS,
+                     itc_base => 0,
+                     itc_num  => 0
+                  );
+               end if;
+               ref_addr := ref_addr + 1;  
+               
+               for i in 0 to OUTPUT_MULTIPLEXERS - 1 loop
+                  if addr=ref_addr then
+                     REGIO_UNKNOWN_ADDR_OUT <= '0';
+                     REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                     REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
+                     
+                     REGIO_DATA_OUT <= (others => '0');
+                     REGIO_DATA_OUT(output_multiplexer_configs_i(i)'RANGE) <= output_multiplexer_configs_i(i);
+                     
+                     if REGIO_WRITE_ENABLE_IN = '1' then
+                        output_multiplexer_configs_i(i) <= REGIO_DATA_IN(output_multiplexer_configs_i(i)'RANGE);
+                     end if;
+                  end if;
+                  ref_addr := ref_addr + 1;                 
+   
+               end loop;
+            end if;            
+            
+-- PERIPH TRIGGER 
+            if PERIPH_TRIGGER_COUNT > 0 then
+               if addr = ref_addr then
+                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
+                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                  REGIO_DATA_OUT <= CTS_BLOCK_HEADER(
+                     id => 16#14#,
+                     len => PERIPH_TRIGGER_COUNT,
+                     itc_base => ITC_BASE_PERIPH,
+                     itc_num  => PERIPH_TRIGGER_COUNT
+                  );
+               end if;
+               ref_addr := ref_addr + 1;  
+               
+               for i in 0 to PERIPH_TRIGGER_COUNT-1 loop
+                  if addr=ref_addr then
+                     REGIO_UNKNOWN_ADDR_OUT <= '0';
+                     REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                     REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
+                     
+                     REGIO_DATA_OUT <= (others => '0');
+                     REGIO_DATA_OUT(periph_trigger_mask_i(i)'range) <= periph_trigger_mask_i(i);
+                     
+                     if REGIO_WRITE_ENABLE_IN = '1' then
+                        periph_trigger_mask_i(i) <= REGIO_DATA_IN(periph_trigger_mask_i(i)'range);
+                     end if;
+                  end if;
+                  ref_addr := ref_addr + 1;                 
+               end loop;
+            end if;     
+            
+-- TRIGGER_PULSER_COUNT CONFIGURATION
+            if TRIGGER_PULSER_COUNT > 0 then
+               if addr = ref_addr then
+                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
+                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                  REGIO_DATA_OUT <= CTS_BLOCK_HEADER(
+                     id => 16#30#,
+                     len => TRIGGER_PULSER_COUNT,
+                     itc_base => ITC_BASE_PULSER,
+                     itc_num  => TRIGGER_PULSER_COUNT
+                  );
+               end if;
+               ref_addr := ref_addr + 1;  
+               
+               for i in 0 to TRIGGER_PULSER_COUNT - 1 loop
+                  if addr=ref_addr then
+                     REGIO_UNKNOWN_ADDR_OUT <= '0';
+                     REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                     REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
+                     
+                     REGIO_DATA_OUT <= pulser_interval_i(i);
+                     
+                     if REGIO_WRITE_ENABLE_IN = '1' then
+                        pulser_interval_i(i) <= REGIO_DATA_IN;
+                     end if;
+                  end if;
+                  ref_addr := ref_addr + 1;                 
+
+               end loop;
+            end if;
+            
+-- Pseudo Random Pulser
+            if TRIGGER_RAND_PULSER /= 0 then
+               if addr = ref_addr then
+                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
+                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                  REGIO_DATA_OUT <= CTS_BLOCK_HEADER(
+                     id   => 16#50#,
+                     len  => TRIGGER_RAND_PULSER,
+                     itc_base => ITC_BASE_RAND_PULSER,
+                     itc_num  => TRIGGER_RAND_PULSER,
+                     last => false
+                  );
+               end if;
+               ref_addr := ref_addr + 1;
+               
+               for i in 0 to TRIGGER_RAND_PULSER - 1 loop
+                  if addr=ref_addr then
+                     REGIO_UNKNOWN_ADDR_OUT <= '0';
+                     REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                     REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
+                     
+                     REGIO_DATA_OUT <= rand_pulser_threshold_i(i);
+                     
+                     if REGIO_WRITE_ENABLE_IN = '1' then
+                        rand_pulser_threshold_i(i) <= REGIO_DATA_IN;
+                     end if;
+                  end if;
+                  ref_addr := ref_addr + 1;                 
+
+               end loop;              
+            end if;
+
+-- External Trigger
+            if EXTERNAL_TRIGGER_ID /= X"00" then
+               if addr = ref_addr then
+                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
+                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                  REGIO_DATA_OUT <= CTS_BLOCK_HEADER(
+                     id => to_integer(unsigned(EXTERNAL_TRIGGER_ID)),
+                     len => 2,
+                     itc_base => ITC_BASE_EXT,
+                     itc_num  => 1,
+                     last => false
+                  );
+               end if;
+               ref_addr := ref_addr + 1;
+             
+             -- status register
+               if addr=ref_addr then
+                  REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
+                  REGIO_DATAREADY_OUT    <= REGIO_READ_ENABLE_IN;
+                  REGIO_DATA_OUT         <= EXT_STATUS_IN;
+               end if;
+               ref_addr := ref_addr + 1;   
+                  
+               -- control register
+               if addr=ref_addr then
+                  REGIO_UNKNOWN_ADDR_OUT <= '0';
+                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                  REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
+                  
+                  REGIO_DATA_OUT <= ext_control_i;
+                  
+                  if REGIO_WRITE_ENABLE_IN = '1' then
+                     ext_control_i <= REGIO_DATA_IN;
+                  end if;
+               end if;
+               ref_addr := ref_addr + 1;   
+            end if;
+            
+-- Trigger Type Assoc
+            if addr = ref_addr then
+               REGIO_UNKNOWN_ADDR_OUT <= REGIO_WRITE_ENABLE_IN;
+               REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+               REGIO_DATA_OUT <= CTS_BLOCK_HEADER(
+                  id => 16#40#,
+                  len => 2,
+                  last => true
+               );
+            end if;
+            ref_addr := ref_addr + 1;  
+            
+            for i in 0 to 1 loop
+               if addr=ref_addr then
+                  REGIO_UNKNOWN_ADDR_OUT <= '0';
+                  REGIO_DATAREADY_OUT <= REGIO_READ_ENABLE_IN;
+                  REGIO_WRITE_ACK_OUT <= REGIO_WRITE_ENABLE_IN;
+                  
+                  for j in 0 to 7 loop
+                     REGIO_DATA_OUT(j*4 + 3 downto j*4) <= trigger_type_assoc_i(8*i+j);
+                     
+                     if REGIO_WRITE_ENABLE_IN = '1' then
+                        trigger_type_assoc_i(8*i+j) <= REGIO_DATA_IN(j*4 + 3 downto j*4);
+                     end if;
+                  end loop;
+               end if;
+               ref_addr := ref_addr + 1;
+            end loop;
+
+         end if;
+      end if;
+   end process;
 end RTL;

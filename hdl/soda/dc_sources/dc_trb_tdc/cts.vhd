@@ -109,7 +109,7 @@ entity CTS is
       
       TRIGGER_ADDON_COUNT : integer range 0 to 15 := 2;  -- number of module instances used to patch through those lines
       ADDON_GROUPS        : integer range 1 to 8 := 5;
-      ADDON_GROUP_UPPER   : CTS_GROUP_CONFIG_T  := (3,7,11,12,13, others=>0);
+      ADDON_GROUP_UPPER   : CTS_GROUP_CONFIG_T  := (3,7,11,12,13, others=>'0');
       
       PERIPH_TRIGGER_COUNT: integer range 0 to 1 := 1;
       
@@ -461,7 +461,7 @@ begin
                when TD_FSM_FEE_ENQUEUE_INPUT_COUNTER =>
                   if ro_configuration_buf_i(0) = '1' then
                      FEE_DATA_WRITE_OUT <= '1';
-                     if ((fee_input_counter_v mod 2) = 0) then
+                     if fee_input_counter_v mod 2 = 0 then
                         FEE_DATA_OUT <= input_counters_buf_i(32*fee_input_counter_v + 31 downto 32*fee_input_counter_v); 
                      else
                         FEE_DATA_OUT <= input_edge_counters_buf_i(32*fee_input_counter_v + 31 downto 32*fee_input_counter_v); 
@@ -705,7 +705,7 @@ begin
             -- round-robin active active, and a new event just started
             if eb_aggr_threshold_i = eb_aggr_counter_i then
                eb_aggr_counter_i <= (others => '0');
-               eb_selection_i <= std_logic_vector(next_eb_selection);
+               eb_selection_i <= next_eb_selection;
                get_next_eb := '1';
                
             else
@@ -888,7 +888,7 @@ begin
    cts_status_registers_i(16#0d#)(27 downto 24) <= eb_special_calibration_eb_i;
    cts_status_registers_i(16#0d#)(28) <= eb_use_special_calibration_eb_i;
    
-   cts_status_registers_i(16#0e#) <= std_logic_vector(stat_total_dead_time_i);
+   cts_status_registers_i(16#0e#) <= stat_total_dead_time_i;
    
    regio_proc: process(CLK) is
       variable addr : integer range 0 to 15;
