@@ -461,7 +461,7 @@ begin
                when TD_FSM_FEE_ENQUEUE_INPUT_COUNTER =>
                   if ro_configuration_buf_i(0) = '1' then
                      FEE_DATA_WRITE_OUT <= '1';
-                     if fee_input_counter_v mod 2 = 0 then
+                     if ((fee_input_counter_v mod 2) = 0) then
                         FEE_DATA_OUT <= input_counters_buf_i(32*fee_input_counter_v + 31 downto 32*fee_input_counter_v); 
                      else
                         FEE_DATA_OUT <= input_edge_counters_buf_i(32*fee_input_counter_v + 31 downto 32*fee_input_counter_v); 
