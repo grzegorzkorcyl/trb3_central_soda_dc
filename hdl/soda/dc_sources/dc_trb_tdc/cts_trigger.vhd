@@ -257,7 +257,7 @@ begin
       ) port map (
          CLK_IN       => CLK_IN,
          THRESHOLD_IN => rand_pulser_threshold_i(i),
-         TRIGGER_OUT  => open, --rand_pulsers_i(i)
+         TRIGGER_OUT  => open  --rand_pulsers_i(i)
       );
    end generate;
    
