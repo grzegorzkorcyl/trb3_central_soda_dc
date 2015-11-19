@@ -85,7 +85,7 @@ architecture RTL of CTS_TRIGGER is
    constant ITC_NUM_EXT_BUF : unsigned(0 downto 0) := (others => or_all(EXTERNAL_TRIGGER_ID));  -- oh, that's dirty, but dont know a better solution (but define a func)
    constant ITC_NUM_EXT     : integer := to_integer( ITC_NUM_EXT_BUF )  ;
    
-   constant ITC_BASE_EXT    : integer      := 1; --0; 
+   constant ITC_BASE_EXT    : integer      := 0; 
    constant ITC_BASE_PULSER : integer      := ITC_BASE_EXT         + ITC_NUM_EXT;
    constant ITC_BASE_RAND_PULSER : integer := ITC_BASE_PULSER      + TRIGGER_PULSER_COUNT;
    constant ITC_BASE_INPUTS : integer      := ITC_BASE_RAND_PULSER + TRIGGER_RAND_PULSER;
@@ -293,6 +293,7 @@ begin
 
 	channel_mask_i <= (others => '1');
 	channel_edge_select_i <= (others => '1');
+	periph_trigger_mask_i <= (others => "0");
 
    proc_output: process(CLK_IN) is
       variable channels_delay_v : std_logic_vector(15 downto 0) := (others => '1');
