@@ -89,7 +89,7 @@ architecture RTL of CTS_TRIGGER is
    constant ITC_BASE_PULSER : integer      := ITC_BASE_EXT         + ITC_NUM_EXT;
    constant ITC_BASE_RAND_PULSER : integer := ITC_BASE_PULSER      + TRIGGER_PULSER_COUNT;
    constant ITC_BASE_INPUTS : integer      := ITC_BASE_RAND_PULSER + TRIGGER_RAND_PULSER;
-   constant ITC_BASE_PERIPH : integer      := ITC_BASE_INPUTS      + EFFECTIVE_INPUT_COUNT;
+   constant ITC_BASE_PERIPH : integer      := 1; --ITC_BASE_INPUTS      + EFFECTIVE_INPUT_COUNT;
    constant ITC_BASE_COINS  : integer      := ITC_BASE_PERIPH      + PERIPH_TRIGGER_COUNT;
 
    constant ITC_NUM_USED    : integer := ITC_BASE_COINS       + TRIGGER_COIN_COUNT;
