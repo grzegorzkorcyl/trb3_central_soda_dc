@@ -45,7 +45,7 @@ begin
 
 	THE_CTS : entity work.CTS
 		generic map(
-			EXTERNAL_TRIGGER_ID  => x"11", -- fill in trigger logic enumeration id of external trigger logic
+			EXTERNAL_TRIGGER_ID  => x"60", -- fill in trigger logic enumeration id of external trigger logic
 
 			TRIGGER_COIN_COUNT   => 0, --TRIGGER_COIN_COUNT,
 			TRIGGER_PULSER_COUNT => 0, --TRIGGER_PULSER_COUNT,
