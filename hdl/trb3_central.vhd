@@ -1191,7 +1191,7 @@ begin
 			COMMON_STAT_REGS                                   => common_stat_regs, --open,
 			COMMON_CTRL_REGS                                   => common_ctrl_regs, --open,
 			ONEWIRE                                            => TEMPSENS,
-			ONEWIRE_MONITOR_IN                                 => open,
+			ONEWIRE_MONITOR_IN                                 => '0',
 			MY_ADDRESS_OUT                                     => my_address,
 			UNIQUE_ID_OUT                                      => open,
 			TIMER_TICKS_OUT                                    => open,
