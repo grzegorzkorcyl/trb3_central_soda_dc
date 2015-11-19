@@ -426,7 +426,8 @@ begin
             
             trigger_input_configs_i <= (others => (others => '0'));
             coin_config_i <= (others => X"000F0000");
-            pulser_interval_i <= (1 => X"00000003",  others => (others => '1'));
+            --pulser_interval_i <= (1 => X"00000003",  others => (others => '1'));
+            pulser_interval_i <= (others => (others => '1'));
             
             rand_pulser_threshold_i <= (others => (others => '0'));
 
