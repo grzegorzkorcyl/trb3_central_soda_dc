@@ -88,6 +88,7 @@ add_file -vhdl -lib work "../hdl/soda/source/soda_components.vhd"
 add_file -vhdl -lib work "../../trbnet/media_interfaces/sync/med_sync_define.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/Panda_package.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/DC_LUT_package.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/dc_trb_tdc/cts_pkg.vhd"
 
 
 
@@ -164,6 +165,15 @@ add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/dataconversion_for_serd
 
 #soda trb3 tdc data concentrator
 add_file -vhdl -lib work "../hdl/soda/dc_sources/dc_trb_tdc/dc_module_trb_tdc.vhd"
+#trigger
+add_file -vhdl -lib work "../hdl/soda/dc_sources/dc_trb_tdc/cts.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/dc_trb_tdc/cts_fifo.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/dc_trb_tdc/cts_trg_coin.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/dc_trb_tdc/cts_trg_input.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/dc_trb_tdc/cts_trg_pseudorand_pulser.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/dc_trb_tdc/cts_trigger.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/dc_trb_tdc/soda_cts_module.vhd"
+
 
 
 

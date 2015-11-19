@@ -17,6 +17,7 @@ use work.version.all;
 use work.tdc_components.TDC;
 use work.tdc_version.all;
 use work.trb_net_gbe_components.all;
+use work.cts_pkg.all;
 
 --Configuration is done in this file:   
 use work.config.all;
@@ -722,6 +723,92 @@ begin
 		);
 
 	---------------------------------------------------------------------------
+	-- CTS instance for generating artificial trigger out of superburst update 
+	--------------------------------------------------------------------------- 
+
+	THE_CTS : entity work.CTS
+		generic map(
+			EXTERNAL_TRIGGER_ID  => ETM_ID, -- fill in trigger logic enumeration id of external trigger logic
+
+			TRIGGER_COIN_COUNT   => TRIGGER_COIN_COUNT,
+			TRIGGER_PULSER_COUNT => TRIGGER_PULSER_COUNT,
+			TRIGGER_RAND_PULSER  => TRIGGER_RAND_PULSER,
+			TRIGGER_INPUT_COUNT  => 0,  -- obsolete! now all inputs are routed via an input multiplexer!
+			TRIGGER_ADDON_COUNT  => TRIGGER_ADDON_COUNT,
+			PERIPH_TRIGGER_COUNT => PERIPH_TRIGGER_COUNT,
+			OUTPUT_MULTIPLEXERS  => CTS_OUTPUT_MULTIPLEXERS,
+			ADDON_LINE_COUNT     => CTS_ADDON_LINE_COUNT,
+			ADDON_GROUPS         => 7,
+			ADDON_GROUP_UPPER    => (3, 7, 11, 15, 16, 17, others => 0)
+		)
+		port map(
+			CLK                        => clk_100_i,
+			RESET                      => reset_i,
+
+			--TRIGGERS_IN => trigger_in_buf_i,
+			TRIGGER_BUSY_OUT           => trigger_busy_i,
+			TIME_REFERENCE_OUT         => cts_trigger_out,
+			ADDON_TRIGGERS_IN          => cts_addon_triggers_in,
+			ADDON_GROUP_ACTIVITY_OUT   => cts_addon_activity_i,
+			ADDON_GROUP_SELECTED_OUT   => cts_addon_selected_i,
+			EXT_TRIGGER_IN             => cts_ext_trigger,
+			EXT_STATUS_IN              => cts_ext_status,
+			EXT_CONTROL_OUT            => cts_ext_control,
+			EXT_HEADER_BITS_IN         => cts_ext_header,
+			PERIPH_TRIGGER_IN          => cts_periph_trigger_i,
+			OUTPUT_MULTIPLEXERS_OUT    => cts_output_multiplexers_i,
+			CTS_TRG_SEND_OUT           => cts_trg_send,
+			CTS_TRG_TYPE_OUT           => cts_trg_type,
+			CTS_TRG_NUMBER_OUT         => cts_trg_number,
+			CTS_TRG_INFORMATION_OUT    => cts_trg_information,
+			CTS_TRG_RND_CODE_OUT       => cts_trg_code,
+			CTS_TRG_STATUS_BITS_IN     => cts_trg_status_bits,
+			CTS_TRG_BUSY_IN            => cts_trg_busy,
+			CTS_IPU_SEND_OUT           => cts_ipu_send,
+			CTS_IPU_TYPE_OUT           => cts_ipu_type,
+			CTS_IPU_NUMBER_OUT         => cts_ipu_number,
+			CTS_IPU_INFORMATION_OUT    => cts_ipu_information,
+			CTS_IPU_RND_CODE_OUT       => cts_ipu_code,
+			CTS_IPU_STATUS_BITS_IN     => cts_ipu_status_bits,
+			CTS_IPU_BUSY_IN            => cts_ipu_busy,
+			CTS_REGIO_ADDR_IN          => cts_regio_addr,
+			CTS_REGIO_DATA_IN          => cts_regio_data_out,
+			CTS_REGIO_READ_ENABLE_IN   => cts_regio_read,
+			CTS_REGIO_WRITE_ENABLE_IN  => cts_regio_write,
+			CTS_REGIO_DATA_OUT         => cts_regio_data_in,
+			CTS_REGIO_DATAREADY_OUT    => cts_regio_dataready,
+			CTS_REGIO_WRITE_ACK_OUT    => cts_regio_write_ack,
+			CTS_REGIO_UNKNOWN_ADDR_OUT => cts_regio_unknown_addr,
+			LVL1_TRG_DATA_VALID_IN     => cts_rdo_trg_data_valid,
+			LVL1_VALID_TIMING_TRG_IN   => cts_rdo_valid_timing_trg,
+			LVL1_VALID_NOTIMING_TRG_IN => cts_rdo_valid_notiming_trg,
+			LVL1_INVALID_TRG_IN        => cts_rdo_invalid_trg,
+			FEE_TRG_STATUSBITS_OUT     => cts_rdo_trg_status_bits_cts,
+			FEE_DATA_OUT               => cts_rdo_data,
+			FEE_DATA_WRITE_OUT         => cts_rdo_write,
+			FEE_DATA_FINISHED_OUT      => cts_rdo_finished
+		);
+
+	soda_trigger : entity work.soda_trigger_from_update
+		port map(
+			CLK               => clk_100_i,
+			RESET_IN          => reset_i,
+			TIMER_TICK_1US_IN => timer_ticks(0),
+			SERIAL_IN         => CLK_EXT(3),
+			EXT_TRG_IN        => CLK_EXT(4),
+			TRG_SYNC_OUT      => cts_ext_trigger,
+			TRIGGER_IN        => cts_rdo_trg_data_valid,
+			DATA_OUT          => cts_rdo_additional(0).data,
+			WRITE_OUT         => cts_rdo_additional(0).data_write,
+			FINISHED_OUT      => cts_rdo_additional(0).data_finished,
+			STATUSBIT_OUT     => cts_rdo_additional(0).statusbits,
+			CONTROL_REG_IN    => cts_ext_control,
+			STATUS_REG_OUT    => cts_ext_status,
+			HEADER_REG_OUT    => cts_ext_header,
+			DEBUG             => cts_ext_debug
+		);
+
+	---------------------------------------------------------------------------
 	-- Data Concentrator
 	--------------------------------------------------------------------------- 
 
@@ -802,64 +889,12 @@ begin
 	---------------------------------------------------------------------------
 	-- The TrbNet media interface (to other FPGA)
 	---------------------------------------------------------------------------
---		THE_MEDIA_ONBOARD : trb_net16_med_ecp3_sfp_4
---			generic map(
---				FREQUENCY => 200
---			)
---			port map(
---				CLK                => clk_200_i,
---				SYSCLK             => clk_100_i,
---				RESET              => reset_i,
---				CLEAR              => clear_i,
---				CLK_EN             => '1',
---				--Internal Connection
---				MED_DATA_IN        => med_data_out(63 + 16 downto 0 + 16),
---				MED_PACKET_NUM_IN  => med_packet_num_out(11 + 3 downto 0 + 3),
---				MED_DATAREADY_IN   => med_dataready_out(3 + 1 downto 0 + 1),
---				MED_READ_OUT       => med_read_in(3 + 1 downto 0 + 1),
---				MED_DATA_OUT       => med_data_in(63 + 16 downto 0 + 16),
---				MED_PACKET_NUM_OUT => med_packet_num_in(11 + 3 downto 0 + 3),
---				MED_DATAREADY_OUT  => med_dataready_in(3 + 1 downto 0 + 1),
---				MED_READ_IN        => med_read_out(3 + 1 downto 0 + 1),
---				REFCLK2CORE_OUT    => open,
---				--SFP Connection
---				SD_RXD_P_IN        => ENDP_RXP_IN,
---				SD_RXD_N_IN        => ENDP_RXN_IN,
---				SD_TXD_P_OUT       => ENDP_TXP_OUT,
---				SD_TXD_N_OUT       => ENDP_TXN_OUT,
---				SD_REFCLK_P_IN     => open,
---				SD_REFCLK_N_IN     => open,
---				SD_PRSNT_N_IN(0)   => FPGA1_COMM(2),
---				SD_PRSNT_N_IN(1)   => FPGA2_COMM(2),
---				SD_PRSNT_N_IN(2)   => FPGA3_COMM(2),
---				SD_PRSNT_N_IN(3)   => FPGA4_COMM(2),
---				SD_LOS_IN(0)       => FPGA1_COMM(2),
---				SD_LOS_IN(1)       => FPGA2_COMM(2),
---				SD_LOS_IN(2)       => FPGA3_COMM(2),
---				SD_LOS_IN(3)       => FPGA4_COMM(2),
---				SD_TXDIS_OUT(0)    => FPGA1_COMM(0),
---				SD_TXDIS_OUT(1)    => FPGA2_COMM(0),
---				SD_TXDIS_OUT(2)    => FPGA3_COMM(0),
---				SD_TXDIS_OUT(3)    => FPGA4_COMM(0),
---	
---				-- not connected to anything
---				SCI_DATA_IN        => sci2_data_in,
---				SCI_DATA_OUT       => sci2_data_out,
---				SCI_ADDR           => sci2_addr,
---				SCI_READ           => sci2_read,
---				SCI_WRITE          => sci2_write,
---				SCI_ACK            => sci2_ack,
---	
---				-- Status and control port
---				STAT_OP            => med_stat_op(63 + 16 downto 0 + 16),
---				CTRL_OP            => med_ctrl_op(63 + 16 downto 0 + 16),
---				STAT_DEBUG         => open, --med_stat_debug(3 * 64 + 63 downto 0 * 64),
---				CTRL_DEBUG         => (others => '0')
---			);
-
-	THE_MEDIA_DOWNLINK : entity work.trb_net16_med_syncfull_ecp3_sfp
+	THE_MEDIA_ONBOARD : trb_net16_med_ecp3_sfp_4
+		generic map(
+			FREQUENCY => 200
+		)
 		port map(
-			CLK                => clk_SODA200_i,
+			CLK                => clk_200_i,
 			SYSCLK             => clk_100_i,
 			RESET              => reset_i,
 			CLEAR              => clear_i,
@@ -874,14 +909,13 @@ begin
 			MED_DATAREADY_OUT  => med_dataready_in(3 + 1 downto 0 + 1),
 			MED_READ_IN        => med_read_out(3 + 1 downto 0 + 1),
 			REFCLK2CORE_OUT    => open,
-
 			--SFP Connection
 			SD_RXD_P_IN        => ENDP_RXP_IN,
 			SD_RXD_N_IN        => ENDP_RXN_IN,
 			SD_TXD_P_OUT       => ENDP_TXP_OUT,
 			SD_TXD_N_OUT       => ENDP_TXN_OUT,
-			SD_REFCLK_P_IN     => '0',
-			SD_REFCLK_N_IN     => '0',
+			SD_REFCLK_P_IN     => open,
+			SD_REFCLK_N_IN     => open,
 			SD_PRSNT_N_IN(0)   => FPGA1_COMM(2),
 			SD_PRSNT_N_IN(1)   => FPGA2_COMM(2),
 			SD_PRSNT_N_IN(2)   => FPGA3_COMM(2),
@@ -895,12 +929,7 @@ begin
 			SD_TXDIS_OUT(2)    => FPGA3_COMM(0),
 			SD_TXDIS_OUT(3)    => FPGA4_COMM(0),
 
-			--Synchronous signals
-			RX_DLM             => DLM_from_downlink_S,
-			RX_DLM_WORD        => DLM_WORD_from_downlink_S,
-			TX_DLM             => DLM_to_downlink_S,
-			TX_DLM_WORD        => DLM_WORD_to_downlink_S,
-			--Control Interface
+			-- not connected to anything
 			SCI_DATA_IN        => sci2_data_in,
 			SCI_DATA_OUT       => sci2_data_out,
 			SCI_ADDR           => sci2_addr,
@@ -911,57 +940,115 @@ begin
 			-- Status and control port
 			STAT_OP            => med_stat_op(63 + 16 downto 0 + 16),
 			CTRL_OP            => med_ctrl_op(63 + 16 downto 0 + 16),
-			STAT_DEBUG         => open,
+			STAT_DEBUG         => open, --med_stat_debug(3 * 64 + 63 downto 0 * 64),
 			CTRL_DEBUG         => (others => '0')
 		);
+
+	--	THE_MEDIA_DOWNLINK : entity work.trb_net16_med_syncfull_ecp3_sfp
+	--		port map(
+	--			CLK                => clk_SODA200_i,
+	--			SYSCLK             => clk_100_i,
+	--			RESET              => reset_i,
+	--			CLEAR              => clear_i,
+	--			CLK_EN             => '1',
+	--			--Internal Connection
+	--			MED_DATA_IN        => med_data_out(63 + 16 downto 0 + 16),
+	--			MED_PACKET_NUM_IN  => med_packet_num_out(11 + 3 downto 0 + 3),
+	--			MED_DATAREADY_IN   => med_dataready_out(3 + 1 downto 0 + 1),
+	--			MED_READ_OUT       => med_read_in(3 + 1 downto 0 + 1),
+	--			MED_DATA_OUT       => med_data_in(63 + 16 downto 0 + 16),
+	--			MED_PACKET_NUM_OUT => med_packet_num_in(11 + 3 downto 0 + 3),
+	--			MED_DATAREADY_OUT  => med_dataready_in(3 + 1 downto 0 + 1),
+	--			MED_READ_IN        => med_read_out(3 + 1 downto 0 + 1),
+	--			REFCLK2CORE_OUT    => open,
+	--
+	--			--SFP Connection
+	--			SD_RXD_P_IN        => ENDP_RXP_IN,
+	--			SD_RXD_N_IN        => ENDP_RXN_IN,
+	--			SD_TXD_P_OUT       => ENDP_TXP_OUT,
+	--			SD_TXD_N_OUT       => ENDP_TXN_OUT,
+	--			SD_REFCLK_P_IN     => '0',
+	--			SD_REFCLK_N_IN     => '0',
+	--			SD_PRSNT_N_IN(0)   => FPGA1_COMM(2),
+	--			SD_PRSNT_N_IN(1)   => FPGA2_COMM(2),
+	--			SD_PRSNT_N_IN(2)   => FPGA3_COMM(2),
+	--			SD_PRSNT_N_IN(3)   => FPGA4_COMM(2),
+	--			SD_LOS_IN(0)       => FPGA1_COMM(2),
+	--			SD_LOS_IN(1)       => FPGA2_COMM(2),
+	--			SD_LOS_IN(2)       => FPGA3_COMM(2),
+	--			SD_LOS_IN(3)       => FPGA4_COMM(2),
+	--			SD_TXDIS_OUT(0)    => FPGA1_COMM(0),
+	--			SD_TXDIS_OUT(1)    => FPGA2_COMM(0),
+	--			SD_TXDIS_OUT(2)    => FPGA3_COMM(0),
+	--			SD_TXDIS_OUT(3)    => FPGA4_COMM(0),
+	--
+	--			--Synchronous signals
+	--			RX_DLM             => DLM_from_downlink_S,
+	--			RX_DLM_WORD        => DLM_WORD_from_downlink_S,
+	--			TX_DLM             => DLM_to_downlink_S,
+	--			TX_DLM_WORD        => DLM_WORD_to_downlink_S,
+	--			--Control Interface
+	--			SCI_DATA_IN        => sci2_data_in,
+	--			SCI_DATA_OUT       => sci2_data_out,
+	--			SCI_ADDR           => sci2_addr,
+	--			SCI_READ           => sci2_read,
+	--			SCI_WRITE          => sci2_write,
+	--			SCI_ACK            => sci2_ack,
+	--
+	--			-- Status and control port
+	--			STAT_OP            => med_stat_op(63 + 16 downto 0 + 16),
+	--			CTRL_OP            => med_ctrl_op(63 + 16 downto 0 + 16),
+	--			STAT_DEBUG         => open,
+	--			CTRL_DEBUG         => (others => '0')
+	--		);
 
 	---------------------------------------------------------------------------
 	-- SODA
 	--------------------------------------------------------------------------- 
-	THE_SODA_HUB : soda_hub
-		port map(
-			SYSCLK               => clk_100_i,
-			SODACLK              => clk_SODA200_i,
-			RESET                => reset_i,
-			CLEAR                => '0',
-			CLK_EN               => '1',
-			
-			--	SINGLE DUBPLEX UP-LINK TO THE TOP
-			RXUP_DLM_IN          => ext_sodasrc_TX_DLM_S,
-			RXUP_DLM_WORD_IN     => ext_sodasrc_TX_DLM_WORD_S,
-			TXUP_DLM_OUT         => TXtop_DLM_S,
-			TXUP_DLM_WORD_OUT    => TXtop_DLM_word_S,
-			TXUP_DLM_PREVIEW_OUT => open,
-			UPLINK_PHASE_IN      => c_PHASE_H,
-
-			--	MULTIPLE DUPLEX DOWN-LINKS TO THE BOTTOM
-			RXDN_DLM_IN(0)       => DLM_from_downlink_S(0),
-			RXDN_DLM_IN(1)       => DLM_from_downlink_S(1),
-			RXDN_DLM_IN(2)       => DLM_from_downlink_S(2),
-			RXDN_DLM_IN(3)       => DLM_from_downlink_S(3),
-			RXDN_DLM_WORD_IN(0)  => DLM_WORD_from_downlink_S(0 * 8 + 7 downto 0 * 8),
-			RXDN_DLM_WORD_IN(1)  => DLM_WORD_from_downlink_S(1 * 8 + 7 downto 1 * 8),
-			RXDN_DLM_WORD_IN(2)  => DLM_WORD_from_downlink_S(2 * 8 + 7 downto 2 * 8),
-			RXDN_DLM_WORD_IN(3)  => DLM_WORD_from_downlink_S(3 * 8 + 7 downto 3 * 8),
-			TXDN_DLM_OUT(0)      => DLM_to_downlink_S(0),
-			TXDN_DLM_OUT(1)      => DLM_to_downlink_S(1),
-			TXDN_DLM_OUT(2)      => DLM_to_downlink_S(2),
-			TXDN_DLM_OUT(3)      => DLM_to_downlink_S(3),
-			TXDN_DLM_WORD_OUT(0) => DLM_WORD_to_downlink_S(0 * 8 + 7 downto 0 * 8),
-			TXDN_DLM_WORD_OUT(1) => DLM_WORD_to_downlink_S(1 * 8 + 7 downto 1 * 8),
-			TXDN_DLM_WORD_OUT(2) => DLM_WORD_to_downlink_S(2 * 8 + 7 downto 2 * 8),
-			TXDN_DLM_WORD_OUT(3) => DLM_WORD_to_downlink_S(3 * 8 + 7 downto 3 * 8),
-			TXDN_DLM_PREVIEW_OUT => open,
-			DNLINK_PHASE_IN      => (others => c_PHASE_H),
-			SODA_DATA_IN         => soda_data_in,
-			SODA_DATA_OUT        => soda_data_out,
-			SODA_ADDR_IN         => soda_addr,
-			SODA_READ_IN         => soda_read_en,
-			SODA_WRITE_IN        => soda_write_en,
-			SODA_ACK_OUT         => soda_ack,
-			LEDS_OUT             => open,
-			LINK_DEBUG_IN        => (others => '0')
-		);
+	--	THE_SODA_HUB : soda_hub
+	--		port map(
+	--			SYSCLK               => clk_100_i,
+	--			SODACLK              => clk_SODA200_i,
+	--			RESET                => reset_i,
+	--			CLEAR                => '0',
+	--			CLK_EN               => '1',
+	--			
+	--			--	SINGLE DUBPLEX UP-LINK TO THE TOP
+	--			RXUP_DLM_IN          => ext_sodasrc_TX_DLM_S,
+	--			RXUP_DLM_WORD_IN     => ext_sodasrc_TX_DLM_WORD_S,
+	--			TXUP_DLM_OUT         => TXtop_DLM_S,
+	--			TXUP_DLM_WORD_OUT    => TXtop_DLM_word_S,
+	--			TXUP_DLM_PREVIEW_OUT => open,
+	--			UPLINK_PHASE_IN      => c_PHASE_H,
+	--
+	--			--	MULTIPLE DUPLEX DOWN-LINKS TO THE BOTTOM
+	--			RXDN_DLM_IN(0)       => DLM_from_downlink_S(0),
+	--			RXDN_DLM_IN(1)       => DLM_from_downlink_S(1),
+	--			RXDN_DLM_IN(2)       => DLM_from_downlink_S(2),
+	--			RXDN_DLM_IN(3)       => DLM_from_downlink_S(3),
+	--			RXDN_DLM_WORD_IN(0)  => DLM_WORD_from_downlink_S(0 * 8 + 7 downto 0 * 8),
+	--			RXDN_DLM_WORD_IN(1)  => DLM_WORD_from_downlink_S(1 * 8 + 7 downto 1 * 8),
+	--			RXDN_DLM_WORD_IN(2)  => DLM_WORD_from_downlink_S(2 * 8 + 7 downto 2 * 8),
+	--			RXDN_DLM_WORD_IN(3)  => DLM_WORD_from_downlink_S(3 * 8 + 7 downto 3 * 8),
+	--			TXDN_DLM_OUT(0)      => DLM_to_downlink_S(0),
+	--			TXDN_DLM_OUT(1)      => DLM_to_downlink_S(1),
+	--			TXDN_DLM_OUT(2)      => DLM_to_downlink_S(2),
+	--			TXDN_DLM_OUT(3)      => DLM_to_downlink_S(3),
+	--			TXDN_DLM_WORD_OUT(0) => DLM_WORD_to_downlink_S(0 * 8 + 7 downto 0 * 8),
+	--			TXDN_DLM_WORD_OUT(1) => DLM_WORD_to_downlink_S(1 * 8 + 7 downto 1 * 8),
+	--			TXDN_DLM_WORD_OUT(2) => DLM_WORD_to_downlink_S(2 * 8 + 7 downto 2 * 8),
+	--			TXDN_DLM_WORD_OUT(3) => DLM_WORD_to_downlink_S(3 * 8 + 7 downto 3 * 8),
+	--			TXDN_DLM_PREVIEW_OUT => open,
+	--			DNLINK_PHASE_IN      => (others => c_PHASE_H),
+	--			SODA_DATA_IN         => soda_data_in,
+	--			SODA_DATA_OUT        => soda_data_out,
+	--			SODA_ADDR_IN         => soda_addr,
+	--			SODA_READ_IN         => soda_read_en,
+	--			SODA_WRITE_IN        => soda_write_en,
+	--			SODA_ACK_OUT         => soda_ack,
+	--			LEDS_OUT             => open,
+	--			LINK_DEBUG_IN        => (others => '0')
+	--		);
 
 	---------------------------------------------------------------------------
 	-- TrbNet HUB
@@ -1178,6 +1265,11 @@ begin
 	FPGA2_TTL <= (others => 'Z');
 	FPGA3_TTL <= (others => 'Z');
 	FPGA4_TTL <= (others => 'Z');
+
+	FPGA1_COMM(11) <= superburst_update_S;
+	FPGA2_COMM(11) <= superburst_update_S;
+	FPGA3_COMM(11) <= superburst_update_S;
+	FPGA4_COMM(11) <= superburst_update_S;
 
 	FPGA1_CONNECTOR <= (others => 'Z');
 	FPGA2_CONNECTOR <= (others => 'Z');
