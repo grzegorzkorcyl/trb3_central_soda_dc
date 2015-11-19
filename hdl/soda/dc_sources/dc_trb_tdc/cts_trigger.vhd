@@ -363,13 +363,13 @@ begin
    end process;
    
    gen_input_counter: for i in 0 to EFFECTIVE_INPUT_COUNT-1 generate
-      INPUT_COUNTERS_OUT(i*32 + 31 downto i*32) <= trigger_input_counters_i(i);
-      INPUT_EDGE_COUNTERS_OUT(i*32 + 31 downto i*32) <= trigger_input_edge_counters_i(i);
+      INPUT_COUNTERS_OUT(i*32 + 31 downto i*32) <= std_logic_vector(trigger_input_counters_i(i));
+      INPUT_EDGE_COUNTERS_OUT(i*32 + 31 downto i*32) <= std_logic_vector(trigger_input_edge_counters_i(i));
    end generate;
 
    gen_channel_counter: for i in 0 to channels_i'HIGH generate
-      CHANNEL_COUNTERS_OUT(i*32 + 31 downto i*32) <= channel_counters_i(i);
-      CHANNEL_EDGE_COUNTERS_OUT(i*32 + 31 downto i*32) <= channel_edge_counters_i(i);
+      CHANNEL_COUNTERS_OUT(i*32 + 31 downto i*32) <= std_logic_vector(channel_counters_i(i));
+      CHANNEL_EDGE_COUNTERS_OUT(i*32 + 31 downto i*32) <= std_logic_vector(channel_edge_counters_i(i));
    end generate;
 
 -- AddOn Leds
