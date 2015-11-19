@@ -888,7 +888,7 @@ begin
    cts_status_registers_i(16#0d#)(27 downto 24) <= eb_special_calibration_eb_i;
    cts_status_registers_i(16#0d#)(28) <= eb_use_special_calibration_eb_i;
    
-   cts_status_registers_i(16#0e#) <= stat_total_dead_time_i;
+   cts_status_registers_i(16#0e#) <= std_logic_vector(stat_total_dead_time_i);
    
    regio_proc: process(CLK) is
       variable addr : integer range 0 to 15;
