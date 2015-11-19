@@ -472,7 +472,7 @@ begin
                      td_fsm_i <= TD_FSM_FEE_ENQUEUE_CHANNEL_COUNTER;
                   end if;
 
-                  fee_input_counter_v := fee_input_counter_v + 1;
+                  --fee_input_counter_v := fee_input_counter_v + 1;
 
                when TD_FSM_FEE_ENQUEUE_CHANNEL_COUNTER =>
                   if ro_configuration_buf_i(1) = '1' then
