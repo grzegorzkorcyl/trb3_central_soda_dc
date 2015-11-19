@@ -490,7 +490,15 @@ architecture trb3_central_arch of trb3_central is
 	signal DLM_to_downlink_S        : std_logic_vector(3 downto 0);
 	signal DLM_WORD_to_downlink_S   : std_logic_vector(4 * 8 - 1 downto 0);
 	signal DLM_WORD_from_downlink_S : std_logic_vector(4 * 8 - 1 downto 0);
-
+	
+	signal cts_ext_control : std_logic_vector(31 downto 0);
+	signal cts_ext_status : std_logic_vector(31 downto 0);
+	signal cts_ext_debug : std_logic_vector(31 downto 0);
+	signal cts_ext_header : std_logic_vector(1 downto 0);
+	signal cts_ext_trigger : std_logic;
+	signal cts_rdo_trg_data_valid : std_logic;
+	
+   
 begin
 
 	---------------------------------------------------------------------------
@@ -748,15 +756,19 @@ begin
 			--TRIGGERS_IN => trigger_in_buf_i,
 			TRIGGER_BUSY_OUT           => trigger_busy_i,
 			TIME_REFERENCE_OUT         => cts_trigger_out,
+			
 			ADDON_TRIGGERS_IN          => cts_addon_triggers_in,
 			ADDON_GROUP_ACTIVITY_OUT   => cts_addon_activity_i,
 			ADDON_GROUP_SELECTED_OUT   => cts_addon_selected_i,
+			
 			EXT_TRIGGER_IN             => cts_ext_trigger,
 			EXT_STATUS_IN              => cts_ext_status,
 			EXT_CONTROL_OUT            => cts_ext_control,
 			EXT_HEADER_BITS_IN         => cts_ext_header,
+			
 			PERIPH_TRIGGER_IN          => cts_periph_trigger_i,
 			OUTPUT_MULTIPLEXERS_OUT    => cts_output_multiplexers_i,
+			
 			CTS_TRG_SEND_OUT           => cts_trg_send,
 			CTS_TRG_TYPE_OUT           => cts_trg_type,
 			CTS_TRG_NUMBER_OUT         => cts_trg_number,
@@ -764,6 +776,7 @@ begin
 			CTS_TRG_RND_CODE_OUT       => cts_trg_code,
 			CTS_TRG_STATUS_BITS_IN     => cts_trg_status_bits,
 			CTS_TRG_BUSY_IN            => cts_trg_busy,
+			
 			CTS_IPU_SEND_OUT           => cts_ipu_send,
 			CTS_IPU_TYPE_OUT           => cts_ipu_type,
 			CTS_IPU_NUMBER_OUT         => cts_ipu_number,
@@ -771,6 +784,7 @@ begin
 			CTS_IPU_RND_CODE_OUT       => cts_ipu_code,
 			CTS_IPU_STATUS_BITS_IN     => cts_ipu_status_bits,
 			CTS_IPU_BUSY_IN            => cts_ipu_busy,
+			
 			CTS_REGIO_ADDR_IN          => cts_regio_addr,
 			CTS_REGIO_DATA_IN          => cts_regio_data_out,
 			CTS_REGIO_READ_ENABLE_IN   => cts_regio_read,
@@ -779,29 +793,32 @@ begin
 			CTS_REGIO_DATAREADY_OUT    => cts_regio_dataready,
 			CTS_REGIO_WRITE_ACK_OUT    => cts_regio_write_ack,
 			CTS_REGIO_UNKNOWN_ADDR_OUT => cts_regio_unknown_addr,
+			
 			LVL1_TRG_DATA_VALID_IN     => cts_rdo_trg_data_valid,
 			LVL1_VALID_TIMING_TRG_IN   => cts_rdo_valid_timing_trg,
 			LVL1_VALID_NOTIMING_TRG_IN => cts_rdo_valid_notiming_trg,
 			LVL1_INVALID_TRG_IN        => cts_rdo_invalid_trg,
+			
 			FEE_TRG_STATUSBITS_OUT     => cts_rdo_trg_status_bits_cts,
 			FEE_DATA_OUT               => cts_rdo_data,
 			FEE_DATA_WRITE_OUT         => cts_rdo_write,
 			FEE_DATA_FINISHED_OUT      => cts_rdo_finished
 		);
 
-	soda_trigger : entity work.soda_trigger_from_update
+	soda_trigger : entity work.soda_cts_module
 		port map(
 			CLK               => clk_100_i,
 			RESET_IN          => reset_i,
-			TIMER_TICK_1US_IN => timer_ticks(0),
-			SERIAL_IN         => CLK_EXT(3),
-			EXT_TRG_IN        => CLK_EXT(4),
+
+			EXT_TRG_IN        => superburst_update_S,
+			
 			TRG_SYNC_OUT      => cts_ext_trigger,
 			TRIGGER_IN        => cts_rdo_trg_data_valid,
 			DATA_OUT          => cts_rdo_additional(0).data,
 			WRITE_OUT         => cts_rdo_additional(0).data_write,
 			FINISHED_OUT      => cts_rdo_additional(0).data_finished,
 			STATUSBIT_OUT     => cts_rdo_additional(0).statusbits,
+			
 			CONTROL_REG_IN    => cts_ext_control,
 			STATUS_REG_OUT    => cts_ext_status,
 			HEADER_REG_OUT    => cts_ext_header,
