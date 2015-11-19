@@ -231,7 +231,7 @@ begin
          CLK_IN => CLK_IN,
          RST_IN => RESET_IN,
          DATA_IN => triggers_i(i),
-         DATA_OUT => trigger_inputs_i(i),
+         DATA_OUT => open, --trigger_inputs_i(i),
          CONFIG_IN => trigger_input_configs_i(i)
       );
    end generate;
@@ -257,7 +257,7 @@ begin
       ) port map (
          CLK_IN       => CLK_IN,
          THRESHOLD_IN => rand_pulser_threshold_i(i),
-         TRIGGER_OUT  => rand_pulsers_i(i)
+         TRIGGER_OUT  => open, --rand_pulsers_i(i)
       );
    end generate;
    
