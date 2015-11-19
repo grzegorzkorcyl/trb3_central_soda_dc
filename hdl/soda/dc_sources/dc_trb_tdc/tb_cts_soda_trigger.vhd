@@ -56,7 +56,7 @@ begin
 			EXTERNAL_TRIGGER_ID  => x"60", -- fill in trigger logic enumeration id of external trigger logic
 
 			TRIGGER_COIN_COUNT   => 1, --TRIGGER_COIN_COUNT,
-			TRIGGER_PULSER_COUNT => 1, --TRIGGER_PULSER_COUNT,
+			TRIGGER_PULSER_COUNT => 2, --TRIGGER_PULSER_COUNT,
 			TRIGGER_RAND_PULSER  => 1, --TRIGGER_RAND_PULSER,
 			TRIGGER_INPUT_COUNT  => 1,  -- obsolete! now all inputs are routed via an input multiplexer!
 			TRIGGER_ADDON_COUNT  => 1, --TRIGGER_ADDON_COUNT,
