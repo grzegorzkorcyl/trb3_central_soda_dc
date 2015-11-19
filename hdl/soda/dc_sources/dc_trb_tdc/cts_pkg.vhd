@@ -2,6 +2,9 @@ library ieee;
    use ieee.std_logic_1164.all;
    use ieee.numeric_std.all;
 
+library work;
+use work.trb_net_std.all;
+
 package cts_pkg is
    type CTS_GROUP_CONFIG_T is array(0 to 7) of integer;
    
