@@ -53,7 +53,7 @@ begin
    end process;
    
 -- delays
-   proc_delay: process(CLK_IN) is
+   process(CLK_IN) is
    begin
       if rising_edge(CLK_IN) then
          if RST_IN = '1' then
