@@ -51,12 +51,6 @@ end entity;
 
 architecture arch1 of soda_cts_module is
 
-																				-- 500 us ticks
-																				-- time until trigger id can be received;
-	constant timeoutcnt_Max : integer														:= 500;
-	signal timeoutcnt				: integer range 0 to timeoutcnt_Max := timeoutcnt_Max;
-	signal timer_tick_1us		: std_logic;
-
 	signal shift_reg : std_logic_vector(34 downto 0);
 	signal bitcnt		 : integer range 0 to shift_reg'length;
 
@@ -86,11 +80,9 @@ begin
 	HEADER_REG_OUT <= b"10";
 
 
-	timer_tick_1us <= TIMER_TICK_1US_IN;
 	TRG_SYNC_OUT	 <= trg_sync;
 	trg_sync			 <= EXT_TRG_IN when rising_edge(CLK);
 	trg_sync_old	 <= trg_sync	 when rising_edge(CLK);
-	reg_SERIAL_IN	 <= SERIAL_IN	 when rising_edge(CLK);
 
 
 																				-- since CLK runs at 100MHz, we sample at 12.5MHz due to 8 WAIT states
@@ -105,7 +97,6 @@ begin
 				if trg_sync = '1' and trg_sync_old = '0' then
 					timeout_seen <= '0';
 					done				 <= '0';
-					timeoutcnt	 <= timeoutcnt_Max;
 					state				 <= WAIT_FOR_STARTBIT;
 				end if;
 				
@@ -114,12 +105,7 @@ begin
 				if reg_SERIAL_IN = '1' then
 					bitcnt <= shift_reg'length;
 					state	 <= WAIT1;
-				elsif timeoutcnt = 0 then
-					state <= NO_TRG_ID_RECV;
-				elsif timer_tick_1us = '1' then
-					timeoutcnt <= timeoutcnt-1;
 				end if;
-
 				
 			when WAIT1 =>
 				state <= WAIT2;
