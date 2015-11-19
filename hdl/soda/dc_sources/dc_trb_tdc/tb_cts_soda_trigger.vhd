@@ -63,7 +63,7 @@ begin
 			PERIPH_TRIGGER_COUNT => 1, --PERIPH_TRIGGER_COUNT,
 			OUTPUT_MULTIPLEXERS  => 0, --CTS_OUTPUT_MULTIPLEXERS,
 			ADDON_LINE_COUNT     => 1, --CTS_ADDON_LINE_COUNT,
-			ADDON_GROUPS         => 1,
+			ADDON_GROUPS         => 7,
 			ADDON_GROUP_UPPER    => (3, 7, 11, 15, 16, 17, others => 0)
 		)
 		port map(
