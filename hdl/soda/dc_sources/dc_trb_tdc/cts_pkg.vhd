@@ -6,7 +6,7 @@ package cts_pkg is
    type CTS_GROUP_CONFIG_T is array(0 to 7) of integer;
    
    function MIN(x : integer; y : integer) return integer;
-   function MAX(x : integer; y : integer) return integer;
+   --function MAX(x : integer; y : integer) return integer;
    
    component CTS is
       generic (
