@@ -39,6 +39,14 @@ begin
 		cts_ext_trigger <= '1';
 		wait for 100 ns;
 		cts_ext_trigger <= '0';
+		wait for 20 ns;
+		wait until rising_edge(clk_100_i);
+		cts_rdo_valid_notiming_trg <= '1';
+		wait until rising_edge(clk_100_i);
+		cts_rdo_valid_notiming_trg <= '0';
+		wait for 100 ns;
+		wait until rising_edge(clk_100_i);
+		cts_rdo_trg_data_valid <= '1';
 		
 		wait;
 	end process;
