@@ -82,13 +82,12 @@ architecture RTL of gbe_ipu_dummy is
 	signal constructed_events                                                                                                                            : std_logic_vector(15 downto 0) := x"0000";
 	signal increment_flag                                                                                                                                : std_logic;
 	signal local_trigger                                                                                                                                 : std_logic;
-	signal evt_ctr : std_logic_vector(31 downto 0);
-	signal rand_size : std_logic_vector(11 downto 0);
+	signal evt_ctr                                                                                                                                       : std_logic_vector(31 downto 0);
+	signal rand_size                                                                                                                                     : std_logic_vector(11 downto 0);
 
 begin
-	
 	FEE_STATUS_BITS_OUT <= x"11223344";
-	
+
 	send_word_pause <= 1;
 
 	fixed_size_gen : if FIXED_SIZE_MODE = 1 generate
@@ -96,28 +95,27 @@ begin
 	end generate fixed_size_gen;
 
 	random_size_gen : if FIXED_SIZE_MODE = 0 and INCREMENTAL_MODE = 0 generate
---		size_rand_inst : random_size
---			port map(Clk  => clk,
---				     Enb  => size_rand_en,
---				     Rst  => rst,
---				     Dout => s
---			);
-			
+		--		size_rand_inst : random_size
+		--			port map(Clk  => clk,
+		--				     Enb  => size_rand_en,
+		--				     Rst  => rst,
+		--				     Dout => s
+		--			);
+
 		process(clk)
 			variable seed1, seed2 : positive;
-			variable rand : real;
-			variable int_rand : integer;
-			variable stim : std_logic_vector(11 downto 0);
+			variable rand         : real;
+			variable int_rand     : integer;
+			variable stim         : std_logic_vector(11 downto 0);
 		begin
 			if rising_edge(CLK) then
 				uniform(seed1, seed2, rand);
-				int_rand := integer(trunc(rand*4096.0));
-				stim := std_logic_vector(to_unsigned(int_rand, stim'length));
-				
+				int_rand := integer(trunc(rand * 4096.0));
+				stim     := std_logic_vector(to_unsigned(int_rand, stim'length));
+
 				rand_size <= stim;
 			end if;
-		end process;	
-
+		end process;
 
 		process(clk)
 		begin
@@ -129,7 +127,6 @@ begin
 				end if;
 			end if;
 		end process;
-				
 
 		process(clk)
 		begin
@@ -337,7 +334,7 @@ begin
 				if (to_integer(unsigned(data_ctr)) = (2 * (to_integer(unsigned(test_data_len)) - 1)) and FEE_READ_IN = '1') then
 					next_state <= WAIT_A_SEC_7;
 				else
-					next_state <= SEND_ONE_WORD;  --LOOP_OVER_DATA;
+					next_state <= SEND_ONE_WORD; --LOOP_OVER_DATA;
 				end if;
 
 			when SEND_ONE_WORD =>
@@ -407,11 +404,12 @@ begin
 				when IDLE =>
 					ctr <= 0;
 				when TIMEOUT =>
-					if ctr /= timeout_stop then
-						ctr <= ctr + 1;
-					else
-						ctr <= 0;
-					end if;
+					--					if ctr /= timeout_stop then
+					--						ctr <= ctr + 1;
+					--					else
+					--						ctr <= 0;
+					--					end if;
+					ctr <= 0;
 				when CTS_START =>
 					if (ctr /= pause_cts_fee) then
 						ctr <= ctr + 1;
@@ -566,8 +564,8 @@ begin
 				fee_dready <= '1';
 			elsif (current_state = WAIT_FOR_READ_6) then
 				fee_dready <= '1';
---			elsif (current_state = LOOP_OVER_DATA) then
---				fee_dready <= '1';
+			--			elsif (current_state = LOOP_OVER_DATA) then
+			--				fee_dready <= '1';
 			elsif (current_state = SEND_ONE_WORD) then -- and ctr = send_word_pause) then
 				fee_dready <= '1';
 			else
