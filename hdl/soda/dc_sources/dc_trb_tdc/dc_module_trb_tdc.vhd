@@ -86,6 +86,19 @@ architecture Behavioral of dc_module_trb_tdc is
 
 	signal SODA_enable0_S           : std_logic;
 	signal reset_slowcontrolclock_s : std_logic;
+	signal sf_data                  : std_logic_vector(15 downto 0);
+	signal sf_wr_en, sf_rd_en       : std_logic;
+	signal saved_size               : std_logic_vector(16 downto 0);
+	signal cts_rnd                  : std_logic_vector(15 downto 0);
+	signal save_eod                 : std_logic;
+	signal cts_trg                  : std_logic_vector(15 downto 0);
+	signal save_ctr                 : std_logic_vector(15 downto 0);
+
+	signal sf_q              : std_logic_vector(63 downto 0);
+	signal sf_eos            : std_logic_vector(3 downto 0);
+	signal saved_events_ctr  : std_logic_vector(15 downto 0);
+	signal loaded_events_ctr : std_logic_vector(31 downto 0);
+	signal saved_events_ctr_sync : std_logic_vector(31 downto 0);
 
 begin
 	process(slowcontrol_clock)
@@ -127,16 +140,16 @@ begin
 	-- RECEIVING PART
 	--*********
 
-	SAVE_MACHINE_PROC : process(RESET, slowcontrol_clock)
+	SAVE_MACHINE_PROC : process(reset_slowcontrolclock_s, slowcontrol_clock)
 	begin
-		if RESET = '1' then
+		if reset_slowcontrolclock_s = '1' then
 			save_current_state <= IDLE;
 		elsif rising_edge(slowcontrol_clock) then
 			save_current_state <= save_next_state;
 		end if;
 	end process SAVE_MACHINE_PROC;
 
-	SAVE_MACHINE : process(save_current_state, CTS_START_READOUT_IN, saved_size, FEE_BUSY_IN, CTS_READ_IN, size_check_ctr)
+	SAVE_MACHINE : process(save_current_state, CTS_START_READOUT_IN, saved_size, FEE_BUSY_IN, CTS_READ_IN)
 	begin
 		case (save_current_state) is
 			when IDLE =>
@@ -204,11 +217,7 @@ begin
 				save_next_state <= FINISH_4_WORDS;
 
 			when FINISH_4_WORDS =>
-				if (size_check_ctr = 1) then
-					save_next_state <= CLEANUP;
-				else
-					save_next_state <= FINISH_4_WORDS;
-				end if;
+				save_next_state <= CLEANUP;
 
 			when CLEANUP =>
 				save_next_state <= IDLE;
@@ -271,7 +280,6 @@ begin
 	CTS_READOUT_FINISHED_PROC : process(slowcontrol_clock)
 	begin
 		if rising_edge(slowcontrol_clock) then
-
 			if (save_current_state = SEND_TERM_PULSE) then
 				CTS_READOUT_FINISHED_OUT <= '1';
 			else
@@ -304,8 +312,8 @@ begin
 				cts_trg <= cts_trg;
 			end if;
 		end if;
-	end process CTS_RND_TRG_PROC;	
-	
+	end process CTS_RND_TRG_PROC;
+
 	SAVE_CTR_PROC : process(slowcontrol_clock)
 	begin
 		if rising_edge(slowcontrol_clock) then
@@ -317,29 +325,73 @@ begin
 				save_ctr <= save_ctr;
 			end if;
 		end if;
-	end process SAVE_CTR_PROC	
-	
+	end process SAVE_CTR_PROC;
+
 	FEE_READ_PROC : process(slowcontrol_clock)
 	begin
 		if rising_edge(slowcontrol_clock) then
-			
 			if (save_current_state = SAVE_DATA) then
-				if (sf_afull = '0' or overwrite_afull = '1') then
-					FEE_READ_OUT <= '1';
-				else
-					FEE_READ_OUT <= '0';
-				end if;
+				FEE_READ_OUT <= '1';
 			else
 				FEE_READ_OUT <= '1';
 			end if;
 		end if;
-	end process FEE_READ_PROC;	
-	
-	
-	
-	
+	end process FEE_READ_PROC;
+
+	THE_SPLIT_FIFO : entity work.fifo_16kx16x64
+		port map(
+			Data(15 downto 0) => sf_data,
+			Data(16)          => '0',
+			Data(17)          => save_eod,
+			WrClock           => slowcontrol_clock,
+			RdClock           => packet_out_clock,
+			WrEn              => sf_wr_en,
+			RdEn              => sf_rd_en,
+			Reset             => '1', --reset_slowcontrolclock_s,
+			RPReset           => reset_packet_out_clock_S,
+			Q(15 downto 0)    => sf_q(15 downto 0),
+			Q(16)             => open,
+			Q(17)             => sf_eos(0),
+			Q(33 downto 18)   => sf_q(31 downto 16),
+			Q(34)             => open,
+			Q(35)             => sf_eos(1),
+			Q(51 downto 36)   => sf_q(47 downto 32),
+			Q(52)             => open,
+			Q(53)             => sf_eos(2),
+			Q(69 downto 54)   => sf_q(63 downto 48),
+			Q(70)             => open,
+			Q(71)             => sf_eos(3),
+			Empty             => open,
+			Full              => open
+		);
+
+	SAVED_EVENTS_CTR_PROC : process(reset_slowcontrolclock_s, slowcontrol_clock)
+	begin
+		if (reset_slowcontrolclock_s = '1') then
+			saved_events_ctr <= (others => '0');
+		elsif rising_edge(slowcontrol_clock) then
+			if (save_current_state = SEND_TERM_PULSE) then
+				saved_events_ctr <= saved_events_ctr + x"1";
+			else
+				saved_events_ctr <= saved_events_ctr;
+			end if;
+		end if;
+	end process SAVED_EVENTS_CTR_PROC;
 
 	-- dummy data generation
+
+	saved_ctr_sync : entity work.signal_sync
+		generic map(
+			WIDTH => 32,
+			DEPTH => 2
+		)
+		port map(
+			RESET => reset_packet_out_clock_S,
+			CLK0  => packet_out_clock,
+			CLK1  => packet_out_clock,
+			D_IN  => saved_events_ctr,
+			D_OUT => saved_events_ctr_sync
+		);
 
 	process(packet_out_clock)
 	begin
@@ -352,11 +404,11 @@ begin
 		end if;
 	end process;
 
-	process(dummy_current_state, latestsuperburst_write_S, data_out_allowed)
+	process(dummy_current_state, saved_events_ctr_sync, loaded_events_ctr, data_out_allowed)
 	begin
 		case dummy_current_state is
 			when IDLE =>
-				if (latestsuperburst_write_S = '1') then
+				if (saved_events_ctr_sync /= loaded_events_ctr) then
 					dummy_next_state <= WAIT_FOR_ALLOW;
 				else
 					dummy_next_state <= IDLE;
@@ -392,6 +444,19 @@ begin
 
 		end case;
 	end process;
+
+	LOADED_EVENTS_CTR_PROC : process(reset_packet_out_clock_S, packet_out_clock)
+	begin
+		if (reset_packet_out_clock_S = '1') then
+			loaded_events_ctr <= (others => '0');
+		elsif rising_edge(packet_out_clock) then
+			if (dummy_current_state = CLOSE) then
+				loaded_events_ctr <= loaded_events_ctr + x"1";
+			else
+				loaded_events_ctr <= loaded_events_ctr;
+			end if;
+		end if;
+	end process LOADED_EVENTS_CTR_PROC;
 
 	-- The 64 bits output packets, according to 32bits SODAnet specs:
 	-- 32bits word1:   
