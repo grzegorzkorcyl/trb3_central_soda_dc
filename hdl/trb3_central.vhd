@@ -532,6 +532,19 @@ architecture trb3_central_arch of trb3_central is
 	signal update_toggle                      : std_logic                             := '0';
 	signal update_synced                      : std_logic                             := '0';
 
+	signal gbe_cts_number           : std_logic_vector(15 downto 0);
+	signal gbe_cts_code             : std_logic_vector(7 downto 0);
+	signal gbe_cts_information      : std_logic_vector(7 downto 0);
+	signal gbe_cts_start_readout    : std_logic;
+	signal gbe_cts_readout_type     : std_logic_vector(3 downto 0);
+	signal gbe_cts_readout_finished : std_logic;
+	signal gbe_cts_status_bits      : std_logic_vector(31 downto 0);
+	signal gbe_fee_data             : std_logic_vector(15 downto 0);
+	signal gbe_fee_dataready        : std_logic;
+	signal gbe_fee_read             : std_logic;
+	signal gbe_fee_status_bits      : std_logic_vector(31 downto 0);
+	signal gbe_fee_busy             : std_logic;
+
 begin
 
 	---------------------------------------------------------------------------
@@ -867,54 +880,55 @@ begin
 
 	THE_DATACONCENTRATOR_FROM_TDC : entity work.dc_module_trb_tdc
 		port map(
-			slowcontrol_clock    => clk_100_i,
-			packet_in_clock      => PACKETIN_clock,
-			MUX_clock            => MUX_clock,
-			packet_out_clock     => PACKETOUT_clock,
-			SODA_clock           => clk_SODA200_i,
-			reset                => reset_i,
+			slowcontrol_clock        => clk_100_i,
+			packet_in_clock          => PACKETIN_clock,
+			MUX_clock                => MUX_clock,
+			packet_out_clock         => PACKETOUT_clock,
+			SODA_clock               => clk_SODA200_i,
+			reset                    => reset_i,
 
 			-- Slave bus
-			BUS_READ_IN          => dc_read_en,
-			BUS_WRITE_IN         => dc_write_en,
-			BUS_BUSY_OUT         => dc_busy,
-			BUS_ACK_OUT          => dc_ack,
-			BUS_ADDR_IN          => dc_addr,
-			BUS_DATA_IN          => dc_data_in,
-			BUS_DATA_OUT         => dc_data_out,
+			BUS_READ_IN              => dc_read_en,
+			BUS_WRITE_IN             => dc_write_en,
+			BUS_BUSY_OUT             => dc_busy,
+			BUS_ACK_OUT              => dc_ack,
+			BUS_ADDR_IN              => dc_addr,
+			BUS_DATA_IN              => dc_data_in,
+			BUS_DATA_OUT             => dc_data_out,
 
-			-- fiber interface signals:
-			fiber_txlocked       => fiber_txlocked_S,
-			fiber_rxlocked       => fiber_rxlocked_S,
-			reset_fibers         => reset_fibers_S,
-			fiber_data32write    => fiber_data32write_S,
-			fiber_data32out      => fiber_data32out_S,
-			fiber_data32fifofull => fiber_data32fifofull_S,
-			fiber_data32read     => fiber_data32read_S,
-			fiber_data32present  => fiber_data32present_S,
-			fiber_data32in       => fiber_data32in_S,
-			fiber_rxerror        => fiber_rxerror_S,
+			--CTS interface
+			CTS_NUMBER_IN            => gbe_cts_number,
+			CTS_CODE_IN              => gbe_cts_code,
+			CTS_INFORMATION_IN       => gbe_cts_information,
+			CTS_READOUT_TYPE_IN      => gbe_cts_readout_type,
+			CTS_START_READOUT_IN     => gbe_cts_start_readout,
+			CTS_DATA_OUT             => open,
+			CTS_DATAREADY_OUT        => open,
+			CTS_READOUT_FINISHED_OUT => gbe_cts_readout_finished,
+			CTS_READ_IN              => '1',
+			CTS_LENGTH_OUT           => open,
+			CTS_ERROR_PATTERN_OUT    => gbe_cts_status_bits,
+			--Data payload interface
+			FEE_DATA_IN              => gbe_fee_data,
+			FEE_DATAREADY_IN         => gbe_fee_dataready,
+			FEE_READ_OUT             => gbe_fee_read,
+			FEE_STATUS_BITS_IN       => gbe_fee_status_bits,
+			FEE_BUSY_IN              => gbe_fee_busy,
 
 			-- SODA signals
-			superburst_number    => superburst_number_S,
-			superburst_update    => superburst_update_S,
-			SODA_enable          => open,
-			EnableExternalSODA   => EnableExternalSODA_S,
+			superburst_number        => superburst_number_S,
+			superburst_update        => superburst_update_S,
+			SODA_enable              => open,
+			EnableExternalSODA       => EnableExternalSODA_S,
 
 			-- 64 bits data output
-			data_out_allowed     => data64b_muxed_allowed_S,
-			data_out             => data64b_muxed,
-			data_out_write       => data64b_muxed_write,
-			data_out_first       => data64b_muxed_first,
-			data_out_last        => data64b_muxed_last,
-			data_out_error       => data64b_muxed_error,
-			no_packet_limit      => open,
-
-			-- testpoints
-			testword0            => open,
-			testword0clock       => open,
-			testword1            => open,
-			testword2            => open
+			data_out_allowed         => data64b_muxed_allowed_S,
+			data_out                 => data64b_muxed,
+			data_out_write           => data64b_muxed_write,
+			data_out_first           => data64b_muxed_first,
+			data_out_last            => data64b_muxed_last,
+			data_out_error           => data64b_muxed_error,
+			no_packet_limit          => open
 		);
 
 	---------------------------------------------------------------------------
@@ -1149,20 +1163,20 @@ begin
 
 			-- Gbe Read-out Path ---------------------------------------------------------------
 			--Event information coming from CTS for GbE
-			GBE_CTS_NUMBER_OUT                                 => open,
-			GBE_CTS_CODE_OUT                                   => open,
-			GBE_CTS_INFORMATION_OUT                            => open,
-			GBE_CTS_READOUT_TYPE_OUT                           => open,
-			GBE_CTS_START_READOUT_OUT                          => open,
+			GBE_CTS_NUMBER_OUT                                 => gbe_cts_number,
+			GBE_CTS_CODE_OUT                                   => gbe_cts_code,
+			GBE_CTS_INFORMATION_OUT                            => gbe_cts_information,
+			GBE_CTS_READOUT_TYPE_OUT                           => gbe_cts_readout_type,
+			GBE_CTS_START_READOUT_OUT                          => gbe_cts_start_readout,
 			--Information sent to CTS
-			GBE_CTS_READOUT_FINISHED_IN                        => '0',
-			GBE_CTS_STATUS_BITS_IN                             => (others => '0'),
+			GBE_CTS_READOUT_FINISHED_IN                        => gbe_cts_readout_finished,
+			GBE_CTS_STATUS_BITS_IN                             => gbe_cts_status_bits,
 			-- Data from Frontends
-			GBE_FEE_DATA_OUT                                   => open,
-			GBE_FEE_DATAREADY_OUT                              => open,
-			GBE_FEE_READ_IN                                    => '1',
-			GBE_FEE_STATUS_BITS_OUT                            => open,
-			GBE_FEE_BUSY_OUT                                   => open,
+			GBE_FEE_DATA_OUT                                   => gbe_fee_data,
+			GBE_FEE_DATAREADY_OUT                              => gbe_fee_dataready,
+			GBE_FEE_READ_IN                                    => gbe_fee_read,
+			GBE_FEE_STATUS_BITS_OUT                            => gbe_fee_status_bits,
+			GBE_FEE_BUSY_OUT                                   => gbe_fee_busy,
 
 			-- CTS Request Sending -------------------------------------------------------------
 			--LVL1 trigger

@@ -6,73 +6,58 @@ USE work.panda_package.all;
 
 entity dc_module_trb_tdc is
 	generic(
-		NROFFIBERS            : natural                       := 4;
-		NROFADCS              : natural                       := 16;
-		ADCBITS               : natural                       := 14;
-		ADCCLOCKFREQUENCY     : natural                       := 80000000;
-		MAX_DIVIDERSCALEBITS  : natural                       := 12;
-		MAX_LUTSIZEBITS       : natural                       := 8;
-		MAX_LUTSCALEBITS      : natural                       := 14;
-		MUXINFIFOSIZE         : natural                       := 9;
-		TRANSFERFIFOSIZE      : natural                       := 14;
-		CF_FRACTIONBIT        : natural                       := 11;
-		TRANSITIONBUFFERBITS  : natural                       := 7;
-		PANDAPACKETBUFFERBITS : natural                       := 13;
-		ADCINDEXSHIFT         : natural                       := 1;
-		ENERGYSCALINGBITS     : natural                       := 13;
-		COMBINEPULSESMEMSIZE  : natural                       := 10;
-		COMBINETIMEDIFFERENCE : natural                       := 5000;
-		SYSTEM_ID             : std_logic_vector(15 downto 0) := x"5555"
+		DO_SIMULATION : integer range 0 to 1 := 0
 	);
 	port(
-		slowcontrol_clock    : in  std_logic;
-		packet_in_clock      : in  std_logic;
-		MUX_clock            : in  std_logic;
-		packet_out_clock     : in  std_logic;
-		SODA_clock           : in  std_logic;
-		reset                : in  std_logic;
+		slowcontrol_clock        : in  std_logic;
+		packet_in_clock          : in  std_logic;
+		MUX_clock                : in  std_logic;
+		packet_out_clock         : in  std_logic;
+		SODA_clock               : in  std_logic;
+		reset                    : in  std_logic;
 
 		-- Slave bus
-		BUS_READ_IN          : in  std_logic;
-		BUS_WRITE_IN         : in  std_logic;
-		BUS_BUSY_OUT         : out std_logic;
-		BUS_ACK_OUT          : out std_logic;
-		BUS_ADDR_IN          : in  std_logic_vector(1 downto 0);
-		BUS_DATA_IN          : in  std_logic_vector(31 downto 0);
-		BUS_DATA_OUT         : out std_logic_vector(31 downto 0);
+		BUS_READ_IN              : in  std_logic;
+		BUS_WRITE_IN             : in  std_logic;
+		BUS_BUSY_OUT             : out std_logic;
+		BUS_ACK_OUT              : out std_logic;
+		BUS_ADDR_IN              : in  std_logic_vector(1 downto 0);
+		BUS_DATA_IN              : in  std_logic_vector(31 downto 0);
+		BUS_DATA_OUT             : out std_logic_vector(31 downto 0);
 
-		-- fiber interface signals:
-		fiber_txlocked       : in  std_logic_vector(0 to NROFFIBERS - 1);
-		fiber_rxlocked       : in  std_logic_vector(0 to NROFFIBERS - 1);
-		reset_fibers         : out std_logic;
-		fiber_data32write    : out std_logic_vector(0 to NROFFIBERS - 1);
-		fiber_data32out      : out array_fiber32bits_type;
-		fiber_data32fifofull : in  std_logic_vector(0 to NROFFIBERS - 1);
-		fiber_data32read     : out std_logic_vector(0 to NROFFIBERS - 1);
-		fiber_data32present  : in  std_logic_vector(0 to NROFFIBERS - 1);
-		fiber_data32in       : in  array_fiber32bits_type;
-		fiber_rxerror        : in  std_logic_vector(0 to NROFFIBERS - 1);
+		-- IPU interface directed toward the CTS
+		CTS_NUMBER_IN            : in  std_logic_vector(15 downto 0);
+		CTS_CODE_IN              : in  std_logic_vector(7 downto 0);
+		CTS_INFORMATION_IN       : in  std_logic_vector(7 downto 0);
+		CTS_READOUT_TYPE_IN      : in  std_logic_vector(3 downto 0);
+		CTS_START_READOUT_IN     : in  std_logic;
+		CTS_READ_IN              : in  std_logic;
+		CTS_DATA_OUT             : out std_logic_vector(31 downto 0);
+		CTS_DATAREADY_OUT        : out std_logic;
+		CTS_READOUT_FINISHED_OUT : out std_logic; --no more data, end transfer, send TRM
+		CTS_LENGTH_OUT           : out std_logic_vector(15 downto 0);
+		CTS_ERROR_PATTERN_OUT    : out std_logic_vector(31 downto 0);
+		-- Data from Frontends
+		FEE_DATA_IN              : in  std_logic_vector(15 downto 0);
+		FEE_DATAREADY_IN         : in  std_logic;
+		FEE_READ_OUT             : out std_logic;
+		FEE_BUSY_IN              : in  std_logic;
+		FEE_STATUS_BITS_IN       : in  std_logic_vector(31 downto 0);
 
 		-- SODA signals
-		superburst_number    : in  std_logic_vector(30 downto 0);
-		superburst_update    : in  std_logic;
-		SODA_enable          : out std_logic;
-		EnableExternalSODA   : out std_logic;
+		superburst_number        : in  std_logic_vector(30 downto 0);
+		superburst_update        : in  std_logic;
+		SODA_enable              : out std_logic;
+		EnableExternalSODA       : out std_logic;
 
 		-- 64 bits data output
-		data_out_allowed     : in  std_logic;
-		data_out             : out std_logic_vector(63 downto 0);
-		data_out_write       : out std_logic;
-		data_out_first       : out std_logic;
-		data_out_last        : out std_logic;
-		data_out_error       : out std_logic;
-		no_packet_limit      : out std_logic;
-
-		-- testpoints
-		testword0            : out std_logic_vector(35 downto 0) := (others => '0');
-		testword0clock       : out std_logic                     := '0';
-		testword1            : out std_logic_vector(35 downto 0) := (others => '0');
-		testword2            : out std_logic_vector(35 downto 0) := (others => '0')
+		data_out_allowed         : in  std_logic;
+		data_out                 : out std_logic_vector(63 downto 0);
+		data_out_write           : out std_logic;
+		data_out_first           : out std_logic;
+		data_out_last            : out std_logic;
+		data_out_error           : out std_logic;
+		no_packet_limit          : out std_logic
 	);
 end dc_module_trb_tdc;
 
@@ -85,6 +70,9 @@ architecture Behavioral of dc_module_trb_tdc is
 			signal_in : in  std_logic;
 			pulse     : out std_logic);
 	end component;
+
+	type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, ADD_MISSING, TERMINATE, SEND_TERM_PULSE, CLOSE, FINISH_4_WORDS, CLEANUP);
+	signal save_current_state, save_next_state : saveStates;
 
 	type dummy_data_gen_states is (IDLE, WAIT_FOR_ALLOW, GEN_HDR1, GEN_HDR2, GEN_DATA_FEE1, GEN_DATA_FEE2, GEN_DATA_FEE3, GEN_DATA_FEE4, CLOSE);
 	signal dummy_current_state, dummy_next_state : dummy_data_gen_states;
@@ -134,6 +122,222 @@ begin
 			end if;
 		end if;
 	end process;
+
+	--*********
+	-- RECEIVING PART
+	--*********
+
+	SAVE_MACHINE_PROC : process(RESET, slowcontrol_clock)
+	begin
+		if RESET = '1' then
+			save_current_state <= IDLE;
+		elsif rising_edge(slowcontrol_clock) then
+			save_current_state <= save_next_state;
+		end if;
+	end process SAVE_MACHINE_PROC;
+
+	SAVE_MACHINE : process(save_current_state, CTS_START_READOUT_IN, saved_size, FEE_BUSY_IN, CTS_READ_IN, size_check_ctr)
+	begin
+		case (save_current_state) is
+			when IDLE =>
+				if (CTS_START_READOUT_IN = '1') then
+					save_next_state <= SAVE_EVT_ADDR;
+				else
+					save_next_state <= IDLE;
+				end if;
+
+			when SAVE_EVT_ADDR =>
+				save_next_state <= WAIT_FOR_DATA;
+
+			when WAIT_FOR_DATA =>
+				if (FEE_BUSY_IN = '1') then
+					save_next_state <= SAVE_DATA;
+				else
+					save_next_state <= WAIT_FOR_DATA;
+				end if;
+
+			when SAVE_DATA =>
+				if (FEE_BUSY_IN = '0') then
+					save_next_state <= TERMINATE;
+				else
+					save_next_state <= SAVE_DATA;
+				end if;
+
+			when TERMINATE =>
+				if (CTS_READ_IN = '1') then
+					save_next_state <= SEND_TERM_PULSE;
+				else
+					save_next_state <= TERMINATE;
+				end if;
+
+			when SEND_TERM_PULSE =>
+				save_next_state <= CLOSE;
+
+			when CLOSE =>
+				if (CTS_START_READOUT_IN = '0') then
+					if (saved_size = x"0000" & "0") then
+						save_next_state <= ADD_SUBSUB1;
+					else
+						save_next_state <= ADD_MISSING;
+					end if;
+				else
+					save_next_state <= CLOSE;
+				end if;
+
+			when ADD_MISSING =>
+				if (saved_size = x"0000" & "1") then
+					save_next_state <= ADD_SUBSUB1;
+				else
+					save_next_state <= ADD_MISSING;
+				end if;
+
+			when ADD_SUBSUB1 =>
+				save_next_state <= ADD_SUBSUB2;
+
+			when ADD_SUBSUB2 =>
+				save_next_state <= ADD_SUBSUB3;
+
+			when ADD_SUBSUB3 =>
+				save_next_state <= ADD_SUBSUB4;
+
+			when ADD_SUBSUB4 =>
+				save_next_state <= FINISH_4_WORDS;
+
+			when FINISH_4_WORDS =>
+				if (size_check_ctr = 1) then
+					save_next_state <= CLEANUP;
+				else
+					save_next_state <= FINISH_4_WORDS;
+				end if;
+
+			when CLEANUP =>
+				save_next_state <= IDLE;
+
+			when others => save_next_state <= IDLE;
+
+		end case;
+	end process SAVE_MACHINE;
+
+	SF_DATA_EOD_PROC : process(slowcontrol_clock)
+	begin
+		if rising_edge(slowcontrol_clock) then
+			case (save_current_state) is
+				when SAVE_EVT_ADDR =>
+					sf_data(3 downto 0)  <= CTS_INFORMATION_IN(3 downto 0);
+					sf_data(7 downto 4)  <= CTS_READOUT_TYPE_IN;
+					sf_data(15 downto 8) <= x"ab";
+					save_eod             <= '0';
+
+				when SAVE_DATA =>
+					sf_data  <= FEE_DATA_IN;
+					save_eod <= '0';
+
+				when ADD_SUBSUB1 =>
+					sf_data  <= x"0001";
+					save_eod <= '0';
+
+				when ADD_SUBSUB2 =>
+					sf_data  <= x"5555";
+					save_eod <= '0';
+
+				when ADD_SUBSUB3 =>
+					sf_data  <= FEE_STATUS_BITS_IN(31 downto 16);
+					save_eod <= '1';
+
+				when ADD_SUBSUB4 =>
+					sf_data  <= FEE_STATUS_BITS_IN(15 downto 0);
+					save_eod <= '0';
+
+				when others => sf_data <= sf_data;
+					save_eod <= '0';
+
+			end case;
+		end if;
+	end process SF_DATA_EOD_PROC;
+
+	CTS_DATAREADY_PROC : process(slowcontrol_clock)
+	begin
+		if rising_edge(slowcontrol_clock) then
+			if (save_current_state = SAVE_DATA and FEE_BUSY_IN = '0') then
+				CTS_DATAREADY_OUT <= '1';
+			elsif (save_current_state = TERMINATE) then
+				CTS_DATAREADY_OUT <= '1';
+			else
+				CTS_DATAREADY_OUT <= '0';
+			end if;
+		end if;
+	end process CTS_DATAREADY_PROC;
+
+	CTS_READOUT_FINISHED_PROC : process(slowcontrol_clock)
+	begin
+		if rising_edge(slowcontrol_clock) then
+
+			if (save_current_state = SEND_TERM_PULSE) then
+				CTS_READOUT_FINISHED_OUT <= '1';
+			else
+				CTS_READOUT_FINISHED_OUT <= '0';
+			end if;
+		end if;
+	end process CTS_READOUT_FINISHED_PROC;
+
+	CTS_LENGTH_OUT        <= (others => '0');
+	CTS_ERROR_PATTERN_OUT <= (others => '0');
+
+	CTS_DATA_PROC : process(slowcontrol_clock)
+	begin
+		if rising_edge(slowcontrol_clock) then
+			CTS_DATA_OUT <= "0001" & cts_rnd(11 downto 0) & cts_trg;
+		end if;
+	end process CTS_DATA_PROC;
+
+	CTS_RND_TRG_PROC : process(slowcontrol_clock)
+	begin
+		if rising_edge(slowcontrol_clock) then
+			if (save_current_state = SAVE_DATA and save_ctr = x"0000") then
+				cts_rnd <= sf_data;
+				cts_trg <= cts_trg;
+			elsif (save_current_state = SAVE_DATA and save_ctr = x"0001") then
+				cts_rnd <= cts_rnd;
+				cts_trg <= sf_data;
+			else
+				cts_rnd <= cts_rnd;
+				cts_trg <= cts_trg;
+			end if;
+		end if;
+	end process CTS_RND_TRG_PROC;	
+	
+	SAVE_CTR_PROC : process(slowcontrol_clock)
+	begin
+		if rising_edge(slowcontrol_clock) then
+			if (save_current_state = IDLE) then
+				save_ctr <= (others => '0');
+			elsif (save_current_state = SAVE_DATA and sf_wr_en = '1') then
+				save_ctr <= save_ctr + x"1";
+			else
+				save_ctr <= save_ctr;
+			end if;
+		end if;
+	end process SAVE_CTR_PROC	
+	
+	FEE_READ_PROC : process(slowcontrol_clock)
+	begin
+		if rising_edge(slowcontrol_clock) then
+			
+			if (save_current_state = SAVE_DATA) then
+				if (sf_afull = '0' or overwrite_afull = '1') then
+					FEE_READ_OUT <= '1';
+				else
+					FEE_READ_OUT <= '0';
+				end if;
+			else
+				FEE_READ_OUT <= '1';
+			end if;
+		end if;
+	end process FEE_READ_PROC;	
+	
+	
+	
+	
 
 	-- dummy data generation
 
