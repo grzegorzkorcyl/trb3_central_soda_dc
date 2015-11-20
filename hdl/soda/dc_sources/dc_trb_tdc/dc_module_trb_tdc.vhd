@@ -2,7 +2,6 @@ library IEEE;
 use IEEE.std_logic_1164.ALL;
 USE ieee.std_logic_unsigned.all;
 USE ieee.std_logic_arith.all;
-USE work.panda_package.all;
 
 entity dc_module_trb_tdc is
 	generic(
