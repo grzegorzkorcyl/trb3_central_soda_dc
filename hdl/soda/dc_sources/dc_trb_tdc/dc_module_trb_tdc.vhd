@@ -94,7 +94,7 @@ architecture Behavioral of dc_module_trb_tdc is
 	signal save_ctr                 : std_logic_vector(15 downto 0);
 
 	signal sf_q              : std_logic_vector(63 downto 0);
-	signal sf_eos            : std_logic_vector(3 downto 0);
+	signal sf_eos, sf_nothing : std_logic_vector(3 downto 0);
 	signal saved_events_ctr  : std_logic_vector(15 downto 0);
 	signal loaded_events_ctr : std_logic_vector(31 downto 0);
 	signal saved_events_ctr_sync : std_logic_vector(31 downto 0);
@@ -349,16 +349,16 @@ begin
 			Reset             => '1', --reset_slowcontrolclock_s,
 			RPReset           => reset_packet_out_clock_S,
 			Q(15 downto 0)    => sf_q(15 downto 0),
-			Q(16)             => open,
+			Q(16)             => sf_nothing(0),
 			Q(17)             => sf_eos(0),
 			Q(33 downto 18)   => sf_q(31 downto 16),
-			Q(34)             => open,
+			Q(34)             => sf_nothing(0),
 			Q(35)             => sf_eos(1),
 			Q(51 downto 36)   => sf_q(47 downto 32),
-			Q(52)             => open,
+			Q(52)             => sf_nothing(0),
 			Q(53)             => sf_eos(2),
 			Q(69 downto 54)   => sf_q(63 downto 48),
-			Q(70)             => open,
+			Q(70)             => sf_nothing(0),
 			Q(71)             => sf_eos(3),
 			Empty             => open,
 			Full              => open
