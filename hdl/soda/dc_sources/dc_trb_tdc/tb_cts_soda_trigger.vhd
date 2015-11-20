@@ -62,6 +62,13 @@ begin
 		superburst_update_S <= '1';
 		wait until rising_edge(clk_200_i);
 		superburst_update_S <= '0';
+		
+		wait for 1 us;
+		wait until rising_edge(clk_200_i);
+		superburst_update_S <= '1';
+		wait until rising_edge(clk_200_i);
+		superburst_update_S <= '0';
+		
 		wait;
 	end process;
 
