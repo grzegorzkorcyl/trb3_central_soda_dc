@@ -57,9 +57,10 @@ begin
 	process
 	begin
 		superburst_update_S <= '0';
-		wait for 5 ns;
+		wait for 1 us;
+		wait until rising_edge(clk_200_i);
 		superburst_update_S <= '1';
-		wait for 5 ns;
+		wait until rising_edge(clk_200_i);
 		superburst_update_S <= '0';
 		wait;
 	end process;
