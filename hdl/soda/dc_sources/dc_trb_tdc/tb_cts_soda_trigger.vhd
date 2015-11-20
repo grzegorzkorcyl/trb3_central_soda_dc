@@ -10,7 +10,7 @@ entity tb_cts_soda_trigger is
 end entity;
 
 architecture arch1 of tb_cts_soda_trigger is
-	signal clk_100_i, clk_200_i, reset_i : std_logic;
+	signal clk_100_i, clk_200_i, clk_80_i, reset_i : std_logic;
 	signal cts_ext_trigger               : std_logic;
 	signal cts_rdo_valid_notiming_trg    : std_logic;
 	signal cts_rdo_trg_data_valid        : std_logic;
@@ -21,7 +21,28 @@ architecture arch1 of tb_cts_soda_trigger is
 
 	signal superburst_update_S : std_logic;
 
+	signal gbe_cts_number           : std_logic_vector(15 downto 0);
+	signal gbe_cts_code             : std_logic_vector(7 downto 0);
+	signal gbe_cts_information      : std_logic_vector(7 downto 0);
+	signal gbe_cts_start_readout    : std_logic;
+	signal gbe_cts_readout_type     : std_logic_vector(3 downto 0);
+	signal gbe_cts_readout_finished : std_logic;
+	signal gbe_cts_status_bits      : std_logic_vector(31 downto 0);
+	signal gbe_fee_data             : std_logic_vector(15 downto 0);
+	signal gbe_fee_dataready        : std_logic;
+	signal gbe_fee_read             : std_logic;
+	signal gbe_fee_status_bits      : std_logic_vector(31 downto 0);
+	signal gbe_fee_busy             : std_logic;
+
 begin
+	process
+	begin
+		clk_80_i <= '1';
+		wait for 6 ns;
+		clk_80_i <= '0';
+		wait for 6 ns;
+	end process;
+	
 	process
 	begin
 		clk_100_i <= '1';
@@ -62,13 +83,13 @@ begin
 		superburst_update_S <= '1';
 		wait until rising_edge(clk_200_i);
 		superburst_update_S <= '0';
-		
+
 		wait for 1 us;
 		wait until rising_edge(clk_200_i);
 		superburst_update_S <= '1';
 		wait until rising_edge(clk_200_i);
 		superburst_update_S <= '0';
-		
+
 		wait;
 	end process;
 
@@ -79,7 +100,7 @@ begin
 		reset_i <= '0';
 		wait;
 	end process;
-	
+
 	process
 	begin
 		cts_rdo_trg_data_valid     <= '0';
@@ -174,6 +195,91 @@ begin
 			STATUS_REG_OUT => open,
 			HEADER_REG_OUT => open,
 			DEBUG          => open
+		);
+
+	dummy_inst : entity work.gbe_ipu_dummy
+		generic map(DO_SIMULATION    => 1,
+			        FIXED_SIZE_MODE  => 1,
+			        FIXED_SIZE       => 10,
+			        INCREMENTAL_MODE => 0,
+			        UP_DOWN_MODE     => 0,
+			        UP_DOWN_LIMIT    => 100,
+			        FIXED_DELAY_MODE => 1,
+			        FIXED_DELAY      => 50)
+		port map(clk                     => clk_100_i,
+			     rst                     => reset_i,
+			     GBE_READY_IN            => '1',
+			     CFG_EVENT_SIZE_IN       => x"0100",
+			     CFG_TRIGGERED_MODE_IN   => '1',
+			     TRIGGER_IN              => update_synced,
+			     CTS_NUMBER_OUT          => gbe_cts_number,           
+			     CTS_CODE_OUT            => gbe_cts_code,             
+			     CTS_INFORMATION_OUT     => gbe_cts_information,      
+			     CTS_READOUT_TYPE_OUT    => gbe_cts_readout_type,     
+			     CTS_START_READOUT_OUT   => gbe_cts_start_readout,    
+			     CTS_DATA_IN             => (others => '0'),                     
+			     CTS_DATAREADY_IN        => '0',                     
+			     CTS_READOUT_FINISHED_IN => gbe_cts_readout_finished, 
+			     CTS_READ_OUT            => open,                      
+			     CTS_LENGTH_IN           => (others => '0'),                     
+			     CTS_ERROR_PATTERN_IN    => gbe_cts_status_bits,      
+			     FEE_DATA_OUT            => gbe_fee_data,             
+			     FEE_DATAREADY_OUT       => gbe_fee_dataready,        
+			     FEE_READ_IN             => gbe_fee_read,             
+			     FEE_STATUS_BITS_OUT     => gbe_fee_status_bits,      
+			     FEE_BUSY_OUT            => gbe_fee_busy            
+		);
+
+	THE_DATACONCENTRATOR_FROM_TDC : entity work.dc_module_trb_tdc
+		port map(
+			slowcontrol_clock        => clk_100_i,
+			packet_in_clock          => clk_80_i,
+			MUX_clock                => clk_100_i,
+			packet_out_clock         => clk_80_i,
+			SODA_clock               => clk_200_i,
+			reset                    => reset_i,
+
+			-- Slave bus
+			BUS_READ_IN              => '0',
+			BUS_WRITE_IN             => '0',
+			BUS_BUSY_OUT             => open,
+			BUS_ACK_OUT              => open,
+			BUS_ADDR_IN              => (others => '0'),
+			BUS_DATA_IN              => (others => '0'),
+			BUS_DATA_OUT             => open,
+
+			--CTS interface
+			CTS_NUMBER_IN            => gbe_cts_number,
+			CTS_CODE_IN              => gbe_cts_code,
+			CTS_INFORMATION_IN       => gbe_cts_information,
+			CTS_READOUT_TYPE_IN      => gbe_cts_readout_type,
+			CTS_START_READOUT_IN     => gbe_cts_start_readout,
+			CTS_DATA_OUT             => open,
+			CTS_DATAREADY_OUT        => open,
+			CTS_READOUT_FINISHED_OUT => gbe_cts_readout_finished,
+			CTS_READ_IN              => '1',
+			CTS_LENGTH_OUT           => open,
+			CTS_ERROR_PATTERN_OUT    => gbe_cts_status_bits,
+			FEE_DATA_IN              => gbe_fee_data,
+			FEE_DATAREADY_IN         => gbe_fee_dataready,
+			FEE_READ_OUT             => gbe_fee_read,
+			FEE_STATUS_BITS_IN       => gbe_fee_status_bits,
+			FEE_BUSY_IN              => gbe_fee_busy,
+
+			-- SODA signals
+			superburst_number        => (others => '0'),
+			superburst_update        => update_synced,
+			SODA_enable              => open,
+			EnableExternalSODA       => open,
+
+			-- 64 bits data output
+			data_out_allowed         => '1',
+			data_out                 => open,
+			data_out_write           => open,
+			data_out_first           => open,
+			data_out_last            => open,
+			data_out_error           => open,
+			no_packet_limit          => open
 		);
 
 end architecture;
