@@ -103,6 +103,7 @@ architecture Behavioral of dc_module_trb_tdc is
 	signal saved_events_ctr_sync : std_logic_vector(31 downto 0);
 	signal loaded_words_ctr      : std_logic_vector(15 downto 0);
 	signal subevent_size         : std_logic_vector(17 downto 0);
+	signal packet_size           : std_logic_vector(15 downto 0);
 
 begin
 	process(slowcontrol_clock)
@@ -212,7 +213,7 @@ begin
 				else
 					save_next_state <= CLEANUP;
 				end if;
-				
+
 			when SAVE_PADDING =>
 				if (save_ctr(1 downto 0) = "10") then
 					save_next_state <= CLEANUP;
@@ -255,13 +256,13 @@ begin
 					save_eod <= '0';
 
 				when ADD_SUBSUB4 =>
-					sf_data  <= FEE_STATUS_BITS_IN(15 downto 0);
+					sf_data <= FEE_STATUS_BITS_IN(15 downto 0);
 					if (save_ctr(1 downto 0) = "10") then
 						save_eod <= '1';
 					else
 						save_eod <= '0';
 					end if;
-					
+
 				when SAVE_PADDING =>
 					sf_data <= x"abcd";
 					if (save_ctr(1 downto 0) = "10") then
@@ -505,9 +506,16 @@ begin
 	process(packet_out_clock)
 	begin
 		if rising_edge(packet_out_clock) then
+			packet_size <= x"8" + x"8" + (save_ctr & "00");
+		end if;
+	end process;
+
+	process(packet_out_clock)
+	begin
+		if rising_edge(packet_out_clock) then
 			case load_current_state is
 				when LOAD_HDR1 =>
-					data_out       <= x"0000" & x"0030" & x"0000_0000";
+					data_out       <= x"0000" & packet_size & x"0000_0000";
 					data_out_write <= '1';
 					data_out_first <= '1';
 					data_out_last  <= '0';
