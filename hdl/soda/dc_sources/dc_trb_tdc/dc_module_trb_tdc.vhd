@@ -327,6 +327,17 @@ begin
 			end if;
 		end if;
 	end process FEE_READ_PROC;
+	
+	process(slowcontrol_clock)
+	begin
+		if rising_edge(slowcontrol_clock) then
+			if (save_current_state = SAVE_DATA and FEE_DATAREADY_IN = '1') then
+				sf_wr_en <= '1';
+			else
+				sf_wr_en <= '0';
+			end if;
+		end if;
+	end process;
 
 	THE_SPLIT_FIFO : entity work.fifo_16kx16x64
 		port map(
