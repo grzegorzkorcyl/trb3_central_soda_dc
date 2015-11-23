@@ -207,14 +207,14 @@ begin
 				save_next_state <= ADD_SUBSUB4;
 
 			when ADD_SUBSUB4 =>
-				if (save_ctr /= "11") then
+				if (save_ctr(1 downto 0) /= "11") then
 					save_next_state <= SAVE_PADDING;
 				else
 					save_next_state <= CLEANUP;
 				end if;
 				
 			when SAVE_PADDING =>
-				if (save_ctr = "11") then
+				if (save_ctr(1 downto 0) = "11") then
 					save_next_state <= CLEANUP;
 				else
 					save_next_state <= SAVE_PADDING;
@@ -256,7 +256,7 @@ begin
 
 				when ADD_SUBSUB4 =>
 					sf_data  <= FEE_STATUS_BITS_IN(15 downto 0);
-					if (save_ctr = "11") then
+					if (save_ctr(1 downto 0) = "11") then
 						save_eod <= '1';
 					else
 						save_eod <= '0';
@@ -264,7 +264,7 @@ begin
 					
 				when SAVE_PADDING =>
 					sf_data <= x"abcd";
-					if (save_ctr = "11") then
+					if (save_ctr(1 downto 0) = "11") then
 						save_eod <= '1';
 					else
 						save_eod <= '0';
