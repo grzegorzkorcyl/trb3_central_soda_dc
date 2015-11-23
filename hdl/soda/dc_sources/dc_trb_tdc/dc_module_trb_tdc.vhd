@@ -392,7 +392,7 @@ begin
 		end if;
 	end process LOAD_MACHINE_PROC;
 
-	LOAD_MACHINE : process(load_current_state, saved_events_ctr_sync, loaded_events_ctr, loaded_bytes_ctr, data_out_allowed, sf_eos, queue_size, number_of_subs, subevent_size, MAX_QUEUE_SIZE_IN, MAX_SUBS_IN_QUEUE_IN, MAX_SINGLE_SUB_SIZE_IN, previous_bank, previous_ttype, trigger_type, bank_select, MULT_EVT_ENABLE_IN)
+	LOAD_MACHINE : process(load_current_state, saved_events_ctr_sync, loaded_events_ctr, loaded_bytes_ctr, data_out_allowed, sf_eos, subevent_size)
 	begin
 		case (load_current_state) is
 			when IDLE =>
