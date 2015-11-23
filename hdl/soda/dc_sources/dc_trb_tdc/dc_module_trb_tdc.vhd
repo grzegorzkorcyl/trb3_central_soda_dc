@@ -358,6 +358,8 @@ begin
 				sf_wr_en <= '1';
 			elsif (save_current_state = ADD_SUBSUB1 or save_current_state = ADD_SUBSUB2 or save_current_state = ADD_SUBSUB3 or save_current_state = ADD_SUBSUB4) then
 				sf_wr_en <= '1';
+			elsif (save_current_state = SAVE_PADDING) then
+				sf_wr_en <= '1';
 			else
 				sf_wr_en <= '0';
 			end if;
