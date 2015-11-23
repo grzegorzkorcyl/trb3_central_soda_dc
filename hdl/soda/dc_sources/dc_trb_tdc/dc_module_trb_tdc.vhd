@@ -102,7 +102,7 @@ architecture Behavioral of dc_module_trb_tdc is
 	signal loaded_events_ctr     : std_logic_vector(31 downto 0);
 	signal saved_events_ctr_sync : std_logic_vector(31 downto 0);
 	signal loaded_bytes_ctr      : std_logic_vector(15 downto 0);
-	signal subevent_size : std_logic_vector(15 downto 0);
+	signal subevent_size : std_logic_vector(17 downto 0);
 
 begin
 	process(slowcontrol_clock)
