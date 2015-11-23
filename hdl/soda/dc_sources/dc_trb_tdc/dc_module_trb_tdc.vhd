@@ -73,7 +73,7 @@ architecture Behavioral of dc_module_trb_tdc is
 	type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, TERMINATE, SEND_TERM_PULSE, CLOSE, CLEANUP);
 	signal save_current_state, save_next_state : saveStates;
 
-	type loadStates is (IDLE, WAIT_FOR_SUBS, WAIT_FOR_LOAD, LOAD, CLOSE_SUB, CLOSE_QUEUE_IMMEDIATELY);
+	type loadStates is (IDLE, WAIT_FOR_SUBS, WAIT_FOR_LOAD, LOAD_HDR1, LOAD_HDR2, LOAD, CLOSE_SUB, CLOSE_QUEUE_IMMEDIATELY);
 	signal load_current_state, load_next_state : loadStates;
 
 	type dummy_data_gen_states is (IDLE, WAIT_FOR_ALLOW, GEN_HDR1, GEN_HDR2, GEN_DATA_FEE1, GEN_DATA_FEE2, GEN_DATA_FEE3, GEN_DATA_FEE4, CLOSE);
@@ -420,10 +420,16 @@ begin
 
 			when WAIT_FOR_LOAD =>
 				if (data_out_allowed = '1') then
-					load_next_state <= LOAD;
+					load_next_state <= LOAD_HDR1;
 				else
 					load_next_state <= WAIT_FOR_LOAD;
 				end if;
+				
+			when LOAD_HDR1 =>
+				load_next_state <= LOAD_HDR2;
+				
+			when LOAD_HDR2 =>
+				load_next_state <= LOAD;
 
 			when LOAD =>
 				if (sf_eos /= "0000") then
@@ -474,37 +480,26 @@ begin
 	process(packet_out_clock)
 	begin
 		if rising_edge(packet_out_clock) then
-			case dummy_current_state is
-				when GEN_HDR1 =>
+			case load_current_state is
+				when LOAD_HDR1 =>
 					data_out       <= x"0000" & x"0030" & x"0000_0000";
 					data_out_write <= '1';
 					data_out_first <= '1';
 					data_out_last  <= '0';
-				when GEN_HDR2 =>
+				when LOAD_HDR2 =>
 					data_out       <= x"0000" & x"abcd" & '0' & latestsuperburstnumber_S;
 					data_out_write <= '1';
 					data_out_first <= '0';
 					data_out_last  <= '0';
-				when GEN_DATA_FEE1 =>
+				when LOAD =>
 					data_out       <= sf_q;
 					data_out_write <= '1';
 					data_out_first <= '0';
-					data_out_last  <= '0';
-				when GEN_DATA_FEE2 =>
-					data_out       <= sf_q;
-					data_out_write <= '1';
-					data_out_first <= '0';
-					data_out_last  <= '0';
-				when GEN_DATA_FEE3 =>
-					data_out       <= sf_q;
-					data_out_write <= '1';
-					data_out_first <= '0';
-					data_out_last  <= '0';
-				when GEN_DATA_FEE4 =>
-					data_out       <= sf_q;
-					data_out_write <= '1';
-					data_out_first <= '0';
-					data_out_last  <= '1';
+					if (sf_eos = "0000") then
+						data_out_last  <= '0';
+					else
+						data_out_last  <= '1';
+					end if;
 				when others =>
 					data_out       <= (others => '0');
 					data_out_write <= '0';
