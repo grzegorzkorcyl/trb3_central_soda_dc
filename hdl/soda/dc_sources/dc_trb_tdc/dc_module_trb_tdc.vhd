@@ -419,7 +419,7 @@ begin
 				end if;
 
 			when REMOVE =>
-				if (loaded_words_ctr = x"0008") then
+				if (loaded_words_ctr = x"0001") then
 					load_next_state <= WAIT_ONE;
 				else
 					load_next_state <= REMOVE;
