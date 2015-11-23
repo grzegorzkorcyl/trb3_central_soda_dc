@@ -73,6 +73,9 @@ architecture Behavioral of dc_module_trb_tdc is
 	type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, TERMINATE, SEND_TERM_PULSE, CLOSE, CLEANUP);
 	signal save_current_state, save_next_state : saveStates;
 
+	type loadStates is (IDLE, WAIT_FOR_SUBS, REMOVE, WAIT_ONE, WAIT_TWO, DECIDE, PREPARE_TO_LOAD_SUB, WAIT_FOR_LOAD, LOAD, CLOSE_SUB, CLOSE_QUEUE_IMMEDIATELY);
+	signal load_current_state, load_next_state : loadStates;
+
 	type dummy_data_gen_states is (IDLE, WAIT_FOR_ALLOW, GEN_HDR1, GEN_HDR2, GEN_DATA_FEE1, GEN_DATA_FEE2, GEN_DATA_FEE3, GEN_DATA_FEE4, CLOSE);
 	signal dummy_current_state, dummy_next_state : dummy_data_gen_states;
 
@@ -98,6 +101,8 @@ architecture Behavioral of dc_module_trb_tdc is
 	signal saved_events_ctr      : std_logic_vector(31 downto 0);
 	signal loaded_events_ctr     : std_logic_vector(31 downto 0);
 	signal saved_events_ctr_sync : std_logic_vector(31 downto 0);
+	signal loaded_bytes_ctr      : std_logic_vector(15 downto 0);
+	signal subevent_size : std_logic_vector(15 downto 0);
 
 begin
 	process(slowcontrol_clock)
@@ -378,6 +383,163 @@ begin
 			D_OUT => saved_events_ctr_sync
 		);
 
+	LOAD_MACHINE_PROC : process(RESET, packet_out_clock)
+	begin
+		if RESET = '1' then
+			load_current_state <= IDLE;
+		elsif rising_edge(packet_out_clock) then
+			load_current_state <= load_next_state;
+		end if;
+	end process LOAD_MACHINE_PROC;
+
+	LOAD_MACHINE : process(load_current_state, saved_events_ctr_sync, loaded_events_ctr, loaded_bytes_ctr, data_out_allowed, sf_eos, queue_size, number_of_subs, subevent_size, MAX_QUEUE_SIZE_IN, MAX_SUBS_IN_QUEUE_IN, MAX_SINGLE_SUB_SIZE_IN, previous_bank, previous_ttype, trigger_type, bank_select, MULT_EVT_ENABLE_IN)
+	begin
+		case (load_current_state) is
+			when IDLE =>
+				load_next_state <= WAIT_FOR_SUBS;
+
+			when WAIT_FOR_SUBS =>
+				if (saved_events_ctr_sync /= loaded_events_ctr) then
+					load_next_state <= REMOVE;
+				else
+					load_next_state <= WAIT_FOR_SUBS;
+				end if;
+
+			when REMOVE =>
+				if (loaded_bytes_ctr = x"0008") then
+					load_next_state <= WAIT_ONE;
+				else
+					load_next_state <= REMOVE;
+				end if;
+
+			when WAIT_ONE =>
+				load_next_state <= WAIT_TWO;
+
+			when WAIT_TWO =>
+				load_next_state <= DECIDE;
+
+			when DECIDE =>
+				load_next_state <= PREPARE_TO_LOAD_SUB;
+
+			when PREPARE_TO_LOAD_SUB =>
+				load_next_state <= WAIT_FOR_LOAD;
+
+			when WAIT_FOR_LOAD =>
+				if (data_out_allowed = '1') then
+					load_next_state <= LOAD;
+				else
+					load_next_state <= WAIT_FOR_LOAD;
+				end if;
+
+			when LOAD =>
+				if (sf_eos /= "0000") then
+					load_next_state <= CLOSE_SUB;
+				else
+					load_next_state <= LOAD;
+				end if;
+
+			when CLOSE_SUB =>
+				load_next_state <= CLOSE_QUEUE_IMMEDIATELY;
+
+			when CLOSE_QUEUE_IMMEDIATELY =>
+				load_next_state <= WAIT_FOR_SUBS;
+
+			when others => load_next_state <= IDLE;
+
+		end case;
+	end process LOAD_MACHINE;
+
+	SF_RD_EN_PROC : process(packet_out_clock)
+	begin
+		if rising_edge(packet_out_clock) then
+			if (load_current_state = REMOVE) then
+				sf_rd_en <= '1';
+			elsif (load_current_state = LOAD) then
+				sf_rd_en <= '1';
+			else
+				sf_rd_en <= '0';
+			end if;
+		end if;
+	end process SF_RD_EN_PROC;
+
+	LOADED_BYTES_CTR_PROC : process(packet_out_clock)
+	begin
+		if rising_edge(packet_out_clock) then
+			if (load_current_state = WAIT_FOR_SUBS) then
+				loaded_bytes_ctr <= (others => '0');
+			elsif (sf_rd_en = '1') then
+				if (load_current_state = REMOVE) then
+					loaded_bytes_ctr <= loaded_bytes_ctr + x"1";
+				else
+					loaded_bytes_ctr <= loaded_bytes_ctr;
+				end if;
+			else
+				loaded_bytes_ctr <= loaded_bytes_ctr;
+			end if;
+		end if;
+	end process LOADED_BYTES_CTR_PROC;
+
+	SUBEVENT_SIZE_PROC : process(packet_out_clock)
+	begin
+		if rising_edge(packet_out_clock) then
+			if (load_current_state = IDLE) then
+				subevent_size <= (others => '0');
+			elsif (load_current_state = WAIT_ONE and sf_rd_en = '1' and loaded_bytes_ctr = x"0009") then
+				subevent_size(9 downto 2) <= sf_q(7 downto 0);
+			elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0008") then
+				subevent_size(17 downto 10) <= sf_q(15 downto 8);
+			else
+				subevent_size <= subevent_size;
+			end if;
+		end if;
+	end process SUBEVENT_SIZE_PROC;
+
+	process(packet_out_clock)
+	begin
+		if rising_edge(packet_out_clock) then
+			case dummy_current_state is
+				when GEN_HDR1 =>
+					data_out       <= x"0000" & x"0030" & x"0000_0000";
+					data_out_write <= '1';
+					data_out_first <= '1';
+					data_out_last  <= '0';
+				when GEN_HDR2 =>
+					data_out       <= x"0000" & x"abcd" & '0' & latestsuperburstnumber_S;
+					data_out_write <= '1';
+					data_out_first <= '0';
+					data_out_last  <= '0';
+				when GEN_DATA_FEE1 =>
+					data_out       <= x"1111_0011_2233_4455";
+					data_out_write <= '1';
+					data_out_first <= '0';
+					data_out_last  <= '0';
+				when GEN_DATA_FEE2 =>
+					data_out       <= x"2222_6677_8899_aabb";
+					data_out_write <= '1';
+					data_out_first <= '0';
+					data_out_last  <= '0';
+				when GEN_DATA_FEE3 =>
+					data_out       <= x"3333_ccdd_eeff_0011";
+					data_out_write <= '1';
+					data_out_first <= '0';
+					data_out_last  <= '0';
+				when GEN_DATA_FEE4 =>
+					data_out       <= x"4444_2233_4455_6677";
+					data_out_write <= '1';
+					data_out_first <= '0';
+					data_out_last  <= '1';
+				when others =>
+					data_out       <= (others => '0');
+					data_out_write <= '0';
+					data_out_first <= '0';
+					data_out_last  <= '0';
+			end case;
+		end if;
+	end process;
+
+	--*******************
+	-- dummy stuff
+
 	process(packet_out_clock)
 	begin
 		if rising_edge(packet_out_clock) then
@@ -461,46 +623,46 @@ begin
 	--        bit31      = 0
 	--        bit30..0   = Super-burst number
 
-	process(dummy_current_state, latestsuperburstnumber_S)
-	begin
-		case dummy_current_state is
-			when GEN_HDR1 =>
-				data_out       <= x"0000" & x"0030" & x"0000_0000";
-				data_out_write <= '1';
-				data_out_first <= '1';
-				data_out_last  <= '0';
-			when GEN_HDR2 =>
-				data_out       <= x"0000" & x"abcd" & '0' & latestsuperburstnumber_S;
-				data_out_write <= '1';
-				data_out_first <= '0';
-				data_out_last  <= '0';
-			when GEN_DATA_FEE1 =>
-				data_out       <= x"1111_0011_2233_4455";
-				data_out_write <= '1';
-				data_out_first <= '0';
-				data_out_last  <= '0';
-			when GEN_DATA_FEE2 =>
-				data_out       <= x"2222_6677_8899_aabb";
-				data_out_write <= '1';
-				data_out_first <= '0';
-				data_out_last  <= '0';
-			when GEN_DATA_FEE3 =>
-				data_out       <= x"3333_ccdd_eeff_0011";
-				data_out_write <= '1';
-				data_out_first <= '0';
-				data_out_last  <= '0';
-			when GEN_DATA_FEE4 =>
-				data_out       <= x"4444_2233_4455_6677";
-				data_out_write <= '1';
-				data_out_first <= '0';
-				data_out_last  <= '1';
-			when others =>
-				data_out       <= (others => '0');
-				data_out_write <= '0';
-				data_out_first <= '0';
-				data_out_last  <= '0';
-		end case;
-	end process;
+	--	process(dummy_current_state, latestsuperburstnumber_S)
+	--	begin
+	--		case dummy_current_state is
+	--			when GEN_HDR1 =>
+	--				data_out       <= x"0000" & x"0030" & x"0000_0000";
+	--				data_out_write <= '1';
+	--				data_out_first <= '1';
+	--				data_out_last  <= '0';
+	--			when GEN_HDR2 =>
+	--				data_out       <= x"0000" & x"abcd" & '0' & latestsuperburstnumber_S;
+	--				data_out_write <= '1';
+	--				data_out_first <= '0';
+	--				data_out_last  <= '0';
+	--			when GEN_DATA_FEE1 =>
+	--				data_out       <= x"1111_0011_2233_4455";
+	--				data_out_write <= '1';
+	--				data_out_first <= '0';
+	--				data_out_last  <= '0';
+	--			when GEN_DATA_FEE2 =>
+	--				data_out       <= x"2222_6677_8899_aabb";
+	--				data_out_write <= '1';
+	--				data_out_first <= '0';
+	--				data_out_last  <= '0';
+	--			when GEN_DATA_FEE3 =>
+	--				data_out       <= x"3333_ccdd_eeff_0011";
+	--				data_out_write <= '1';
+	--				data_out_first <= '0';
+	--				data_out_last  <= '0';
+	--			when GEN_DATA_FEE4 =>
+	--				data_out       <= x"4444_2233_4455_6677";
+	--				data_out_write <= '1';
+	--				data_out_first <= '0';
+	--				data_out_last  <= '1';
+	--			when others =>
+	--				data_out       <= (others => '0');
+	--				data_out_write <= '0';
+	--				data_out_first <= '0';
+	--				data_out_last  <= '0';
+	--		end case;
+	--	end process;
 
 	data_out_error  <= '0';
 	no_packet_limit <= '0';
