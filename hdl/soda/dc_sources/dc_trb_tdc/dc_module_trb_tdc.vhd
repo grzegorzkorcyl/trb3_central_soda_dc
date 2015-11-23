@@ -70,7 +70,7 @@ architecture Behavioral of dc_module_trb_tdc is
 			pulse     : out std_logic);
 	end component;
 
-	type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, ADD_MISSING, TERMINATE, SEND_TERM_PULSE, CLOSE, FINISH_4_WORDS, CLEANUP);
+	type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, TERMINATE, SEND_TERM_PULSE, CLOSE, CLEANUP);
 	signal save_current_state, save_next_state : saveStates;
 
 	type dummy_data_gen_states is (IDLE, WAIT_FOR_ALLOW, GEN_HDR1, GEN_HDR2, GEN_DATA_FEE1, GEN_DATA_FEE2, GEN_DATA_FEE3, GEN_DATA_FEE4, CLOSE);
@@ -187,20 +187,9 @@ begin
 
 			when CLOSE =>
 				if (CTS_START_READOUT_IN = '0') then
-					if (saved_size = x"0000" & "0") then
-						save_next_state <= ADD_SUBSUB1;
-					else
-						save_next_state <= ADD_MISSING;
-					end if;
-				else
-					save_next_state <= CLOSE;
-				end if;
-
-			when ADD_MISSING =>
-				if (saved_size = x"0000" & "1") then
 					save_next_state <= ADD_SUBSUB1;
 				else
-					save_next_state <= ADD_MISSING;
+					save_next_state <= CLOSE;
 				end if;
 
 			when ADD_SUBSUB1 =>
@@ -213,9 +202,6 @@ begin
 				save_next_state <= ADD_SUBSUB4;
 
 			when ADD_SUBSUB4 =>
-				save_next_state <= FINISH_4_WORDS;
-
-			when FINISH_4_WORDS =>
 				save_next_state <= CLEANUP;
 
 			when CLEANUP =>
