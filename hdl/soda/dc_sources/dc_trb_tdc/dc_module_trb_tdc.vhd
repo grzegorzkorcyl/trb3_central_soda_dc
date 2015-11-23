@@ -310,13 +310,7 @@ begin
 			if (save_current_state = IDLE) then
 				save_ctr <= (others => '0');
 			elsif (sf_wr_en = '1') then
-				if (save_current_state = SAVE_DATA) then
-					save_ctr <= save_ctr + x"1";
-				elsif (save_current_state = ADD_SUBSUB1 or save_current_state = ADD_SUBSUB2 or save_current_state = ADD_SUBSUB3 or save_current_state = ADD_SUBSUB4) then
-					save_ctr <= save_ctr + x"1";
-				else
-					save_ctr <= save_ctr;
-				end if;
+				save_ctr <= save_ctr + x"1";
 			else
 				save_ctr <= save_ctr;
 			end if;
