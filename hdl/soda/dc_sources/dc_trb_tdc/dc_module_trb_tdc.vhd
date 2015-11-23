@@ -102,7 +102,7 @@ architecture Behavioral of dc_module_trb_tdc is
 	signal loaded_events_ctr     : std_logic_vector(31 downto 0);
 	signal saved_events_ctr_sync : std_logic_vector(31 downto 0);
 	signal loaded_bytes_ctr      : std_logic_vector(15 downto 0);
-	signal subevent_size : std_logic_vector(17 downto 0);
+	signal subevent_size         : std_logic_vector(17 downto 0);
 
 begin
 	process(slowcontrol_clock)
@@ -327,11 +327,13 @@ begin
 			end if;
 		end if;
 	end process FEE_READ_PROC;
-	
+
 	process(slowcontrol_clock)
 	begin
 		if rising_edge(slowcontrol_clock) then
 			if (save_current_state = SAVE_DATA and FEE_DATAREADY_IN = '1') then
+				sf_wr_en <= '1';
+			elsif (save_current_state = ADD_SUBSUB1 or save_current_state = ADD_SUBSUB2 or save_current_state = ADD_SUBSUB3 or save_current_state = ADD_SUBSUB4) then
 				sf_wr_en <= '1';
 			else
 				sf_wr_en <= '0';
