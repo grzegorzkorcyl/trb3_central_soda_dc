@@ -337,7 +337,7 @@ begin
 			RdClock           => packet_out_clock,
 			WrEn              => sf_wr_en,
 			RdEn              => sf_rd_en,
-			Reset             => '1',   --reset_slowcontrolclock_s,
+			Reset             => reset_slowcontrolclock_s,
 			RPReset           => reset_packet_out_clock_S,
 			Q(15 downto 0)    => sf_q(15 downto 0),
 			Q(16)             => sf_nothing(0),
