@@ -179,7 +179,7 @@ begin
 			CTS_IPU_INFORMATION_OUT    => open,
 			CTS_IPU_RND_CODE_OUT       => open,
 			CTS_IPU_STATUS_BITS_IN     => (others => '0'), --cts_ipu_status_bits,
-			CTS_IPU_BUSY_IN            => '0', --cts_ipu_busy,
+			CTS_IPU_BUSY_IN            => gbe_fee_busy, --'0', --cts_ipu_busy,
 
 			CTS_REGIO_ADDR_IN          => (others => '0'), --cts_regio_addr,
 			CTS_REGIO_DATA_IN          => (others => '0'), --cts_regio_data_out,
