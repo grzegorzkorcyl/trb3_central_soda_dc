@@ -73,7 +73,7 @@ architecture Behavioral of dc_module_trb_tdc is
 	type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, TERMINATE, SEND_TERM_PULSE, CLOSE, CLEANUP);
 	signal save_current_state, save_next_state : saveStates;
 
-	type loadStates is (IDLE, WAIT_FOR_SUBS, REMOVE, WAIT_ONE, WAIT_TWO, DECIDE, PREPARE_TO_LOAD_SUB, WAIT_FOR_LOAD, LOAD, CLOSE_SUB, CLOSE_QUEUE_IMMEDIATELY);
+	type loadStates is (IDLE, WAIT_FOR_SUBS, WAIT_FOR_LOAD, LOAD, CLOSE_SUB, CLOSE_QUEUE_IMMEDIATELY);
 	signal load_current_state, load_next_state : loadStates;
 
 	type dummy_data_gen_states is (IDLE, WAIT_FOR_ALLOW, GEN_HDR1, GEN_HDR2, GEN_DATA_FEE1, GEN_DATA_FEE2, GEN_DATA_FEE3, GEN_DATA_FEE4, CLOSE);
@@ -413,29 +413,10 @@ begin
 
 			when WAIT_FOR_SUBS =>
 				if (saved_events_ctr_sync /= loaded_events_ctr) then
-					load_next_state <= REMOVE;
+					load_next_state <= WAIT_FOR_LOAD;
 				else
 					load_next_state <= WAIT_FOR_SUBS;
 				end if;
-
-			when REMOVE =>
-				if (loaded_words_ctr = x"0001") then
-					load_next_state <= WAIT_ONE;
-				else
-					load_next_state <= REMOVE;
-				end if;
-
-			when WAIT_ONE =>
-				load_next_state <= WAIT_TWO;
-
-			when WAIT_TWO =>
-				load_next_state <= DECIDE;
-
-			when DECIDE =>
-				load_next_state <= PREPARE_TO_LOAD_SUB;
-
-			when PREPARE_TO_LOAD_SUB =>
-				load_next_state <= WAIT_FOR_LOAD;
 
 			when WAIT_FOR_LOAD =>
 				if (data_out_allowed = '1') then
@@ -465,9 +446,7 @@ begin
 	SF_RD_EN_PROC : process(packet_out_clock)
 	begin
 		if rising_edge(packet_out_clock) then
-			if (load_current_state = REMOVE) then
-				sf_rd_en <= '1';
-			elsif (load_current_state = LOAD) then
+			if (load_current_state = LOAD) then
 				sf_rd_en <= '1';
 			else
 				sf_rd_en <= '0';
@@ -481,7 +460,7 @@ begin
 			if (load_current_state = WAIT_FOR_SUBS) then
 				loaded_words_ctr <= (others => '0');
 			elsif (sf_rd_en = '1') then
-				if (load_current_state = REMOVE) then
+				if (load_current_state = LOAD) then
 					loaded_words_ctr <= loaded_words_ctr + x"1";
 				else
 					loaded_words_ctr <= loaded_words_ctr;
@@ -491,19 +470,6 @@ begin
 			end if;
 		end if;
 	end process LOADED_BYTES_CTR_PROC;
-
-	SUBEVENT_SIZE_PROC : process(packet_out_clock)
-	begin
-		if rising_edge(packet_out_clock) then
-			if (load_current_state = IDLE) then
-				subevent_size <= (others => '0');
-			elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_words_ctr = x"0001") then
-				subevent_size(16 downto 1) <= sf_q(15 downto 0);
-			else
-				subevent_size <= subevent_size;
-			end if;
-		end if;
-	end process SUBEVENT_SIZE_PROC;
 
 	process(packet_out_clock)
 	begin
