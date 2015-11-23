@@ -70,7 +70,7 @@ architecture Behavioral of dc_module_trb_tdc is
 			pulse     : out std_logic);
 	end component;
 
-	type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, TERMINATE, SEND_TERM_PULSE, CLOSE, CLEANUP);
+	type saveStates is (IDLE, SAVE_EVT_ADDR, WAIT_FOR_DATA, SAVE_DATA, ADD_SUBSUB1, ADD_SUBSUB2, ADD_SUBSUB3, ADD_SUBSUB4, SAVE_PADDING, TERMINATE, SEND_TERM_PULSE, CLOSE, CLEANUP);
 	signal save_current_state, save_next_state : saveStates;
 
 	type loadStates is (IDLE, WAIT_FOR_SUBS, WAIT_FOR_LOAD, LOAD_HDR1, LOAD_HDR2, LOAD, CLOSE_SUB, CLOSE_QUEUE_IMMEDIATELY);
@@ -153,7 +153,7 @@ begin
 		end if;
 	end process SAVE_MACHINE_PROC;
 
-	SAVE_MACHINE : process(save_current_state, CTS_START_READOUT_IN, saved_size, FEE_BUSY_IN, CTS_READ_IN)
+	SAVE_MACHINE : process(save_current_state, CTS_START_READOUT_IN, save_ctr, FEE_BUSY_IN, CTS_READ_IN)
 	begin
 		case (save_current_state) is
 			when IDLE =>
@@ -207,7 +207,18 @@ begin
 				save_next_state <= ADD_SUBSUB4;
 
 			when ADD_SUBSUB4 =>
-				save_next_state <= CLEANUP;
+				if (save_ctr /= "11") then
+					save_next_state <= SAVE_PADDING;
+				else
+					save_next_state <= CLEANUP;
+				end if;
+				
+			when SAVE_PADDING =>
+				if (save_ctr = "11") then
+					save_next_state <= CLEANUP;
+				else
+					save_next_state <= SAVE_PADDING;
+				end if;
 
 			when CLEANUP =>
 				save_next_state <= IDLE;
@@ -245,7 +256,19 @@ begin
 
 				when ADD_SUBSUB4 =>
 					sf_data  <= FEE_STATUS_BITS_IN(15 downto 0);
-					save_eod <= '1';
+					if (save_ctr = "11") then
+						save_eod <= '1';
+					else
+						save_eod <= '0';
+					end if;
+					
+				when SAVE_PADDING =>
+					sf_data <= x"ab";
+					if (save_ctr = "11") then
+						save_eod <= '1';
+					else
+						save_eod <= '0';
+					end if;
 
 				when others => sf_data <= sf_data;
 					save_eod <= '0';
