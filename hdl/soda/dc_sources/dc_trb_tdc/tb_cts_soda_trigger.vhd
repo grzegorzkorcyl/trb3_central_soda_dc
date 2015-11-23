@@ -289,6 +289,9 @@ begin
 		);
 
 	dataconversion_for_serdes_inst : entity work.dataconversion_for_serdes
+		generic map (
+			CREATE_OWN_STIMULI => FALSE	
+		)
 		port map(
 			DATA_CLK        => clk_80_i,
 			CLK             => clk_100_i,
