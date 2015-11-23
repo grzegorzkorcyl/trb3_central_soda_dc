@@ -263,7 +263,7 @@ begin
 					end if;
 					
 				when SAVE_PADDING =>
-					sf_data <= x"ab";
+					sf_data <= x"abcd";
 					if (save_ctr = "11") then
 						save_eod <= '1';
 					else
