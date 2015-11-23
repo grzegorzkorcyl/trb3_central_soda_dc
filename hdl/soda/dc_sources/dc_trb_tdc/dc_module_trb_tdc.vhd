@@ -507,7 +507,7 @@ begin
 	process(packet_out_clock)
 	begin
 		if rising_edge(packet_out_clock) then
-			packet_size <= x"8" + x"8" + saved_bytes;
+			packet_size <= saved_bytes + x"10";
 			saved_bytes <= save_ctr(13 downto 0) & "00";
 		end if;
 	end process;
