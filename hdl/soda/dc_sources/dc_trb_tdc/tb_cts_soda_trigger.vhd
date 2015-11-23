@@ -11,9 +11,9 @@ end entity;
 
 architecture arch1 of tb_cts_soda_trigger is
 	signal clk_100_i, clk_200_i, clk_80_i, reset_i : std_logic;
-	signal cts_ext_trigger               : std_logic;
-	signal cts_rdo_valid_notiming_trg    : std_logic;
-	signal cts_rdo_trg_data_valid        : std_logic;
+	signal cts_ext_trigger                         : std_logic;
+	signal cts_rdo_valid_notiming_trg              : std_logic;
+	signal cts_rdo_trg_data_valid                  : std_logic;
 
 	signal update_vec    : std_logic_vector(2 downto 0) := "000";
 	signal update_toggle : std_logic                    := '0';
@@ -33,6 +33,12 @@ architecture arch1 of tb_cts_soda_trigger is
 	signal gbe_fee_read             : std_logic;
 	signal gbe_fee_status_bits      : std_logic_vector(31 downto 0);
 	signal gbe_fee_busy             : std_logic;
+	signal data64b_muxed_allowed_S : std_logic;
+	signal data64b_muxed : std_logic_vector(63 downto 0);
+	signal data64b_muxed_write : std_logic;
+	signal data64b_muxed_first : std_logic;
+	signal data64b_muxed_last : std_logic;
+	signal data64b_muxed_error : std_logic;
 
 begin
 	process
@@ -42,7 +48,7 @@ begin
 		clk_80_i <= '0';
 		wait for 6 ns;
 	end process;
-	
+
 	process
 	begin
 		clk_100_i <= '1';
@@ -212,22 +218,22 @@ begin
 			     CFG_EVENT_SIZE_IN       => x"0100",
 			     CFG_TRIGGERED_MODE_IN   => '1',
 			     TRIGGER_IN              => update_synced,
-			     CTS_NUMBER_OUT          => gbe_cts_number,           
-			     CTS_CODE_OUT            => gbe_cts_code,             
-			     CTS_INFORMATION_OUT     => gbe_cts_information,      
-			     CTS_READOUT_TYPE_OUT    => gbe_cts_readout_type,     
-			     CTS_START_READOUT_OUT   => gbe_cts_start_readout,    
-			     CTS_DATA_IN             => (others => '0'),                     
-			     CTS_DATAREADY_IN        => '0',                     
-			     CTS_READOUT_FINISHED_IN => gbe_cts_readout_finished, 
-			     CTS_READ_OUT            => open,                      
-			     CTS_LENGTH_IN           => (others => '0'),                     
-			     CTS_ERROR_PATTERN_IN    => gbe_cts_status_bits,      
-			     FEE_DATA_OUT            => gbe_fee_data,             
-			     FEE_DATAREADY_OUT       => gbe_fee_dataready,        
-			     FEE_READ_IN             => gbe_fee_read,             
-			     FEE_STATUS_BITS_OUT     => gbe_fee_status_bits,      
-			     FEE_BUSY_OUT            => gbe_fee_busy            
+			     CTS_NUMBER_OUT          => gbe_cts_number,
+			     CTS_CODE_OUT            => gbe_cts_code,
+			     CTS_INFORMATION_OUT     => gbe_cts_information,
+			     CTS_READOUT_TYPE_OUT    => gbe_cts_readout_type,
+			     CTS_START_READOUT_OUT   => gbe_cts_start_readout,
+			     CTS_DATA_IN             => (others => '0'),
+			     CTS_DATAREADY_IN        => '0',
+			     CTS_READOUT_FINISHED_IN => gbe_cts_readout_finished,
+			     CTS_READ_OUT            => open,
+			     CTS_LENGTH_IN           => (others => '0'),
+			     CTS_ERROR_PATTERN_IN    => gbe_cts_status_bits,
+			     FEE_DATA_OUT            => gbe_fee_data,
+			     FEE_DATAREADY_OUT       => gbe_fee_dataready,
+			     FEE_READ_IN             => gbe_fee_read,
+			     FEE_STATUS_BITS_OUT     => gbe_fee_status_bits,
+			     FEE_BUSY_OUT            => gbe_fee_busy
 		);
 
 	THE_DATACONCENTRATOR_FROM_TDC : entity work.dc_module_trb_tdc
@@ -273,13 +279,31 @@ begin
 			EnableExternalSODA       => open,
 
 			-- 64 bits data output
-			data_out_allowed         => '1',
-			data_out                 => open,
-			data_out_write           => open,
-			data_out_first           => open,
-			data_out_last            => open,
-			data_out_error           => open,
+			data_out_allowed         => data64b_muxed_allowed_S,
+			data_out                 => data64b_muxed,
+			data_out_write           => data64b_muxed_write,
+			data_out_first           => data64b_muxed_first,
+			data_out_last            => data64b_muxed_last,
+			data_out_error           => data64b_muxed_error,
 			no_packet_limit          => open
+		);
+
+	dataconversion_for_serdes_inst : entity work.dataconversion_for_serdes
+		port map(
+			DATA_CLK        => clk_80_i,
+			CLK             => clk_100_i,
+			RESET           => reset_i,
+			TX_READY        => '1',
+			SFP_MOD0        => '1',
+			SFP_LOS         => '0',
+			TX_DATA         => open,
+			TX_K            => open,
+			DATA_IN_ALLOWED => data64b_muxed_allowed_S,
+			DATA_IN         => data64b_muxed,
+			DATA_IN_WRITE   => data64b_muxed_write,
+			DATA_IN_FIRST   => data64b_muxed_first,
+			DATA_IN_LAST    => data64b_muxed_last,
+			DATA_IN_ERROR   => data64b_muxed_error
 		);
 
 end architecture;
