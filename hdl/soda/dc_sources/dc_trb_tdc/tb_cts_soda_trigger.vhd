@@ -294,7 +294,7 @@ begin
 			CLK             => clk_100_i,
 			RESET           => reset_i,
 			TX_READY        => '1',
-			SFP_MOD0        => '1',
+			SFP_MOD0        => '0',
 			SFP_LOS         => '0',
 			TX_DATA         => open,
 			TX_K            => open,
