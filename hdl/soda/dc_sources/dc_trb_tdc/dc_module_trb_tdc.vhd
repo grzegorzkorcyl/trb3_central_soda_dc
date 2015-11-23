@@ -101,7 +101,7 @@ architecture Behavioral of dc_module_trb_tdc is
 	signal saved_events_ctr      : std_logic_vector(31 downto 0);
 	signal loaded_events_ctr     : std_logic_vector(31 downto 0);
 	signal saved_events_ctr_sync : std_logic_vector(31 downto 0);
-	signal loaded_bytes_ctr      : std_logic_vector(15 downto 0);
+	signal loaded_words_ctr      : std_logic_vector(15 downto 0);
 	signal subevent_size         : std_logic_vector(17 downto 0);
 
 begin
@@ -309,8 +309,14 @@ begin
 		if rising_edge(slowcontrol_clock) then
 			if (save_current_state = IDLE) then
 				save_ctr <= (others => '0');
-			elsif (save_current_state = SAVE_DATA and sf_wr_en = '1') then
-				save_ctr <= save_ctr + x"1";
+			elsif (sf_wr_en = '1') then
+				if (save_current_state = SAVE_DATA) then
+					save_ctr <= save_ctr + x"1";
+				elsif (save_current_state = ADD_SUBSUB1 or save_current_state = ADD_SUBSUB2 or save_current_state = ADD_SUBSUB3 or save_current_state = ADD_SUBSUB4) then
+					save_ctr <= save_ctr + x"1";
+				else
+					save_ctr <= save_ctr;
+				end if;
 			else
 				save_ctr <= save_ctr;
 			end if;
@@ -405,7 +411,7 @@ begin
 		end if;
 	end process LOAD_MACHINE_PROC;
 
-	LOAD_MACHINE : process(load_current_state, saved_events_ctr_sync, loaded_events_ctr, loaded_bytes_ctr, data_out_allowed, sf_eos, subevent_size)
+	LOAD_MACHINE : process(load_current_state, saved_events_ctr_sync, loaded_events_ctr, loaded_words_ctr, data_out_allowed, sf_eos, subevent_size)
 	begin
 		case (load_current_state) is
 			when IDLE =>
@@ -419,7 +425,7 @@ begin
 				end if;
 
 			when REMOVE =>
-				if (loaded_bytes_ctr = x"0008") then
+				if (loaded_words_ctr = x"0008") then
 					load_next_state <= WAIT_ONE;
 				else
 					load_next_state <= REMOVE;
@@ -479,15 +485,15 @@ begin
 	begin
 		if rising_edge(packet_out_clock) then
 			if (load_current_state = WAIT_FOR_SUBS) then
-				loaded_bytes_ctr <= (others => '0');
+				loaded_words_ctr <= (others => '0');
 			elsif (sf_rd_en = '1') then
 				if (load_current_state = REMOVE) then
-					loaded_bytes_ctr <= loaded_bytes_ctr + x"1";
+					loaded_words_ctr <= loaded_words_ctr + x"1";
 				else
-					loaded_bytes_ctr <= loaded_bytes_ctr;
+					loaded_words_ctr <= loaded_words_ctr;
 				end if;
 			else
-				loaded_bytes_ctr <= loaded_bytes_ctr;
+				loaded_words_ctr <= loaded_words_ctr;
 			end if;
 		end if;
 	end process LOADED_BYTES_CTR_PROC;
@@ -497,10 +503,8 @@ begin
 		if rising_edge(packet_out_clock) then
 			if (load_current_state = IDLE) then
 				subevent_size <= (others => '0');
-			elsif (load_current_state = WAIT_ONE and sf_rd_en = '1' and loaded_bytes_ctr = x"0009") then
-				subevent_size(9 downto 2) <= sf_q(7 downto 0);
-			elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_bytes_ctr = x"0008") then
-				subevent_size(17 downto 10) <= sf_q(15 downto 8);
+			elsif (load_current_state = REMOVE and sf_rd_en = '1' and loaded_words_ctr = x"0001") then
+				subevent_size(16 downto 1) <= sf_q(15 downto 0);
 			else
 				subevent_size <= subevent_size;
 			end if;
