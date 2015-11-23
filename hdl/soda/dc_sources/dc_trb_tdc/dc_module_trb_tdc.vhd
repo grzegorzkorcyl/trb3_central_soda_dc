@@ -241,11 +241,11 @@ begin
 
 				when ADD_SUBSUB3 =>
 					sf_data  <= FEE_STATUS_BITS_IN(31 downto 16);
-					save_eod <= '1';
+					save_eod <= '0';
 
 				when ADD_SUBSUB4 =>
 					sf_data  <= FEE_STATUS_BITS_IN(15 downto 0);
-					save_eod <= '0';
+					save_eod <= '1';
 
 				when others => sf_data <= sf_data;
 					save_eod <= '0';
@@ -424,10 +424,10 @@ begin
 				else
 					load_next_state <= WAIT_FOR_LOAD;
 				end if;
-				
+
 			when LOAD_HDR1 =>
 				load_next_state <= LOAD_HDR2;
-				
+
 			when LOAD_HDR2 =>
 				load_next_state <= LOAD;
 
@@ -496,9 +496,9 @@ begin
 					data_out_write <= '1';
 					data_out_first <= '0';
 					if (sf_eos = "0000") then
-						data_out_last  <= '0';
+						data_out_last <= '0';
 					else
-						data_out_last  <= '1';
+						data_out_last <= '1';
 					end if;
 				when others =>
 					data_out       <= (others => '0');
@@ -509,73 +509,86 @@ begin
 		end if;
 	end process;
 
-	--*******************
-	-- dummy stuff
-
-	process(packet_out_clock)
-	begin
-		if rising_edge(packet_out_clock) then
-			if (reset_packet_out_clock_S = '1') then
-				dummy_current_state <= IDLE;
-			else
-				dummy_current_state <= dummy_next_state;
-			end if;
-		end if;
-	end process;
-
-	process(dummy_current_state, saved_events_ctr_sync, loaded_events_ctr, data_out_allowed)
-	begin
-		case dummy_current_state is
-			when IDLE =>
-				if (saved_events_ctr_sync /= loaded_events_ctr) then
-					dummy_next_state <= WAIT_FOR_ALLOW;
-				else
-					dummy_next_state <= IDLE;
-				end if;
-
-			when WAIT_FOR_ALLOW =>
-				if (data_out_allowed = '1') then
-					dummy_next_state <= GEN_HDR1;
-				else
-					dummy_next_state <= WAIT_FOR_ALLOW;
-				end if;
-
-			when GEN_HDR1 =>
-				dummy_next_state <= GEN_HDR2;
-
-			when GEN_HDR2 =>
-				dummy_next_state <= GEN_DATA_FEE1;
-
-			when GEN_DATA_FEE1 =>
-				dummy_next_state <= GEN_DATA_FEE2;
-
-			when GEN_DATA_FEE2 =>
-				dummy_next_state <= GEN_DATA_FEE3;
-
-			when GEN_DATA_FEE3 =>
-				dummy_next_state <= GEN_DATA_FEE4;
-
-			when GEN_DATA_FEE4 =>
-				dummy_next_state <= CLOSE;
-
-			when CLOSE =>
-				dummy_next_state <= IDLE;
-
-		end case;
-	end process;
-
 	LOADED_EVENTS_CTR_PROC : process(reset_packet_out_clock_S, packet_out_clock)
 	begin
 		if (reset_packet_out_clock_S = '1') then
 			loaded_events_ctr <= (others => '0');
 		elsif rising_edge(packet_out_clock) then
-			if (dummy_current_state = CLOSE) then
+			if (load_current_state = CLOSE_QUEUE_IMMEDIATELY) then
 				loaded_events_ctr <= loaded_events_ctr + x"1";
 			else
 				loaded_events_ctr <= loaded_events_ctr;
 			end if;
 		end if;
 	end process LOADED_EVENTS_CTR_PROC;
+
+	--*******************
+	-- dummy stuff
+
+	--	process(packet_out_clock)
+	--	begin
+	--		if rising_edge(packet_out_clock) then
+	--			if (reset_packet_out_clock_S = '1') then
+	--				dummy_current_state <= IDLE;
+	--			else
+	--				dummy_current_state <= dummy_next_state;
+	--			end if;
+	--		end if;
+	--	end process;
+	--
+	--	process(dummy_current_state, saved_events_ctr_sync, loaded_events_ctr, data_out_allowed)
+	--	begin
+	--		case dummy_current_state is
+	--			when IDLE =>
+	--				if (saved_events_ctr_sync /= loaded_events_ctr) then
+	--					dummy_next_state <= WAIT_FOR_ALLOW;
+	--				else
+	--					dummy_next_state <= IDLE;
+	--				end if;
+	--
+	--			when WAIT_FOR_ALLOW =>
+	--				if (data_out_allowed = '1') then
+	--					dummy_next_state <= GEN_HDR1;
+	--				else
+	--					dummy_next_state <= WAIT_FOR_ALLOW;
+	--				end if;
+	--
+	--			when GEN_HDR1 =>
+	--				dummy_next_state <= GEN_HDR2;
+	--
+	--			when GEN_HDR2 =>
+	--				dummy_next_state <= GEN_DATA_FEE1;
+	--
+	--			when GEN_DATA_FEE1 =>
+	--				dummy_next_state <= GEN_DATA_FEE2;
+	--
+	--			when GEN_DATA_FEE2 =>
+	--				dummy_next_state <= GEN_DATA_FEE3;
+	--
+	--			when GEN_DATA_FEE3 =>
+	--				dummy_next_state <= GEN_DATA_FEE4;
+	--
+	--			when GEN_DATA_FEE4 =>
+	--				dummy_next_state <= CLOSE;
+	--
+	--			when CLOSE =>
+	--				dummy_next_state <= IDLE;
+	--
+	--		end case;
+	--	end process;
+
+	--	LOADED_EVENTS_CTR_PROC : process(reset_packet_out_clock_S, packet_out_clock)
+	--	begin
+	--		if (reset_packet_out_clock_S = '1') then
+	--			loaded_events_ctr <= (others => '0');
+	--		elsif rising_edge(packet_out_clock) then
+	--			if (dummy_current_state = CLOSE) then
+	--				loaded_events_ctr <= loaded_events_ctr + x"1";
+	--			else
+	--				loaded_events_ctr <= loaded_events_ctr;
+	--			end if;
+	--		end if;
+	--	end process LOADED_EVENTS_CTR_PROC;
 
 	-- The 64 bits output packets, according to 32bits SODAnet specs:
 	-- 32bits word1:   
