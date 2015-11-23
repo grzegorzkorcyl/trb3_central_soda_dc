@@ -33,12 +33,12 @@ architecture arch1 of tb_cts_soda_trigger is
 	signal gbe_fee_read             : std_logic;
 	signal gbe_fee_status_bits      : std_logic_vector(31 downto 0);
 	signal gbe_fee_busy             : std_logic;
-	signal data64b_muxed_allowed_S : std_logic;
-	signal data64b_muxed : std_logic_vector(63 downto 0);
-	signal data64b_muxed_write : std_logic;
-	signal data64b_muxed_first : std_logic;
-	signal data64b_muxed_last : std_logic;
-	signal data64b_muxed_error : std_logic;
+	signal data64b_muxed_allowed_S  : std_logic;
+	signal data64b_muxed            : std_logic_vector(63 downto 0);
+	signal data64b_muxed_write      : std_logic;
+	signal data64b_muxed_first      : std_logic;
+	signal data64b_muxed_last       : std_logic;
+	signal data64b_muxed_error      : std_logic;
 
 begin
 	process
@@ -90,7 +90,19 @@ begin
 		wait until rising_edge(clk_200_i);
 		superburst_update_S <= '0';
 
-		wait for 1 us;
+		wait for 10 us;
+		wait until rising_edge(clk_200_i);
+		superburst_update_S <= '1';
+		wait until rising_edge(clk_200_i);
+		superburst_update_S <= '0';
+
+		wait for 10 us;
+		wait until rising_edge(clk_200_i);
+		superburst_update_S <= '1';
+		wait until rising_edge(clk_200_i);
+		superburst_update_S <= '0';
+
+		wait for 10 us;
 		wait until rising_edge(clk_200_i);
 		superburst_update_S <= '1';
 		wait until rising_edge(clk_200_i);
@@ -116,7 +128,9 @@ begin
 		wait until rising_edge(clk_100_i);
 		cts_rdo_trg_data_valid     <= '1';
 		cts_rdo_valid_notiming_trg <= '1';
-		wait;
+		wait until falling_edge(gbe_cts_start_readout);
+		wait for 100 ns;
+		wait until rising_edge(clk_100_i);
 	end process;
 
 	THE_CTS : entity work.CTS
@@ -289,8 +303,8 @@ begin
 		);
 
 	dataconversion_for_serdes_inst : entity work.dataconversion_for_serdes
-		generic map (
-			CREATE_OWN_STIMULI => FALSE	
+		generic map(
+			CREATE_OWN_STIMULI => FALSE
 		)
 		port map(
 			DATA_CLK        => clk_80_i,
