@@ -409,8 +409,6 @@ begin
 		end if;
 	end process SAVED_EVENTS_CTR_PROC;
 
-	-- dummy data generation
-
 	saved_ctr_sync : entity work.signal_sync
 		generic map(
 			WIDTH => 32,
@@ -513,7 +511,7 @@ begin
 			packet_size <= saved_bytes + x"10";
 			
 			if (save_current_state = CLEANUP) then
-				saved_bytes <= save_ctr(13 downto 0) & "00";
+				saved_bytes <= save_ctr(14 downto 0) & "0";
 			else
 				saved_bytes <= saved_bytes;
 			end if;
