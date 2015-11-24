@@ -96,16 +96,17 @@ architecture Behavioral of dc_module_trb_tdc is
 	signal cts_trg                  : std_logic_vector(15 downto 0);
 	signal save_ctr                 : std_logic_vector(15 downto 0);
 
-	signal sf_q                  : std_logic_vector(63 downto 0);
-	signal sf_eos, sf_nothing    : std_logic_vector(3 downto 0);
-	signal saved_events_ctr      : std_logic_vector(31 downto 0);
-	signal loaded_events_ctr     : std_logic_vector(31 downto 0);
-	signal saved_events_ctr_sync : std_logic_vector(31 downto 0);
-	signal loaded_words_ctr      : std_logic_vector(15 downto 0);
-	signal subevent_size         : std_logic_vector(17 downto 0);
-	signal packet_size           : std_logic_vector(15 downto 0);
-	signal saved_bytes, saved_bytes_q : std_logic_vector(15 downto 0);
-	signal sf_rd_en_q : std_logic;
+	signal sf_q                                       : std_logic_vector(63 downto 0);
+	signal sf_eos, sf_nothing                         : std_logic_vector(3 downto 0);
+	signal saved_events_ctr                           : std_logic_vector(31 downto 0);
+	signal loaded_events_ctr                          : std_logic_vector(31 downto 0);
+	signal saved_events_ctr_sync                      : std_logic_vector(31 downto 0);
+	signal loaded_words_ctr                           : std_logic_vector(15 downto 0);
+	signal subevent_size                              : std_logic_vector(17 downto 0);
+	signal packet_size                                : std_logic_vector(15 downto 0);
+	signal saved_bytes, save_ctr_sync                 : std_logic_vector(15 downto 0);
+	signal sf_rd_en_q                                 : std_logic;
+	signal event_ready, event_ready_q, event_ready_qq : std_logic;
 
 begin
 	process(slowcontrol_clock)
@@ -401,11 +402,20 @@ begin
 		if (reset_slowcontrolclock_s = '1') then
 			saved_events_ctr <= (others => '0');
 		elsif rising_edge(slowcontrol_clock) then
+			event_ready_q  <= event_ready;
+			event_ready_qq <= event_ready_q;
 			if (save_current_state = CLEANUP) then
+				event_ready <= '1';
+			else
+				event_ready <= '0';
+			end if;
+
+			if (event_ready_qq = '1') then
 				saved_events_ctr <= saved_events_ctr + x"1";
 			else
 				saved_events_ctr <= saved_events_ctr;
 			end if;
+
 		end if;
 	end process SAVED_EVENTS_CTR_PROC;
 
@@ -420,6 +430,19 @@ begin
 			CLK1  => packet_out_clock,
 			D_IN  => saved_events_ctr,
 			D_OUT => saved_events_ctr_sync
+		);
+
+	saved_size_sync : entity work.signal_sync
+		generic map(
+			WIDTH => 16,
+			DEPTH => 2
+		)
+		port map(
+			RESET => reset_packet_out_clock_S,
+			CLK0  => packet_out_clock,
+			CLK1  => packet_out_clock,
+			D_IN  => save_ctr,
+			D_OUT => save_ctr_sync
 		);
 
 	LOAD_MACHINE_PROC : process(RESET, packet_out_clock)
@@ -500,7 +523,7 @@ begin
 			else
 				loaded_words_ctr <= loaded_words_ctr;
 			end if;
-			
+
 			sf_rd_en_q <= sf_rd_en;
 		end if;
 	end process LOADED_BYTES_CTR_PROC;
@@ -509,9 +532,9 @@ begin
 	begin
 		if rising_edge(packet_out_clock) then
 			packet_size <= saved_bytes + x"10";
-			
+
 			if (save_current_state = CLEANUP) then
-				saved_bytes <= save_ctr(14 downto 0) & "0";
+				saved_bytes <= save_ctr_sync(14 downto 0) & "0";
 			else
 				saved_bytes <= saved_bytes;
 			end if;
