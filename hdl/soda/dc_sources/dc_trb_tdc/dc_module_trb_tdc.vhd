@@ -528,7 +528,7 @@ begin
 					data_out_last  <= '0';
 				when LOAD =>
 					data_out       <= sf_q;
-					data_out_write <= '1';
+					data_out_write <= sf_rd_en; --'1';
 					data_out_first <= '0';
 					if (sf_eos = "0000") then
 						data_out_last <= '0';
