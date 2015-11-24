@@ -544,6 +544,7 @@ architecture trb3_central_arch of trb3_central is
 	signal gbe_fee_read             : std_logic;
 	signal gbe_fee_status_bits      : std_logic_vector(31 downto 0);
 	signal gbe_fee_busy             : std_logic;
+	signal cts_trigger_out          : std_logic;
 
 begin
 
@@ -815,7 +816,7 @@ begin
 			CLK                        => clk_100_i,
 			RESET                      => reset_i,
 			TRIGGER_BUSY_OUT           => trigger_busy_i,
-			TIME_REFERENCE_OUT         => open, --cts_trigger_out,
+			TIME_REFERENCE_OUT         => cts_trigger_out,
 			ADDON_TRIGGERS_IN          => (others => '0'),
 			ADDON_GROUP_ACTIVITY_OUT   => open,
 			ADDON_GROUP_SELECTED_OUT   => open,
@@ -873,6 +874,16 @@ begin
 			HEADER_REG_OUT => cts_ext_header,
 			DEBUG          => cts_ext_debug
 		);
+
+	process is
+	begin
+		-- output time reference synchronously to the 200MHz clock
+		-- in order to reduce jitter
+		wait until rising_edge(clk_200_i);
+		TRIGGER_OUT      <= cts_trigger_out;
+		TRIGGER_OUT2     <= cts_trigger_out;
+		TRG_FANOUT_ADDON <= cts_trigger_out;
+	end process;
 
 	---------------------------------------------------------------------------
 	-- Data Concentrator
