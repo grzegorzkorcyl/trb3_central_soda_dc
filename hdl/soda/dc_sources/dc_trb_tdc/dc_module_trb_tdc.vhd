@@ -105,6 +105,7 @@ architecture Behavioral of dc_module_trb_tdc is
 	signal subevent_size         : std_logic_vector(17 downto 0);
 	signal packet_size           : std_logic_vector(15 downto 0);
 	signal saved_bytes : std_logic_vector(15 downto 0);
+	signal sf_rd_en_q : std_logic;
 
 begin
 	process(slowcontrol_clock)
@@ -501,6 +502,8 @@ begin
 			else
 				loaded_words_ctr <= loaded_words_ctr;
 			end if;
+			
+			sf_rd_en_q <= sf_rd_en;
 		end if;
 	end process LOADED_BYTES_CTR_PROC;
 
@@ -528,7 +531,7 @@ begin
 					data_out_last  <= '0';
 				when LOAD =>
 					data_out       <= sf_q;
-					data_out_write <= sf_rd_en; --'1';
+					data_out_write <= sf_rd_en_q; --'1';
 					data_out_first <= '0';
 					if (sf_eos = "0000") then
 						data_out_last <= '0';
