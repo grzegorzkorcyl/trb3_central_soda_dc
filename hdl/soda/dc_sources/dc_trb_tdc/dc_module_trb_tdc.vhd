@@ -460,7 +460,7 @@ begin
 				load_next_state <= LOAD;
 
 			when LOAD =>
-				if (sf_eos /= "0000") then
+				if (sf_eos /= "0000" and loaded_words_ctr /= x"0000") then
 					load_next_state <= CLOSE_SUB;
 				else
 					load_next_state <= LOAD;
