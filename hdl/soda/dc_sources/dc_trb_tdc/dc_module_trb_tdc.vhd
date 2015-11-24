@@ -104,7 +104,7 @@ architecture Behavioral of dc_module_trb_tdc is
 	signal loaded_words_ctr      : std_logic_vector(15 downto 0);
 	signal subevent_size         : std_logic_vector(17 downto 0);
 	signal packet_size           : std_logic_vector(15 downto 0);
-	signal saved_bytes : std_logic_vector(15 downto 0);
+	signal saved_bytes, saved_bytes_q : std_logic_vector(15 downto 0);
 	signal sf_rd_en_q : std_logic;
 
 begin
@@ -511,7 +511,12 @@ begin
 	begin
 		if rising_edge(packet_out_clock) then
 			packet_size <= saved_bytes + x"10";
-			saved_bytes <= save_ctr(13 downto 0) & "00";
+			
+			if (save_current_state = CLEANUP) then
+				saved_bytes <= save_ctr(13 downto 0) & "00";
+			else
+				saved_bytes <= saved_bytes;
+			end if;
 		end if;
 	end process;
 
