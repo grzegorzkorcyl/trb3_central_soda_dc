@@ -373,11 +373,11 @@ begin
 				end if;
 
 			when CLOSE =>
-				if (CTS_READOUT_FINISHED_IN = '1') then
+				--if (CTS_READOUT_FINISHED_IN = '1') then
 					next_state <= IDLE;
-				else
-					next_state <= CLOSE;
-				end if;
+				--else
+				--	next_state <= CLOSE;
+				--end if;
 
 		end case;
 	end process state_machine;
