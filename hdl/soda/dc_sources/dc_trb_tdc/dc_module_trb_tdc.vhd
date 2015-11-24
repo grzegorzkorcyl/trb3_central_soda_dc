@@ -105,6 +105,7 @@ architecture Behavioral of dc_module_trb_tdc is
 	signal saved_bytes, save_ctr_sync                 : std_logic_vector(15 downto 0);
 	signal sf_rd_en_q                                 : std_logic;
 	signal event_ready, event_ready_q, event_ready_qq : std_logic;
+	signal superburst_update_q                        : std_logic;
 
 begin
 	process(slowcontrol_clock)
@@ -561,7 +562,9 @@ begin
 	process(packet_out_clock)
 	begin
 		if rising_edge(packet_out_clock) then
-			if (superburst_update = '1') then
+			superburst_update_q <= superburst_update;
+
+			if (superburst_update_q = '1') then
 				latestsuperburstnumber_S <= superburst_number;
 			else
 				latestsuperburstnumber_S <= latestsuperburstnumber_S;

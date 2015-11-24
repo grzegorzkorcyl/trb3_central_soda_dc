@@ -532,20 +532,22 @@ architecture trb3_central_arch of trb3_central is
 	signal update_toggle                      : std_logic                             := '0';
 	signal update_synced                      : std_logic                             := '0';
 
-	signal gbe_cts_number           : std_logic_vector(15 downto 0);
-	signal gbe_cts_code             : std_logic_vector(7 downto 0);
-	signal gbe_cts_information      : std_logic_vector(7 downto 0);
-	signal gbe_cts_start_readout    : std_logic;
-	signal gbe_cts_readout_type     : std_logic_vector(3 downto 0);
-	signal gbe_cts_readout_finished : std_logic;
-	signal gbe_cts_status_bits      : std_logic_vector(31 downto 0);
-	signal gbe_fee_data             : std_logic_vector(15 downto 0);
-	signal gbe_fee_dataready        : std_logic;
-	signal gbe_fee_read             : std_logic;
-	signal gbe_fee_status_bits      : std_logic_vector(31 downto 0);
-	signal gbe_fee_busy             : std_logic;
-	signal cts_trigger_out          : std_logic;
+	signal gbe_cts_number               : std_logic_vector(15 downto 0);
+	signal gbe_cts_code                 : std_logic_vector(7 downto 0);
+	signal gbe_cts_information          : std_logic_vector(7 downto 0);
+	signal gbe_cts_start_readout        : std_logic;
+	signal gbe_cts_readout_type         : std_logic_vector(3 downto 0);
+	signal gbe_cts_readout_finished     : std_logic;
+	signal gbe_cts_status_bits          : std_logic_vector(31 downto 0);
+	signal gbe_fee_data                 : std_logic_vector(15 downto 0);
+	signal gbe_fee_dataready            : std_logic;
+	signal gbe_fee_read                 : std_logic;
+	signal gbe_fee_status_bits          : std_logic_vector(31 downto 0);
+	signal gbe_fee_busy                 : std_logic;
+	signal cts_trigger_out              : std_logic;
 	signal super_number, super_number_q : std_logic_vector(30 downto 0);
+	signal nothing                      : std_logic;
+	signal sp_update : std_logic;
 
 begin
 
@@ -708,7 +710,9 @@ begin
 	process(clk_SODA200_i)
 	begin
 		if rising_edge(clk_SODA200_i) then
-			update_toggle <= update_toggle xor superburst_update_S;
+			sp_update <= superburst_update_S;
+			
+			update_toggle <= update_toggle xor sp_update;
 		end if;
 	end process;
 
@@ -720,18 +724,29 @@ begin
 	end process;
 
 	update_synced <= update_vec(2) xor update_vec(1);
-	
+
 	process(clk_100_i)
 	begin
 		if rising_edge(clk_100_i) then
-			super_number <= superburst_number_S;
+			super_number   <= superburst_number_S;
 			super_number_q <= super_number;
 		end if;
 	end process;
-			
-			
-	
-	
+
+	sb_number_fifo : entity work.async_fifo_16x32
+		port map(
+			rst               => reset_SODAclock_S,
+			wr_clk            => clk_SODA200_i,
+			rd_clk            => clk_100_i,
+			din(30 downto 0)  => superburst_number_S,
+			din(31)           => '0',
+			wr_en             => sp_update,
+			rd_en             => update_synced,
+			dout(30 downto 0) => super_number_q,
+			dout(31)          => nothing,
+			full              => open,
+			empty             => open
+		);
 
 	---------------------------------------------------------------------------
 	-- CTS instance for generating artificial trigger out of superburst update 
@@ -1425,10 +1440,10 @@ begin
 	FPGA3_TTL <= (others => 'Z');
 	FPGA4_TTL <= (others => 'Z');
 
-	FPGA1_COMM(11) <= superburst_update_S;
-	FPGA2_COMM(11) <= superburst_update_S;
-	FPGA3_COMM(11) <= superburst_update_S;
-	FPGA4_COMM(11) <= superburst_update_S;
+	FPGA1_COMM(11) <= '0'; --superburst_update_S;
+	FPGA2_COMM(11) <= '0'; --superburst_update_S;
+	FPGA3_COMM(11) <= '0'; --superburst_update_S;
+	FPGA4_COMM(11) <= '0'; --superburst_update_S;
 
 	FPGA1_CONNECTOR <= (others => 'Z');
 	FPGA2_CONNECTOR <= (others => 'Z');
