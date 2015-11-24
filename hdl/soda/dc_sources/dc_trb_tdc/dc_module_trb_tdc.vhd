@@ -401,7 +401,7 @@ begin
 		if (reset_slowcontrolclock_s = '1') then
 			saved_events_ctr <= (others => '0');
 		elsif rising_edge(slowcontrol_clock) then
-			if (save_current_state = SEND_TERM_PULSE) then
+			if (save_current_state = CLEANUP) then
 				saved_events_ctr <= saved_events_ctr + x"1";
 			else
 				saved_events_ctr <= saved_events_ctr;
