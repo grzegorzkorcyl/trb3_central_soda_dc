@@ -43,11 +43,9 @@ entity dc_module_trb_tdc is
 		FEE_BUSY_IN              : in  std_logic;
 		FEE_STATUS_BITS_IN       : in  std_logic_vector(31 downto 0);
 
-		-- SODA signals
-		superburst_number        : in  std_logic_vector(30 downto 0);
+		-- SODA signals (synchronized to 100MHz)
 		superburst_update        : in  std_logic;
-		SODA_enable              : out std_logic;
-		EnableExternalSODA       : out std_logic;
+		superburst_number        : in  std_logic_vector(30 downto 0);
 
 		-- 64 bits data output
 		data_out_allowed         : in  std_logic;
@@ -125,22 +123,6 @@ begin
 	begin
 		if (rising_edge(packet_out_clock)) then
 			reset_packet_out_clock_S <= reset;
-		end if;
-	end process;
-
-	sync_superburstwrite : DC_posedge_to_pulse port map(
-			clock_in  => SODA_clock,
-			clock_out => packet_out_clock,
-			en_clk    => '1',
-			signal_in => superburst_update,
-			pulse     => latestsuperburst_write_S);
-
-	sync_superburstwrite_process : process(packet_out_clock)
-	begin
-		if (rising_edge(packet_out_clock)) then
-			if latestsuperburst_write_S = '1' then
-				latestsuperburstnumber_S <= superburst_number;
-			end if;
 		end if;
 	end process;
 
@@ -573,6 +555,17 @@ begin
 					data_out_first <= '0';
 					data_out_last  <= '0';
 			end case;
+		end if;
+	end process;
+
+	process(packet_out_clock)
+	begin
+		if rising_edge(packet_out_clock) then
+			if (superburst_update = '1') then
+				latestsuperburstnumber_S <= superburst_number;
+			else
+				latestsuperburstnumber_S <= latestsuperburstnumber_S;
+			end if;
 		end if;
 	end process;
 

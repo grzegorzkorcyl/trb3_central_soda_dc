@@ -545,6 +545,7 @@ architecture trb3_central_arch of trb3_central is
 	signal gbe_fee_status_bits      : std_logic_vector(31 downto 0);
 	signal gbe_fee_busy             : std_logic;
 	signal cts_trigger_out          : std_logic;
+	signal super_number, super_number_q : std_logic_vector(30 downto 0);
 
 begin
 
@@ -601,88 +602,15 @@ begin
 	---------------------------------------------------------------------------
 	-- SODA clock generation
 	---------------------------------------------------------------------------
-	gen_noclockswitch : if not SWITCHABLE_SODA generate
-		gen_externalsoda : if EXTERNAL_SODA generate
-			process(clk_SODA200_i)
-			begin
-				if (rising_edge(clk_SODA200_i)) then
-					RXtop_DLM_S      <= ext_sodasrc_TX_DLM_S;
-					RXtop_DLM_word_S <= ext_sodasrc_TX_DLM_word_S;
-				end if;
-			end process;
-			clk_SODA200_i <= SODA_clock_rx;
-		end generate;
-		gen_internalsoda : if not EXTERNAL_SODA generate
-			process(clk_SODA200_i)
-			begin
-				if (rising_edge(clk_SODA200_i)) then
-					RXtop_DLM_S      <= sodasrc_TX_DLM_S;
-					RXtop_DLM_word_S <= sodasrc_TX_DLM_word_S;
-				end if;
-			end process;
-			clk_SODA200_i <= clk_200_i;
-		end generate;
-	end generate;
 
-	gen_clockswitch : if SWITCHABLE_SODA generate
-		RXtop_DLM_S      <= ext_sodasrc_TX_DLM_sync2_S when EnableExternalSODAsync_S = '1' else sodasrc_TX_DLM_S;
-		RXtop_DLM_word_S <= ext_sodasrc_TX_DLM_word_sync2_S when EnableExternalSODAsync_S = '1' else sodasrc_TX_DLM_word_S;
-
-		sync_EnableExternalSODA : entity work.sync_bit
-			port map(
-				clock    => clk_SODA200_i,
-				data_in  => EnableExternalSODA_S,
-				data_out => EnableExternalSODAsync_S
-			);
-
-		CLKDIVB1 : CLKDIVB
-			port map(
-				CLKI    => clk_200_i,
-				RST     => '0',
-				RELEASE => '1',
-				CDIV1   => clk_200_i_S,
-				CDIV2   => open,
-				CDIV4   => open,
-				CDIV8   => open
-			);
-
-		DLLl_in200M_out200M1 : entity work.DLLl_in200M_out200M
-			port map(
-				clki    => SODA_clock_rx,
-				clkop   => open,
-				clkos   => SODA_clock_rx_S,
-				lock    => open,
-				aluhold => '0'
-			);
-
-		process(SODA_clock_rx_S)
-		begin
-			if (rising_edge(SODA_clock_rx_S)) then
-				ext_sodasrc_TX_DLM_sync1_S      <= ext_sodasrc_TX_DLM_S;
-				ext_sodasrc_TX_DLM_word_sync1_S <= ext_sodasrc_TX_DLM_word_S;
-			end if;
-		end process;
-		process(clk_SODA200_i)
-		begin
-			if (rising_edge(clk_SODA200_i)) then
-				ext_sodasrc_TX_DLM_sync2_S      <= ext_sodasrc_TX_DLM_sync1_S;
-				ext_sodasrc_TX_DLM_word_sync2_S <= ext_sodasrc_TX_DLM_word_sync1_S;
-			end if;
-		end process;
-
-		SODAclockswitch : dcs
-			-- synthesis translate_off
-			generic map(
-				DCSMODE => "POS")
-			-- synthesis translate_on
-			port map(
-				clk0   => clk_200_i_S,
-				clk1   => SODA_clock_rx_S,
-				sel    => EnableExternalSODA_S,
-				dcsout => clk_SODA200_i
-			);
-
-	end generate;
+	process(clk_SODA200_i)
+	begin
+		if (rising_edge(clk_SODA200_i)) then
+			RXtop_DLM_S      <= ext_sodasrc_TX_DLM_S;
+			RXtop_DLM_word_S <= ext_sodasrc_TX_DLM_word_S;
+		end if;
+	end process;
+	clk_SODA200_i <= SODA_clock_rx;
 
 	---------------------------------------------------------------------------
 	-- SODA connection to the source
@@ -773,8 +701,8 @@ begin
 			START_OF_CALIBRATION_OUT => open,
 			SODA_CMD_VALID_OUT       => open,
 			SODA_CMD_WORD_OUT        => open,
-			RX_DLM_IN                => RXtop_DLM_S, --TXfee_DLM_S(0),
-			RX_DLM_WORD_IN           => RXtop_DLM_word_S --TXfee_DLM_word_S(0)
+			RX_DLM_IN                => RXtop_DLM_S,
+			RX_DLM_WORD_IN           => RXtop_DLM_word_S
 		);
 
 	process(clk_SODA200_i)
@@ -792,6 +720,18 @@ begin
 	end process;
 
 	update_synced <= update_vec(2) xor update_vec(1);
+	
+	process(clk_100_i)
+	begin
+		if rising_edge(clk_100_i) then
+			super_number <= superburst_number_S;
+			super_number_q <= super_number;
+		end if;
+	end process;
+			
+			
+	
+	
 
 	---------------------------------------------------------------------------
 	-- CTS instance for generating artificial trigger out of superburst update 
@@ -927,10 +867,8 @@ begin
 			FEE_BUSY_IN              => gbe_fee_busy,
 
 			-- SODA signals
-			superburst_number        => superburst_number_S,
-			superburst_update        => superburst_update_S,
-			SODA_enable              => open,
-			EnableExternalSODA       => EnableExternalSODA_S,
+			superburst_update        => update_synced,
+			superburst_number        => super_number_q,
 
 			-- 64 bits data output
 			data_out_allowed         => data64b_muxed_allowed_S,
