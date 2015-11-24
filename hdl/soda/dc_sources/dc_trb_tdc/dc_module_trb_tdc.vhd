@@ -536,7 +536,7 @@ begin
 		if rising_edge(packet_out_clock) then
 			packet_size <= saved_bytes + x"10";
 
-			if (event_ready_q = '1') then
+			if (event_ready = '1') then
 				saved_bytes <= save_ctr_sync(14 downto 0) & "0";
 			else
 				saved_bytes <= saved_bytes;
