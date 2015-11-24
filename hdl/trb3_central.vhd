@@ -725,13 +725,13 @@ begin
 
 	update_synced <= update_vec(2) xor update_vec(1);
 
-	process(clk_100_i)
-	begin
-		if rising_edge(clk_100_i) then
-			super_number   <= superburst_number_S;
-			super_number_q <= super_number;
-		end if;
-	end process;
+--	process(clk_100_i)
+--	begin
+--		if rising_edge(clk_100_i) then
+--			super_number   <= superburst_number_S;
+--			super_number_q <= super_number;
+--		end if;
+--	end process;
 
 	sb_number_fifo : entity work.async_fifo_16x32
 		port map(
