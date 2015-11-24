@@ -881,9 +881,9 @@ begin
 	THE_DATACONCENTRATOR_FROM_TDC : entity work.dc_module_trb_tdc
 		port map(
 			slowcontrol_clock        => clk_100_i,
-			packet_in_clock          => PACKETIN_clock,
+			packet_in_clock          => clk_100_i, --PACKETIN_clock,
 			MUX_clock                => MUX_clock,
-			packet_out_clock         => PACKETOUT_clock,
+			packet_out_clock         => clk_100_i, --PACKETOUT_clock,
 			SODA_clock               => clk_SODA200_i,
 			reset                    => reset_i,
 
@@ -937,7 +937,7 @@ begin
 
 	dataconversion_for_serdes_inst : entity work.dataconversion_for_serdes
 		port map(
-			DATA_CLK        => PACKETOUT_clock,
+			DATA_CLK        => clk_100_i, --PACKETOUT_clock,
 			CLK             => clk_100_i,
 			RESET           => reset_i,
 			TX_READY        => tx_ready_ch3,
