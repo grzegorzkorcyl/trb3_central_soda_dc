@@ -253,9 +253,9 @@ begin
 	THE_DATACONCENTRATOR_FROM_TDC : entity work.dc_module_trb_tdc
 		port map(
 			slowcontrol_clock        => clk_100_i,
-			packet_in_clock          => clk_80_i,
+			packet_in_clock          => clk_100_i,
 			MUX_clock                => clk_100_i,
-			packet_out_clock         => clk_80_i,
+			packet_out_clock         => clk_100_i,
 			SODA_clock               => clk_200_i,
 			reset                    => reset_i,
 
@@ -307,7 +307,7 @@ begin
 			CREATE_OWN_STIMULI => FALSE
 		)
 		port map(
-			DATA_CLK        => clk_80_i,
+			DATA_CLK        => clk_100_i,
 			CLK             => clk_100_i,
 			RESET           => reset_i,
 			TX_READY        => '1',

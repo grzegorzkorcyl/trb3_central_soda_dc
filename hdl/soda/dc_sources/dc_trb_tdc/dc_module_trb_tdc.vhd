@@ -419,31 +419,34 @@ begin
 		end if;
 	end process SAVED_EVENTS_CTR_PROC;
 
-	saved_ctr_sync : entity work.signal_sync
-		generic map(
-			WIDTH => 32,
-			DEPTH => 2
-		)
-		port map(
-			RESET => reset_packet_out_clock_S,
-			CLK0  => packet_out_clock,
-			CLK1  => packet_out_clock,
-			D_IN  => saved_events_ctr,
-			D_OUT => saved_events_ctr_sync
-		);
+	--	saved_ctr_sync : entity work.signal_sync
+	--		generic map(
+	--			WIDTH => 32,
+	--			DEPTH => 2
+	--		)
+	--		port map(
+	--			RESET => reset_packet_out_clock_S,
+	--			CLK0  => packet_out_clock,
+	--			CLK1  => packet_out_clock,
+	--			D_IN  => saved_events_ctr,
+	--			D_OUT => saved_events_ctr_sync
+	--		);
+	--
+	--	saved_size_sync : entity work.signal_sync
+	--		generic map(
+	--			WIDTH => 16,
+	--			DEPTH => 2
+	--		)
+	--		port map(
+	--			RESET => reset_packet_out_clock_S,
+	--			CLK0  => packet_out_clock,
+	--			CLK1  => packet_out_clock,
+	--			D_IN  => save_ctr,
+	--			D_OUT => save_ctr_sync
+	--		);
 
-	saved_size_sync : entity work.signal_sync
-		generic map(
-			WIDTH => 16,
-			DEPTH => 2
-		)
-		port map(
-			RESET => reset_packet_out_clock_S,
-			CLK0  => packet_out_clock,
-			CLK1  => packet_out_clock,
-			D_IN  => save_ctr,
-			D_OUT => save_ctr_sync
-		);
+	saved_events_ctr_sync <= saved_events_ctr;
+	save_ctr_sync         <= save_ctr;
 
 	LOAD_MACHINE_PROC : process(RESET, packet_out_clock)
 	begin
@@ -533,7 +536,7 @@ begin
 		if rising_edge(packet_out_clock) then
 			packet_size <= saved_bytes + x"10";
 
-			if (save_current_state = CLEANUP) then
+			if (event_ready_qq = '1') then
 				saved_bytes <= save_ctr_sync(14 downto 0) & "0";
 			else
 				saved_bytes <= saved_bytes;
