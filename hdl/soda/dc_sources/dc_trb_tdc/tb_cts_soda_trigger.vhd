@@ -40,7 +40,7 @@ architecture arch1 of tb_cts_soda_trigger is
 	signal data64b_muxed_last       : std_logic;
 	signal data64b_muxed_error      : std_logic;
 	signal update_nr                : std_logic_vector(30 downto 0);
-	signal sp_update : std_logic;
+	signal sp_update : std_logic := '0';
 	signal super_number_q : std_logic_vector(30 downto 0);
 	signal nothing : std_logic;
 
