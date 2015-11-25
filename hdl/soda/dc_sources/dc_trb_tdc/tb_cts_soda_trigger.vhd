@@ -92,47 +92,6 @@ begin
 
 	update_synced <= update_vec(2) xor update_vec(1);
 
---	process
---	begin
---		superburst_update_S <= '0';
---		wait for 1 us;
---		wait until rising_edge(clk_200_i);
---		wait for 1 ns;
---		update_nr           <= "000" & x"b00f_001";
---		superburst_update_S <= '1';
---		wait until rising_edge(clk_200_i);
---		wait for 1 ns;
---		superburst_update_S <= '0';
---
---		wait for 5 us;
---		wait until rising_edge(clk_200_i);
---		wait for 1 ns;
---		superburst_update_S <= '1';
---		update_nr           <= "000" & x"b00f_002";
---		wait until rising_edge(clk_200_i);
---		wait for 1 ns;
---		superburst_update_S <= '0';
---
---		wait for 5 us;
---		wait until rising_edge(clk_200_i);
---		wait for 1 ns;
---		superburst_update_S <= '1';
---		update_nr           <= "000" & x"b00f_003";
---		wait until rising_edge(clk_200_i);
---		wait for 1 ns;
---		superburst_update_S <= '0';
---
---		wait for 5 us;
---		wait until rising_edge(clk_200_i);
---		wait for 1 ns;
---		superburst_update_S <= '1';
---		update_nr           <= "000" & x"b00f_004";
---		wait until rising_edge(clk_200_i);
---		wait for 1 ns;
---		superburst_update_S <= '0';
---
---	end process;
-
 	THE_SOB_SOURCE : entity work.soda_start_of_burst_control
 		generic map(
 			CLOCK_PERIOD => cSODA_CLOCK_PERIOD, -- clock-period in ns
@@ -350,7 +309,7 @@ begin
 
 			-- SODA signals
 			superburst_number        => super_number_q,
-			superburst_update        => update_synced,
+			superburst_update        => update_synced_qq,
 
 			-- 64 bits data output
 			data_out_allowed         => data64b_muxed_allowed_S,
