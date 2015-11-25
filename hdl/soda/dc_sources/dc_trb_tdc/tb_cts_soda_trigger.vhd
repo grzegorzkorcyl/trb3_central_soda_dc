@@ -45,6 +45,7 @@ architecture arch1 of tb_cts_soda_trigger is
 	signal super_number_q           : std_logic_vector(30 downto 0);
 	signal nothing                  : std_logic;
 	signal SODA_burst_pulse_S : std_logic;
+	signal update_synced_qqq : std_logic;
 
 begin
 	process
@@ -87,6 +88,7 @@ begin
 
 			update_synced_q  <= update_synced;
 			update_synced_qq <= update_synced_q;
+			update_synced_qqq <= update_synced_qq;
 		end if;
 	end process;
 
@@ -309,7 +311,7 @@ begin
 
 			-- SODA signals
 			superburst_number        => super_number_q,
-			superburst_update        => update_synced_qq,
+			superburst_update        => update_synced_qqq,
 
 			-- 64 bits data output
 			data_out_allowed         => data64b_muxed_allowed_S,
