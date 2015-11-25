@@ -363,7 +363,7 @@ begin
 					start_ctr <= '1';
 				elsif (tx_k = '1' and tx_data = x"fc") then
 					start_ctr <= '0';
-					assert (std_logic_vector(data_ctr) = current_size) report "DDAAAAMMNNNN" severity error; 
+					assert (std_logic_vector(to_unsigned(data_ctr, 16)) = current_size) report "DDAAAAMMNNNN" severity error; 
 				else
 					start_ctr <= start_ctr;
 				end if;
