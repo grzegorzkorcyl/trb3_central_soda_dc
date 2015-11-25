@@ -5,6 +5,7 @@ use ieee.numeric_std.all;
 library work;
 use work.trb_net_std.all;
 use work.trb3_components.all;
+use work.soda_components.all;
 
 entity tb_cts_soda_trigger is
 end entity;
@@ -15,8 +16,8 @@ architecture arch1 of tb_cts_soda_trigger is
 	signal cts_rdo_valid_notiming_trg              : std_logic;
 	signal cts_rdo_trg_data_valid                  : std_logic;
 
-	signal update_vec    : std_logic_vector(2 downto 0) := "000";
-	signal update_toggle : std_logic                    := '0';
+	signal update_vec                                       : std_logic_vector(2 downto 0) := "000";
+	signal update_toggle                                    : std_logic                    := '0';
 	signal update_synced, update_synced_q, update_synced_qq : std_logic                    := '0';
 
 	signal superburst_update_S : std_logic;
@@ -40,9 +41,10 @@ architecture arch1 of tb_cts_soda_trigger is
 	signal data64b_muxed_last       : std_logic;
 	signal data64b_muxed_error      : std_logic;
 	signal update_nr                : std_logic_vector(30 downto 0);
-	signal sp_update : std_logic := '0';
-	signal super_number_q : std_logic_vector(30 downto 0);
-	signal nothing : std_logic;
+	signal sp_update                : std_logic := '0';
+	signal super_number_q           : std_logic_vector(30 downto 0);
+	signal nothing                  : std_logic;
+	signal SODA_burst_pulse_S : std_logic;
 
 begin
 	process
@@ -73,7 +75,7 @@ begin
 	begin
 		if rising_edge(clk_200_i) then
 			sp_update <= superburst_update_S;
-			
+
 			update_toggle <= update_toggle xor sp_update;
 		end if;
 	end process;
@@ -82,55 +84,79 @@ begin
 	begin
 		if rising_edge(clk_100_i) then
 			update_vec <= update_vec(1 downto 0) & update_toggle;
-			
-			update_synced_q <= update_synced;
+
+			update_synced_q  <= update_synced;
 			update_synced_qq <= update_synced_q;
 		end if;
 	end process;
 
 	update_synced <= update_vec(2) xor update_vec(1);
 
-	process
-	begin
-		superburst_update_S <= '0';
-		wait for 1 us;
-		wait until rising_edge(clk_200_i);
-		wait for 1 ns;
-		update_nr           <= "000" & x"b00f_001";
-		superburst_update_S <= '1';
-		wait until rising_edge(clk_200_i);
-		wait for 1 ns;
-		superburst_update_S <= '0';
+--	process
+--	begin
+--		superburst_update_S <= '0';
+--		wait for 1 us;
+--		wait until rising_edge(clk_200_i);
+--		wait for 1 ns;
+--		update_nr           <= "000" & x"b00f_001";
+--		superburst_update_S <= '1';
+--		wait until rising_edge(clk_200_i);
+--		wait for 1 ns;
+--		superburst_update_S <= '0';
+--
+--		wait for 5 us;
+--		wait until rising_edge(clk_200_i);
+--		wait for 1 ns;
+--		superburst_update_S <= '1';
+--		update_nr           <= "000" & x"b00f_002";
+--		wait until rising_edge(clk_200_i);
+--		wait for 1 ns;
+--		superburst_update_S <= '0';
+--
+--		wait for 5 us;
+--		wait until rising_edge(clk_200_i);
+--		wait for 1 ns;
+--		superburst_update_S <= '1';
+--		update_nr           <= "000" & x"b00f_003";
+--		wait until rising_edge(clk_200_i);
+--		wait for 1 ns;
+--		superburst_update_S <= '0';
+--
+--		wait for 5 us;
+--		wait until rising_edge(clk_200_i);
+--		wait for 1 ns;
+--		superburst_update_S <= '1';
+--		update_nr           <= "000" & x"b00f_004";
+--		wait until rising_edge(clk_200_i);
+--		wait for 1 ns;
+--		superburst_update_S <= '0';
+--
+--	end process;
 
-		
-		wait for 5 us;
-		wait until rising_edge(clk_200_i);
-		wait for 1 ns;
-		superburst_update_S <= '1';
-		update_nr           <= "000" & x"b00f_002";
-		wait until rising_edge(clk_200_i);
-		wait for 1 ns;
-		superburst_update_S <= '0';
+	THE_SOB_SOURCE : entity work.soda_start_of_burst_control
+		generic map(
+			CLOCK_PERIOD => cSODA_CLOCK_PERIOD, -- clock-period in ns
+			CYCLE_PERIOD => cSODA_CYCLE_PERIOD, -- cycle-period in ns
+			BURST_PERIOD => cBURST_PERIOD -- burst-period in ns
+		)
+		port map(
+			SODA_CLK             => clk_200_i,
+			RESET                => reset_i,
+			SODA_BURST_PULSE_OUT => SODA_burst_pulse_S,
+			SODA_40MHZ_CYCLE_OUT => open
+		);
 
-		wait for 5 us;
-		wait until rising_edge(clk_200_i);
-		wait for 1 ns;
-		superburst_update_S <= '1';
-		update_nr           <= "000" & x"b00f_003";
-		wait until rising_edge(clk_200_i);
-		wait for 1 ns;
-		superburst_update_S <= '0';
-
-		wait for 5 us;
-		wait until rising_edge(clk_200_i);
-		wait for 1 ns;
-		superburst_update_S <= '1';
-		update_nr           <= "000" & x"b00f_004";
-		wait until rising_edge(clk_200_i);
-		wait for 1 ns;
-		superburst_update_S <= '0';
-
-	end process;
+	superburst_gen : entity work.soda_superburst_generator
+		generic map(BURST_COUNT => 16)
+		port map(
+			SODACLK                 => clk_200_i,
+			RESET                   => reset_i,
+			ENABLE                  => '1',
+			SODA_BURST_PULSE_IN     => SODA_burst_pulse_S,
+			START_OF_SUPERBURST_OUT => superburst_update_S,
+			SUPER_BURST_NR_OUT      => update_nr,
+			SODA_CMD_WINDOW_OUT     => open
+		);
 
 	sb_number_fifo : entity work.async_fifo_16x32
 		port map(
