@@ -67,7 +67,7 @@ begin
 	process
 	begin
 		clk_200_i <= '1';
-		wait for 2600 ps;
+		wait for 2300 ps;
 		clk_200_i <= '0';
 		wait for 2500 ps;
 	end process;
