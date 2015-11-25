@@ -1,6 +1,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use ieee.std_logic_unsigned.all;
+USE ieee.std_logic_arith.all;
 
 library work;
 use work.trb_net_std.all;
@@ -46,6 +48,7 @@ architecture arch1 of tb_cts_soda_trigger is
 	signal nothing                  : std_logic;
 	signal SODA_burst_pulse_S : std_logic;
 	signal update_synced_qqq : std_logic;
+	signal event_size : std_logic_vector(15 downto 0) := x"0000";
 
 begin
 	process
@@ -141,6 +144,8 @@ begin
 		reset_i <= '0';
 		wait;
 	end process;
+	
+	event_size <= super_number_q(15 downto 0) + x"0010";
 
 	process
 	begin
@@ -252,7 +257,7 @@ begin
 		port map(clk                     => clk_100_i,
 			     rst                     => reset_i,
 			     GBE_READY_IN            => '1',
-			     CFG_EVENT_SIZE_IN       => x"0100",
+			     CFG_EVENT_SIZE_IN       => event_size, --x"0100",
 			     CFG_TRIGGERED_MODE_IN   => '1',
 			     TRIGGER_IN              => update_synced,
 			     CTS_NUMBER_OUT          => gbe_cts_number,

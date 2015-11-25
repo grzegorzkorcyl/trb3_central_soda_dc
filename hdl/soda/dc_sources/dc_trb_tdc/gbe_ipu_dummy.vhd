@@ -331,7 +331,8 @@ begin
 				end if;
 
 			when LOOP_OVER_DATA =>
-				if (to_integer(unsigned(data_ctr)) = (2 * (to_integer(unsigned(test_data_len)) - 1)) and FEE_READ_IN = '1') then
+				--if (to_integer(unsigned(data_ctr)) = (2 * (to_integer(unsigned(test_data_len)) - 1)) and FEE_READ_IN = '1') then
+				if (to_integer(unsigned(data_ctr)) = (2 * (to_integer(unsigned(CFG_EVENT_SIZE_IN)) - 1)) and FEE_READ_IN = '1') then
 					next_state <= WAIT_A_SEC_7;
 				else
 					next_state <= SEND_ONE_WORD; --LOOP_OVER_DATA;
