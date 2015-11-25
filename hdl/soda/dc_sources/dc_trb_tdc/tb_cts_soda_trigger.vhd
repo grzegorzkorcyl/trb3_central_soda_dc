@@ -39,6 +39,10 @@ architecture arch1 of tb_cts_soda_trigger is
 	signal data64b_muxed_first      : std_logic;
 	signal data64b_muxed_last       : std_logic;
 	signal data64b_muxed_error      : std_logic;
+	signal update_nr                : std_logic_vector(30 downto 0);
+	signal sp_update : std_logic;
+	signal super_number_q : std_logic_vector(30 downto 0);
+	signal nothing : std_logic;
 
 begin
 	process
@@ -68,7 +72,9 @@ begin
 	process(clk_200_i)
 	begin
 		if rising_edge(clk_200_i) then
-			update_toggle <= update_toggle xor superburst_update_S;
+			sp_update <= superburst_update_S;
+			
+			update_toggle <= update_toggle xor sp_update;
 		end if;
 	end process;
 
@@ -86,6 +92,7 @@ begin
 		superburst_update_S <= '0';
 		wait for 1 us;
 		wait until rising_edge(clk_200_i);
+		update_nr           <= "000" & x"0000_001";
 		superburst_update_S <= '1';
 		wait until rising_edge(clk_200_i);
 		superburst_update_S <= '0';
@@ -93,23 +100,41 @@ begin
 		wait for 10 us;
 		wait until rising_edge(clk_200_i);
 		superburst_update_S <= '1';
+		update_nr           <= "000" & x"0000_002";
 		wait until rising_edge(clk_200_i);
 		superburst_update_S <= '0';
 
 		wait for 10 us;
 		wait until rising_edge(clk_200_i);
 		superburst_update_S <= '1';
+		update_nr           <= "000" & x"0000_003";
 		wait until rising_edge(clk_200_i);
 		superburst_update_S <= '0';
 
 		wait for 10 us;
 		wait until rising_edge(clk_200_i);
 		superburst_update_S <= '1';
+		update_nr           <= "000" & x"0000_004";
 		wait until rising_edge(clk_200_i);
 		superburst_update_S <= '0';
 
 		wait;
 	end process;
+
+	sb_number_fifo : entity work.async_fifo_16x32
+		port map(
+			rst               => reset_i,
+			wr_clk            => clk_200_i,
+			rd_clk            => clk_100_i,
+			din(30 downto 0)  => update_nr,
+			din(31)           => '0',
+			wr_en             => sp_update,
+			rd_en             => update_synced,
+			dout(30 downto 0) => super_number_q,
+			dout(31)          => nothing,
+			full              => open,
+			empty             => open
+		);
 
 	process
 	begin
@@ -287,10 +312,8 @@ begin
 			FEE_BUSY_IN              => gbe_fee_busy,
 
 			-- SODA signals
-			superburst_number        => (others => '0'),
+			superburst_number        => super_number_q,
 			superburst_update        => update_synced,
-			SODA_enable              => open,
-			EnableExternalSODA       => open,
 
 			-- 64 bits data output
 			data_out_allowed         => data64b_muxed_allowed_S,
