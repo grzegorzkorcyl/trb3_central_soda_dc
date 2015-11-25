@@ -95,30 +95,39 @@ begin
 		superburst_update_S <= '0';
 		wait for 1 us;
 		wait until rising_edge(clk_200_i);
+		wait for 1 ns;
 		update_nr           <= "000" & x"b00f_001";
 		superburst_update_S <= '1';
 		wait until rising_edge(clk_200_i);
+		wait for 1 ns;
 		superburst_update_S <= '0';
 
+		
 		wait for 10 us;
 		wait until rising_edge(clk_200_i);
+		wait for 1 ns;
 		superburst_update_S <= '1';
 		update_nr           <= "000" & x"b00f_002";
 		wait until rising_edge(clk_200_i);
+		wait for 1 ns;
 		superburst_update_S <= '0';
 
 		wait for 10 us;
 		wait until rising_edge(clk_200_i);
+		wait for 1 ns;
 		superburst_update_S <= '1';
 		update_nr           <= "000" & x"b00f_003";
 		wait until rising_edge(clk_200_i);
+		wait for 1 ns;
 		superburst_update_S <= '0';
 
 		wait for 10 us;
 		wait until rising_edge(clk_200_i);
+		wait for 1 ns;
 		superburst_update_S <= '1';
 		update_nr           <= "000" & x"b00f_004";
 		wait until rising_edge(clk_200_i);
+		wait for 1 ns;
 		superburst_update_S <= '0';
 
 		wait;
