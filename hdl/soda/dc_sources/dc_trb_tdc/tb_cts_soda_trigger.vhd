@@ -53,6 +53,7 @@ architecture arch1 of tb_cts_soda_trigger is
 	signal tx_data : std_logic_vector(7 downto 0);
 	signal start_ctr : std_logic;
 	signal data_ctr : natural := 0;
+	signal current_size : std_logic_vector(15 downto 0);
 
 begin
 	process
@@ -362,6 +363,7 @@ begin
 					start_ctr <= '1';
 				elsif (tx_k = '1' and tx_data = x"fc") then
 					start_ctr <= '0';
+					assert (std_logic_vector(data_ctr) = current_size) report "DDAAAAMMNNNN" severity error; 
 				else
 					start_ctr <= start_ctr;
 				end if;
@@ -379,7 +381,22 @@ begin
 			end if;
 		end process;
 					
-					
+		process(clk_100_i)
+		begin
+			if rising_edge(clk_100_i) then
+				if (start_ctr = '0') then
+					current_size <= x"0000";
+				elsif (data_ctr = 2) then
+					current_size(15 downto 8) <= tx_data;
+				elsif (data_ctr = 3) then
+					current_size(7 downto 0) <= tx_data;
+				else
+					current_size <= current_size;
+				end if;
+			end if;
+		end process;		
+		
+			
 					
 			
 			
