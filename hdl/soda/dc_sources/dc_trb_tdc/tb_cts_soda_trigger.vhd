@@ -17,7 +17,7 @@ architecture arch1 of tb_cts_soda_trigger is
 
 	signal update_vec    : std_logic_vector(2 downto 0) := "000";
 	signal update_toggle : std_logic                    := '0';
-	signal update_synced : std_logic                    := '0';
+	signal update_synced, update_synced_q, update_synced_qq : std_logic                    := '0';
 
 	signal superburst_update_S : std_logic;
 
@@ -82,6 +82,9 @@ begin
 	begin
 		if rising_edge(clk_100_i) then
 			update_vec <= update_vec(1 downto 0) & update_toggle;
+			
+			update_synced_q <= update_synced;
+			update_synced_qq <= update_synced_q;
 		end if;
 	end process;
 
@@ -129,7 +132,7 @@ begin
 			din(30 downto 0)  => update_nr,
 			din(31)           => '0',
 			wr_en             => sp_update,
-			rd_en             => update_synced,
+			rd_en             => update_synced_qq,
 			dout(30 downto 0) => super_number_q,
 			dout(31)          => nothing,
 			full              => open,
