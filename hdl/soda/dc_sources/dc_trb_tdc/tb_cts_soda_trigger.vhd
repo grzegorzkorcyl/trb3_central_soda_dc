@@ -103,7 +103,7 @@ begin
 		superburst_update_S <= '0';
 
 		
-		wait for 10 us;
+		wait for 5 us;
 		wait until rising_edge(clk_200_i);
 		wait for 1 ns;
 		superburst_update_S <= '1';
@@ -112,7 +112,7 @@ begin
 		wait for 1 ns;
 		superburst_update_S <= '0';
 
-		wait for 10 us;
+		wait for 5 us;
 		wait until rising_edge(clk_200_i);
 		wait for 1 ns;
 		superburst_update_S <= '1';
@@ -121,7 +121,7 @@ begin
 		wait for 1 ns;
 		superburst_update_S <= '0';
 
-		wait for 10 us;
+		wait for 5 us;
 		wait until rising_edge(clk_200_i);
 		wait for 1 ns;
 		superburst_update_S <= '1';
@@ -130,7 +130,6 @@ begin
 		wait for 1 ns;
 		superburst_update_S <= '0';
 
-		wait;
 	end process;
 
 	sb_number_fifo : entity work.async_fifo_16x32
