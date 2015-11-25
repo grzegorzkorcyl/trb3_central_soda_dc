@@ -524,13 +524,13 @@ architecture trb3_central_arch of trb3_central is
 	signal cts_ext_debug   : std_logic_vector(31 downto 0);
 	signal cts_ext_header  : std_logic_vector(1 downto 0);
 
-	signal cts_rdo_additional_data            : std_logic_vector(32 * 1 - 1 downto 0);
-	signal cts_rdo_additional_write           : std_logic_vector(1 - 1 downto 0)      := (others => '0');
-	signal cts_rdo_additional_finished        : std_logic_vector(1 - 1 downto 0)      := (others => '1');
-	signal cts_rdo_trg_status_bits_additional : std_logic_vector(32 * 1 - 1 downto 0) := (others => '0');
-	signal update_vec                         : std_logic_vector(2 downto 0)          := "000";
-	signal update_toggle                      : std_logic                             := '0';
-	signal update_synced                      : std_logic                             := '0';
+	signal cts_rdo_additional_data                          : std_logic_vector(32 * 1 - 1 downto 0);
+	signal cts_rdo_additional_write                         : std_logic_vector(1 - 1 downto 0)      := (others => '0');
+	signal cts_rdo_additional_finished                      : std_logic_vector(1 - 1 downto 0)      := (others => '1');
+	signal cts_rdo_trg_status_bits_additional               : std_logic_vector(32 * 1 - 1 downto 0) := (others => '0');
+	signal update_vec                                       : std_logic_vector(2 downto 0)          := "000";
+	signal update_toggle                                    : std_logic                             := '0';
+	signal update_synced, update_synced_q, update_synced_qq : std_logic                             := '0';
 
 	signal gbe_cts_number               : std_logic_vector(15 downto 0);
 	signal gbe_cts_code                 : std_logic_vector(7 downto 0);
@@ -547,7 +547,8 @@ architecture trb3_central_arch of trb3_central is
 	signal cts_trigger_out              : std_logic;
 	signal super_number, super_number_q : std_logic_vector(30 downto 0);
 	signal nothing                      : std_logic;
-	signal sp_update : std_logic;
+	signal sp_update                    : std_logic;
+	signal update_synced_qqq : std_logic;
 
 begin
 
@@ -711,7 +712,7 @@ begin
 	begin
 		if rising_edge(clk_SODA200_i) then
 			sp_update <= superburst_update_S;
-			
+
 			update_toggle <= update_toggle xor sp_update;
 		end if;
 	end process;
@@ -719,19 +720,23 @@ begin
 	process(clk_100_i)
 	begin
 		if rising_edge(clk_100_i) then
+			update_synced_q  <= update_synced;
+			update_synced_qq <= update_synced_q;
+			update_synced_qqq <= update_synced_qq;
+
 			update_vec <= update_vec(1 downto 0) & update_toggle;
 		end if;
 	end process;
 
 	update_synced <= update_vec(2) xor update_vec(1);
 
---	process(clk_100_i)
---	begin
---		if rising_edge(clk_100_i) then
---			super_number   <= superburst_number_S;
---			super_number_q <= super_number;
---		end if;
---	end process;
+	--	process(clk_100_i)
+	--	begin
+	--		if rising_edge(clk_100_i) then
+	--			super_number   <= superburst_number_S;
+	--			super_number_q <= super_number;
+	--		end if;
+	--	end process;
 
 	sb_number_fifo : entity work.async_fifo_16x32
 		port map(
@@ -741,7 +746,7 @@ begin
 			din(30 downto 0)  => superburst_number_S,
 			din(31)           => '0',
 			wr_en             => sp_update,
-			rd_en             => update_synced,
+			rd_en             => update_synced_qq,
 			dout(30 downto 0) => super_number_q,
 			dout(31)          => nothing,
 			full              => open,
@@ -817,7 +822,7 @@ begin
 		port map(
 			CLK            => clk_100_i,
 			RESET_IN       => reset_i,
-			EXT_TRG_IN     => update_synced,
+			EXT_TRG_IN     => update_synced_qqq,
 			TRG_SYNC_OUT   => cts_ext_trigger,
 			TRIGGER_IN     => cts_rdo_trg_data_valid,
 			DATA_OUT       => cts_rdo_additional_data,
@@ -882,7 +887,7 @@ begin
 			FEE_BUSY_IN              => gbe_fee_busy,
 
 			-- SODA signals
-			superburst_update        => update_synced,
+			superburst_update        => update_synced_qqq,
 			superburst_number        => super_number_q,
 
 			-- 64 bits data output
@@ -1440,10 +1445,10 @@ begin
 	FPGA3_TTL <= (others => 'Z');
 	FPGA4_TTL <= (others => 'Z');
 
-	FPGA1_COMM(11) <= '0'; --superburst_update_S;
-	FPGA2_COMM(11) <= '0'; --superburst_update_S;
-	FPGA3_COMM(11) <= '0'; --superburst_update_S;
-	FPGA4_COMM(11) <= '0'; --superburst_update_S;
+	FPGA1_COMM(11) <= '0';              --superburst_update_S;
+	FPGA2_COMM(11) <= '0';              --superburst_update_S;
+	FPGA3_COMM(11) <= '0';              --superburst_update_S;
+	FPGA4_COMM(11) <= '0';              --superburst_update_S;
 
 	FPGA1_CONNECTOR <= (others => 'Z');
 	FPGA2_CONNECTOR <= (others => 'Z');
