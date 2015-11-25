@@ -49,6 +49,10 @@ architecture arch1 of tb_cts_soda_trigger is
 	signal SODA_burst_pulse_S : std_logic;
 	signal update_synced_qqq : std_logic;
 	signal event_size : std_logic_vector(15 downto 0) := x"0000";
+	signal tx_k : std_logic;
+	signal tx_data : std_logic_vector(7 downto 0);
+	signal start_ctr : std_logic;
+	signal data_ctr : natural := 0;
 
 begin
 	process
@@ -339,8 +343,8 @@ begin
 			TX_READY        => '1',
 			SFP_MOD0        => '0',
 			SFP_LOS         => '0',
-			TX_DATA         => open,
-			TX_K            => open,
+			TX_DATA         => tx_data,
+			TX_K            => tx_k,
 			DATA_IN_ALLOWED => data64b_muxed_allowed_S,
 			DATA_IN         => data64b_muxed,
 			DATA_IN_WRITE   => data64b_muxed_write,
@@ -348,5 +352,37 @@ begin
 			DATA_IN_LAST    => data64b_muxed_last,
 			DATA_IN_ERROR   => data64b_muxed_error
 		);
+		
+		process(clk_100_i)
+		begin
+			if rising_edge(clk_100_i) then
+				if (reset_i = '1') then
+					start_ctr <= '0';
+				elsif (tx_k = '1' and tx_data = x"dc") then
+					start_ctr <= '1';
+				elsif (tx_k = '1' and tx_data = x"fc") then
+					start_ctr <= '0';
+				else
+					start_ctr <= start_ctr;
+				end if;
+			end if;
+		end process;
+					
+		process(clk_100_i)
+		begin
+			if rising_edge(clk_100_i) then
+				if (start_ctr = '0') then
+					data_ctr <= 0;
+				else
+					data_ctr <= data_ctr + 1;
+				end if;
+			end if;
+		end process;
+					
+					
+					
+			
+			
+			
 
 end architecture;
