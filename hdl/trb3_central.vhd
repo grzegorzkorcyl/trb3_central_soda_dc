@@ -549,6 +549,7 @@ architecture trb3_central_arch of trb3_central is
 	signal nothing                      : std_logic;
 	signal sp_update                    : std_logic;
 	signal update_synced_qqq : std_logic;
+	signal tx_ready_ch3_qq, tx_ready_ch3_q : std_logic;
 
 begin
 
@@ -909,7 +910,7 @@ begin
 			DATA_CLK        => clk_100_i, --PACKETOUT_clock,
 			CLK             => clk_100_i,
 			RESET           => reset_i,
-			TX_READY        => tx_ready_ch3,
+			TX_READY        => tx_ready_ch3_qq,
 			SFP_MOD0        => SFP_MOD0(4),
 			SFP_LOS         => SFP_LOS(4),
 			TX_DATA         => tx_data_ch3,
@@ -921,6 +922,14 @@ begin
 			DATA_IN_LAST    => data64b_muxed_last,
 			DATA_IN_ERROR   => data64b_muxed_error
 		);
+		
+	process(clk_100_i)
+	begin
+		if rising_edge(clk_100_i) then
+			tx_ready_ch3_q <= tx_ready_ch3;
+			tx_ready_ch3_qq <= tx_ready_ch3_q;
+		end if;
+	end process;
 
 	---------------------------------------------------------------------------
 	-- The TrbNet media interface (to other FPGA)
