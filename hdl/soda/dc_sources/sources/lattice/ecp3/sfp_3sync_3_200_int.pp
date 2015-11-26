@@ -43,7 +43,7 @@
 #define _ch0_rx_lol_port "INTERNAL"
 
 #define _ch1_pll_rxsrc "REFCLK_EXT"
-#define _ch1_mode "DISABLED"
+#define _ch1_mode "TXONLY"
 #define _ch1_protocol "G8B10B"
 #define _ch1_ldr "DISABLED"
 #define _ch1_tx_data_rate "DIV2"
@@ -184,7 +184,7 @@
 #define _sci_ports "ENABLED"
 #define _sci_int_port "DISABLED"
 #define _refck2core "DISABLED"
-#define _circuit_name sfp_2sync_3_200_int
+#define _circuit_name sfp_3sync_3_200_int
 #define _lang vhdl
 
 #include <pcs/PCSD.vhd>

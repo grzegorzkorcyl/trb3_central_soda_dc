@@ -13,11 +13,11 @@ CoreType=LPM
 CoreStatus=Demo
 CoreName=PCS
 CoreRevision=8.2
-ModuleName=sfp_2sync_3_200_int
+ModuleName=sfp_3sync_3_200_int
 SourceFormat=VHDL
 ParameterFileVersion=1.0
 Date=11/26/2015
-Time=14:50:05
+Time=14:51:38
 
 [Parameters]
 Verilog=0
@@ -28,7 +28,7 @@ Expression=BusA(0 to 7)
 Order=Big Endian [MSB:LSB]
 IO=0
 _mode0=DISABLED
-_mode1=DISABLED
+_mode1=TXONLY
 _mode2=RXTX
 _mode3=TXONLY
 _protocol0=G8B10B
@@ -44,7 +44,7 @@ _pll_txsrc=INTERNAL
 _refclk_mult=10X
 _refclk_rate=200
 _tx_protocol0=DISABLED
-_tx_protocol1=DISABLED
+_tx_protocol1=G8B10B
 _tx_protocol2=G8B10B
 _tx_protocol3=G8B10B
 _tx_data_rate0=FULL
@@ -252,7 +252,7 @@ PAR3=0
 PARTrace3=0
 
 [FilesGenerated]
-sfp_2sync_3_200_int.pp=pp
-sfp_2sync_3_200_int.tft=tft
-sfp_2sync_3_200_int.txt=pcs_module
-sfp_2sync_3_200_int.sym=sym
+sfp_3sync_3_200_int.pp=pp
+sfp_3sync_3_200_int.tft=tft
+sfp_3sync_3_200_int.txt=pcs_module
+sfp_3sync_3_200_int.sym=sym

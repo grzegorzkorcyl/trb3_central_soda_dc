@@ -17,7 +17,7 @@ GENERIC(
   CH2_CDR_SRC   : String := "REFCLK_EXT";
   CH3_CDR_SRC   : String := "REFCLK_EXT";
   PLL_SRC   : String
---  CONFIG_FILE : String  := "sfp_2sync_3_200_int.txt";
+--  CONFIG_FILE : String  := "sfp_3sync_3_200_int.txt";
 --  QUAD_MODE : String := "SINGLE";
 --  CH0_CDR_SRC   : String := "REFCLK_EXT";
 --  CH1_CDR_SRC   : String := "REFCLK_EXT";
@@ -1530,12 +1530,24 @@ library IEEE, STD;
 use IEEE.std_logic_1164.all;
 use STD.TEXTIO.all;
 
-entity sfp_2sync_3_200_int is
-   GENERIC (USER_CONFIG_FILE    :  String := "sfp_2sync_3_200_int.txt");
+entity sfp_3sync_3_200_int is
+   GENERIC (USER_CONFIG_FILE    :  String := "sfp_3sync_3_200_int.txt");
  port (
 ------------------
 -- CH0 --
 -- CH1 --
+    hdoutp_ch1, hdoutn_ch1   :   out std_logic;
+    sci_sel_ch1    :   in std_logic;
+    txiclk_ch1    :   in std_logic;
+    tx_full_clk_ch1   :   out std_logic;
+    tx_half_clk_ch1   :   out std_logic;
+    txdata_ch1    :   in std_logic_vector (7 downto 0);
+    tx_k_ch1    :   in std_logic;
+    tx_force_disp_ch1    :   in std_logic;
+    tx_disp_sel_ch1    :   in std_logic;
+    tx_pcs_rst_ch1_c    :   in std_logic;
+    tx_pwrup_ch1_c    :   in std_logic;
+    tx_div2_mode_ch1_c   : in std_logic;
 -- CH2 --
     hdinp_ch2, hdinn_ch2    :   in std_logic;
     hdoutp_ch2, hdoutn_ch2   :   out std_logic;
@@ -1594,10 +1606,10 @@ entity sfp_2sync_3_200_int is
     rst_qd_c    :   in std_logic;
     serdes_rst_qd_c    :   in std_logic);
 
-end sfp_2sync_3_200_int;
+end sfp_3sync_3_200_int;
 
 
-architecture sfp_2sync_3_200_int_arch of sfp_2sync_3_200_int is
+architecture sfp_3sync_3_200_int_arch of sfp_3sync_3_200_int is
 
 component VLO
 port (
@@ -2115,6 +2127,8 @@ end component;
    attribute QUAD_MODE of PCSD_INST : label is "SINGLE";
    attribute PLL_SRC: string;
    attribute PLL_SRC of PCSD_INST : label is "REFCLK_CORE";
+   attribute CH1_CDR_SRC: string;
+   attribute CH1_CDR_SRC of PCSD_INST : label is "REFCLK_EXT";
    attribute CH2_CDR_SRC: string;
    attribute CH2_CDR_SRC of PCSD_INST : label is "REFCLK_CORE";
    attribute CH3_CDR_SRC: string;
@@ -2159,6 +2173,7 @@ signal fpsc_vlo : std_logic := '0';
 signal fpsc_vhi : std_logic := '1';
 signal cin : std_logic_vector (11 downto 0) := "000000000000";
 signal cout : std_logic_vector (19 downto 0);
+signal    tx_full_clk_ch1_sig   :   std_logic;
 signal    tx_full_clk_ch2_sig   :   std_logic;
 signal    tx_full_clk_ch3_sig   :   std_logic;
 
@@ -2185,6 +2200,7 @@ vhi_inst : VHI port map(Z => fpsc_vhi);
     rx_los_low_ch2_s <= rx_los_low_ch2_sig;
     rx_cdr_lol_ch2_s <= rx_cdr_lol_ch2_sig;
   tx_pll_lol_qd_s <= tx_pll_lol_qd_sig;
+  tx_full_clk_ch1 <= tx_full_clk_ch1_sig;
   tx_full_clk_ch2 <= tx_full_clk_ch2_sig;
   tx_full_clk_ch3 <= tx_full_clk_ch3_sig;
 
@@ -2193,6 +2209,7 @@ PCSD_INST : PCSD
 --synopsys translate_off
   generic map (CONFIG_FILE => USER_CONFIG_FILE,
                QUAD_MODE => "SINGLE",
+               CH1_CDR_SRC => "REFCLK_EXT",
                CH2_CDR_SRC => "REFCLK_CORE",
                CH3_CDR_SRC => "REFCLK_EXT",
                PLL_SRC  => "REFCLK_CORE"
@@ -2309,8 +2326,8 @@ port map  (
   FFC_RATE_MODE_RX_0 => fpsc_vlo,
 
 ----- CH1 -----
-  HDOUTP1 => open,
-  HDOUTN1 => open,
+  HDOUTP1 => hdoutp_ch1,
+  HDOUTN1 => hdoutn_ch1,
   HDINP1 => fpsc_vlo,
   HDINN1 => fpsc_vlo,
   PCIE_TXDETRX_PR2TLB_1 => fpsc_vlo,
@@ -2320,27 +2337,27 @@ port map  (
   PCIE_POWERDOWN_1_1 => fpsc_vlo,
   PCIE_RXVALID_1 => open,
   PCIE_PHYSTATUS_1 => open,
-  SCISELCH1 => fpsc_vlo,
-  SCIENCH1 => fpsc_vlo,
+  SCISELCH1 => sci_sel_ch1,
+  SCIENCH1 => fpsc_vhi,
   FF_RXI_CLK_1 => fpsc_vlo,
-  FF_TXI_CLK_1 => fpsc_vlo,
+  FF_TXI_CLK_1 => txiclk_ch1,
   FF_EBRD_CLK_1 => fpsc_vlo,
   FF_RX_F_CLK_1 => open,
   FF_RX_H_CLK_1 => open,
-  FF_TX_F_CLK_1 => open,
-  FF_TX_H_CLK_1 => open,
+  FF_TX_F_CLK_1 => tx_full_clk_ch1_sig,
+  FF_TX_H_CLK_1 => tx_half_clk_ch1,
   FFC_CK_CORE_RX_1 => fpsc_vlo,
-  FF_TX_D_1_0 => fpsc_vlo,
-  FF_TX_D_1_1 => fpsc_vlo,
-  FF_TX_D_1_2 => fpsc_vlo,
-  FF_TX_D_1_3 => fpsc_vlo,
-  FF_TX_D_1_4 => fpsc_vlo,
-  FF_TX_D_1_5 => fpsc_vlo,
-  FF_TX_D_1_6 => fpsc_vlo,
-  FF_TX_D_1_7 => fpsc_vlo,
-  FF_TX_D_1_8 => fpsc_vlo,
-  FF_TX_D_1_9 => fpsc_vlo,
-  FF_TX_D_1_10 => fpsc_vlo,
+  FF_TX_D_1_0 => txdata_ch1(0),
+  FF_TX_D_1_1 => txdata_ch1(1),
+  FF_TX_D_1_2 => txdata_ch1(2),
+  FF_TX_D_1_3 => txdata_ch1(3),
+  FF_TX_D_1_4 => txdata_ch1(4),
+  FF_TX_D_1_5 => txdata_ch1(5),
+  FF_TX_D_1_6 => txdata_ch1(6),
+  FF_TX_D_1_7 => txdata_ch1(7),
+  FF_TX_D_1_8 => tx_k_ch1,
+  FF_TX_D_1_9 => tx_force_disp_ch1,
+  FF_TX_D_1_10 => tx_disp_sel_ch1,
   FF_TX_D_1_11 => fpsc_vlo,
   FF_TX_D_1_12 => fpsc_vlo,
   FF_TX_D_1_13 => fpsc_vlo,
@@ -2389,8 +2406,8 @@ port map  (
   FFC_FB_LOOPBACK_1 => fpsc_vlo,
   FFC_ENABLE_CGALIGN_1 => fpsc_vlo,
   FFC_EI_EN_1 => fpsc_vlo,
-  FFC_LANE_TX_RST_1 => fpsc_vlo,
-  FFC_TXPWDNB_1 => fpsc_vlo,
+  FFC_LANE_TX_RST_1 => tx_pcs_rst_ch1_c,
+  FFC_TXPWDNB_1 => tx_pwrup_ch1_c,
   FFC_LANE_RX_RST_1 => fpsc_vlo,
   FFC_RXPWDNB_1 => fpsc_vlo,
   FFS_RLOS_LO_1 => open,
@@ -2410,7 +2427,7 @@ port map  (
   LDR_RX2CORE_1 => open,
   FFS_CDR_TRAIN_DONE_1 => open,
   FFC_DIV11_MODE_TX_1 => fpsc_vlo,
-  FFC_RATE_MODE_TX_1 => fpsc_vlo,
+  FFC_RATE_MODE_TX_1 => tx_div2_mode_ch1_c,
   FFC_DIV11_MODE_RX_1 => fpsc_vlo,
   FFC_RATE_MODE_RX_1 => fpsc_vlo,
 
@@ -2713,4 +2730,4 @@ BEGIN
    wait;
 END PROCESS;
 --synopsys translate_on
-end sfp_2sync_3_200_int_arch ;
+end sfp_3sync_3_200_int_arch ;

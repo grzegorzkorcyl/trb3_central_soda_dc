@@ -1,9 +1,9 @@
 [Device]
 Family=latticeecp3
 PartType=LFE3-150EA
-PartName=LFE3-150EA-8FN1156C
+PartName=LFE3-150EA-8FN672C
 SpeedGrade=8
-Package=FPBGA1156
+Package=FPBGA672
 OperatingCondition=COM
 Status=P
 
@@ -13,11 +13,11 @@ CoreType=LPM
 CoreStatus=Demo
 CoreName=PCS
 CoreRevision=8.2
-ModuleName=sfp_2sync_3_200_int
+ModuleName=sfp_3sync_3_200_int
 SourceFormat=VHDL
 ParameterFileVersion=1.0
-Date=11/26/2015
-Time=14:50:05
+Date=09/22/2015
+Time=15:08:28
 
 [Parameters]
 Verilog=0
@@ -48,7 +48,7 @@ _tx_protocol1=DISABLED
 _tx_protocol2=G8B10B
 _tx_protocol3=G8B10B
 _tx_data_rate0=FULL
-_tx_data_rate1=DIV2
+_tx_data_rate1=FULL
 _tx_data_rate2=FULL
 _tx_data_rate3=DIV2
 _tx_data_width0=8
@@ -60,7 +60,7 @@ _tx_fifo1=ENABLED
 _tx_fifo2=DISABLED
 _tx_fifo3=ENABLED
 _tx_ficlk_rate0=200
-_tx_ficlk_rate1=100
+_tx_ficlk_rate1=200
 _tx_ficlk_rate2=200
 _tx_ficlk_rate3=100
 _pll_rxsrc0=EXTERNAL
@@ -92,7 +92,7 @@ _rx_data_width1=8
 _rx_data_width2=8
 _rx_data_width3=8
 _rx_fifo0=ENABLED
-_rx_fifo1=DISABLED
+_rx_fifo1=ENABLED
 _rx_fifo2=ENABLED
 _rx_fifo3=DISABLED
 _rx_ficlk_rate0=250.0

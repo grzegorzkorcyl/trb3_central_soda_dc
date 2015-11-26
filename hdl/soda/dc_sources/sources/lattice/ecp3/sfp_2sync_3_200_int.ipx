@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<DiamondModule name="sfp_2sync_3_200_int" module="sfp_2sync_3_200_int" VendorName="Lattice Semiconductor Corporation" generator="IPexpress" date="2015 09 22 15:08:34.222" version="8.2" type="Module" synthesis="synplify" source_format="VHDL">
+<DiamondModule name="sfp_2sync_3_200_int" module="PCS" VendorName="Lattice Semiconductor Corporation" generator="IPexpress" date="2015 11 26 14:50:07.321" version="8.2" type="Module" synthesis="synplify" source_format="VHDL">
   <Package>
-		<File name="sfp_2sync_3_200_int.lpc" type="lpc" modified="2015 09 22 15:08:28.263"/>
-		<File name="sfp_2sync_3_200_int.pp" type="pp" modified="2015 09 22 15:08:28.266"/>
-		<File name="sfp_2sync_3_200_int.sym" type="sym" modified="2015 09 22 15:08:28.511"/>
-		<File name="sfp_2sync_3_200_int.tft" type="tft" modified="2015 07 17 14:12:04.188"/>
-		<File name="sfp_2sync_3_200_int.txt" type="pcs_module" modified="2015 09 22 15:08:28.289"/>
-		<File name="sfp_2sync_3_200_int.vhd" type="top_level_vhdl" modified="2015 07 17 14:12:04.187"/>
+		<File name="sfp_2sync_3_200_int.lpc" type="lpc" modified="2015 11 26 14:50:05.000"/>
+		<File name="sfp_2sync_3_200_int.pp" type="pp" modified="2015 11 26 14:50:05.000"/>
+		<File name="sfp_2sync_3_200_int.sym" type="sym" modified="2015 11 26 14:50:06.000"/>
+		<File name="sfp_2sync_3_200_int.tft" type="tft" modified="2015 11 26 14:50:05.000"/>
+		<File name="sfp_2sync_3_200_int.txt" type="pcs_module" modified="2015 11 26 14:50:05.000"/>
+		<File name="sfp_2sync_3_200_int.vhd" type="top_level_vhdl" modified="2015 11 26 14:50:05.000"/>
   </Package>
 </DiamondModule>
