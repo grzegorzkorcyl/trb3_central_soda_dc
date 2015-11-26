@@ -113,7 +113,7 @@ add_file -vhdl -lib work "../hdl/soda/source/soda_reply_pkt_builder.vhd"
 
 #soda media interfaces
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/trb_net16_med_2sync_3_ecp3_sfp.vhd"
-add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/trb_net16_med_3sync_3_ecp3_sfp.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/trb_net_16_med_3sync_3_ecp3_sfp.vhd"
 add_file -vhdl -lib work "../hdl/soda/lattice/trb_net16_med_syncfull_ecp3_sfp.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/serdesQuadBufLayerMUX.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/serdesQuadMUXwrapper.vhd"
