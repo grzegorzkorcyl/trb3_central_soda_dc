@@ -113,12 +113,14 @@ add_file -vhdl -lib work "../hdl/soda/source/soda_reply_pkt_builder.vhd"
 
 #soda media interfaces
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/trb_net16_med_2sync_3_ecp3_sfp.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/trb_net16_med_3sync_3_ecp3_sfp.vhd"
 add_file -vhdl -lib work "../hdl/soda/lattice/trb_net16_med_syncfull_ecp3_sfp.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/serdesQuadBufLayerMUX.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/serdesQuadMUXwrapper.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/med_ecp3_quad_sfp_sync.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/serdes_sync_200_full.vhd"
 add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/sfp_2sync_3_200_int.vhd"
+add_file -vhdl -lib work "../hdl/soda/dc_sources/sources/lattice/ecp3/sfp_3sync_3_200_int.vhd"
 add_file -vhdl -lib work "../../trbnet/media_interfaces/sync/rx_reset_fsm.vhd"
 add_file -vhdl -lib work "../../trbnet/media_interfaces/sync/tx_reset_fsm.vhd"
 
