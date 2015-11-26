@@ -150,7 +150,9 @@ entity trb3_central is
 		SODA_SRC_RXP_IN, SODA_SRC_RXN_IN           : in    std_logic;
 		ENDP_RXP_IN, ENDP_RXN_IN                   : in    std_logic_vector(3 downto 0);
 		ENDP_TXP_OUT, ENDP_TXN_OUT                 : out   std_logic_vector(3 downto 0);
-		SODA_READOUT_TXP_OUT, SODA_READOUT_TXN_OUT : out   std_logic;
+		
+		SODA_READOUT1_TXP_OUT, SODA_READOUT1_TXN_OUT : out   std_logic;
+		SODA_READOUT2_TXP_OUT, SODA_READOUT2_TXN_OUT : out   std_logic;
 
 		CODE_LINE                                  : in    std_logic_vector(1 downto 0)
 	);
@@ -445,8 +447,8 @@ architecture trb3_central_arch of trb3_central is
 	signal ext_sodasrc_TX_DLM_sync2_S                                                     : std_logic;
 	signal ext_sodasrc_TX_DLM_word_sync2_S                                                : std_logic_vector(7 downto 0);
 
-	signal tx_data_ch3              : std_logic_vector(7 downto 0);
-	signal tx_k_ch3                 : std_logic;
+	signal tx_data_ch3, tx_data_ch1              : std_logic_vector(7 downto 0);
+	signal tx_k_ch3, tx_k_ch1                 : std_logic;
 	signal tx_ready_ch3             : std_logic;
 	signal data64b_muxed_allowed    : std_logic;
 	signal data64b_muxed            : std_logic_vector(63 downto 0);
@@ -619,7 +621,7 @@ begin
 	---------------------------------------------------------------------------
 	-- SODA connection to the source
 	---------------------------------------------------------------------------
-	THE_MEDIA_UPLINK : entity work.trb_net16_med_2sync_3_ecp3_sfp
+	THE_MEDIA_UPLINK : entity work.trb_net16_med_3sync_3_ecp3_sfp
 		port map(
 			CLK                => clk_200_i,
 			SYSCLK             => clk_100_i,
@@ -665,13 +667,21 @@ begin
 			SODA_CLOCK_OUT     => SODA_clock_rx,
 
 			-- Connection to addon interface
-			DATASFP_TXD_P_OUT  => SODA_READOUT_TXP_OUT,
-			DATASFP_TXD_N_OUT  => SODA_READOUT_TXN_OUT,
-			DATASFP_MOD0       => SFP_MOD0(4),
-			DATASFP_LOS_IN     => SFP_LOS(4),
-			DATASFP_READY_OUT  => tx_ready_ch3,
-			DATASFP_DATA_IN    => tx_data_ch3,
-			DATASFP_KCHAR_IN   => tx_k_ch3,
+			DATASFP1_TXD_P_OUT  => SODA_READOUT1_TXP_OUT,
+			DATASFP1_TXD_N_OUT  => SODA_READOUT1_TXN_OUT,
+			DATASFP1_MOD0       => SFP_MOD0(4),
+			DATASFP1_LOS_IN     => SFP_LOS(4),
+			DATASFP1_READY_OUT  => tx_ready_ch3,
+			DATASFP1_DATA_IN    => tx_data_ch3,
+			DATASFP1_KCHAR_IN   => tx_k_ch3,
+			
+			DATASFP2_TXD_P_OUT  => SODA_READOUT2_TXP_OUT,
+			DATASFP2_TXD_N_OUT  => SODA_READOUT2_TXN_OUT,
+			DATASFP2_MOD0       => SFP_MOD0(2),
+			DATASFP2_LOS_IN     => SFP_LOS(2),
+			DATASFP2_READY_OUT  => open, --tx_ready_ch1,
+			DATASFP2_DATA_IN    => tx_data_ch1,
+			DATASFP2_KCHAR_IN   => tx_k_ch1,
 
 			-- Status and control port
 			STAT_OP            => med_stat_op(1 * 16 - 1 downto 0),
@@ -688,6 +698,9 @@ begin
 			data_in  => reset_i,
 			data_out => reset_SODAclock_S
 		);
+		
+		tx_data_ch1 <= tx_data_ch3;
+		tx_k_ch1 <= tx_k_ch3;
 
 	---------------------------------------------------------------------------
 	-- Recover SODA superburst data 
