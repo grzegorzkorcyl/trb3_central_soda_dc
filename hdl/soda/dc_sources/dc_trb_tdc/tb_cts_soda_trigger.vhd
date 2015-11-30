@@ -494,7 +494,7 @@ begin
 
 			CLK            => clk_100_i,
 			RESET_IN       => reset_i,
-			EXT_TRG_IN     => update_synced, --update_synced_qqq,
+			EXT_TRG_IN     => update_synced_qqq,
 			TRG_SYNC_OUT   => cts_ext_trigger,
 			TRIGGER_IN     => cts_rdo_trg_data_valid,
 			DATA_OUT       => cts_rdo_additional_data,
