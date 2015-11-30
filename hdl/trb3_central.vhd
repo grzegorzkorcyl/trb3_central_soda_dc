@@ -562,6 +562,14 @@ architecture trb3_central_arch of trb3_central is
 	signal cts_regio_no_more_data : std_logic;
 	signal cts_regio_write_ack    : std_logic;
 	signal cts_regio_unknown_addr : std_logic;
+	
+	
+    constant TRIGGER_COIN_COUNT   : integer := 4;
+    constant TRIGGER_PULSER_COUNT : integer := 2;
+    constant TRIGGER_RAND_PULSER  : integer := 1;
+    constant TRIGGER_ADDON_COUNT  : integer := 6;
+    constant PERIPH_TRIGGER_COUNT : integer := 2; 
+    signal periph_trigger : std_logic_vector(19 downto 0);
 
 begin
 
@@ -780,16 +788,19 @@ begin
 	-- CTS instance for generating artificial trigger out of superburst update 
 	--------------------------------------------------------------------------- 
 
+
+
 	THE_CTS : entity work.CTS
 		generic map(
 			EXTERNAL_TRIGGER_ID  => x"60", -- fill in trigger logic enumeration id of external trigger logic
 
-			TRIGGER_COIN_COUNT   => 0,  --TRIGGER_COIN_COUNT,
-			TRIGGER_PULSER_COUNT => 2,  --TRIGGER_PULSER_COUNT,
-			TRIGGER_RAND_PULSER  => 0,  --TRIGGER_RAND_PULSER,
+    
+			TRIGGER_COIN_COUNT   => TRIGGER_COIN_COUNT,
+			TRIGGER_PULSER_COUNT => TRIGGER_PULSER_COUNT,
+			TRIGGER_RAND_PULSER  => TRIGGER_RAND_PULSER,
 			TRIGGER_INPUT_COUNT  => 0,  -- obsolete! now all inputs are routed via an input multiplexer!
-			TRIGGER_ADDON_COUNT  => 1,  --TRIGGER_ADDON_COUNT,
-			PERIPH_TRIGGER_COUNT => 0,  --PERIPH_TRIGGER_COUNT,
+			TRIGGER_ADDON_COUNT  => TRIGGER_ADDON_COUNT,
+			PERIPH_TRIGGER_COUNT => PERIPH_TRIGGER_COUNT,
 			OUTPUT_MULTIPLEXERS  => 0,  --CTS_OUTPUT_MULTIPLEXERS,
 			ADDON_LINE_COUNT     => 38, --CTS_ADDON_LINE_COUNT,
 			ADDON_GROUPS         => 7,
@@ -807,7 +818,7 @@ begin
 			EXT_STATUS_IN              => cts_ext_status,
 			EXT_CONTROL_OUT            => cts_ext_control,
 			EXT_HEADER_BITS_IN         => cts_ext_header,
-			PERIPH_TRIGGER_IN          => (others => '0'),
+			PERIPH_TRIGGER_IN          => periph_trigger,
 			OUTPUT_MULTIPLEXERS_OUT    => open,
 			CTS_TRG_SEND_OUT           => cts_trg_send,
 			CTS_TRG_TYPE_OUT           => cts_trg_type,
@@ -867,6 +878,9 @@ begin
 		TRIGGER_OUT2     <= cts_trigger_out;
 		TRG_FANOUT_ADDON <= cts_trigger_out;
 	end process;
+	
+	
+	periph_trigger <= (others => update_synced_qqq);
 
 	---------------------------------------------------------------------------
 	-- Data Concentrator

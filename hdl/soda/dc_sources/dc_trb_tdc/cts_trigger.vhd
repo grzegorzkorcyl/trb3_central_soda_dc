@@ -16,7 +16,7 @@ entity CTS_TRIGGER is
       TRIGGER_ADDON_COUNT  : integer range 0 to 15 := 2;
       ADDON_LINE_COUNT     : integer range 0 to 255 := 22;
       ADDON_GROUPS        : integer range 1 to 8 := 5;
-      ADDON_GROUP_UPPER   : CTS_GROUP_CONFIG_T  := (3,7,11,12,13, others=>0);
+      ADDON_GROUP_UPPER   : CTS_GROUP_CONFIG_T  := (3,7,11,12,13, others=>'0');
 
       PERIPH_TRIGGER_COUNT: integer range 0 to 15 := 1;
       
@@ -261,14 +261,14 @@ begin
       );
    end generate;
    
---   proc_periph: process(CLK_IN) is
---   begin
---      if rising_edge(clk_in) and PERIPH_TRIGGER_COUNT > 0 then
---         for i in 0 to PERIPH_TRIGGER_COUNT - 1 loop
---            channels_i(ITC_BASE_PERIPH + i) <= OR_ALL( periph_trigger_mask_i(i) and PERIPH_TRIGGER_IN );
---         end loop;
---      end if;
---   end process;
+   proc_periph: process(CLK_IN) is
+   begin
+      if rising_edge(clk_in) and PERIPH_TRIGGER_COUNT > 0 then
+         for i in 0 to PERIPH_TRIGGER_COUNT - 1 loop
+            channels_i(ITC_BASE_PERIPH + i) <= OR_ALL( periph_trigger_mask_i(i) and PERIPH_TRIGGER_IN );
+         end loop;
+      end if;
+   end process;
    
    proc_pulser: process(CLK_IN) is
    begin
@@ -363,13 +363,13 @@ begin
    end process;
    
    gen_input_counter: for i in 0 to EFFECTIVE_INPUT_COUNT-1 generate
-      INPUT_COUNTERS_OUT(i*32 + 31 downto i*32) <= std_logic_vector(trigger_input_counters_i(i));
-      INPUT_EDGE_COUNTERS_OUT(i*32 + 31 downto i*32) <= std_logic_vector(trigger_input_edge_counters_i(i));
+      INPUT_COUNTERS_OUT(i*32 + 31 downto i*32) <= trigger_input_counters_i(i);
+      INPUT_EDGE_COUNTERS_OUT(i*32 + 31 downto i*32) <= trigger_input_edge_counters_i(i);
    end generate;
 
    gen_channel_counter: for i in 0 to channels_i'HIGH generate
-      CHANNEL_COUNTERS_OUT(i*32 + 31 downto i*32) <= std_logic_vector(channel_counters_i(i));
-      CHANNEL_EDGE_COUNTERS_OUT(i*32 + 31 downto i*32) <= std_logic_vector(channel_edge_counters_i(i));
+      CHANNEL_COUNTERS_OUT(i*32 + 31 downto i*32) <= channel_counters_i(i);
+      CHANNEL_EDGE_COUNTERS_OUT(i*32 + 31 downto i*32) <= channel_edge_counters_i(i);
    end generate;
 
 -- AddOn Leds
@@ -421,13 +421,12 @@ begin
          
          if RESET_IN = '1' then
             -- modelsim want's it that way
-            channel_mask_i <= (others => '1');
+            channel_mask_i <= (others => '0');
             channel_edge_select_i <= (others => '1');
             
             trigger_input_configs_i <= (others => (others => '0'));
-            coin_config_i <= (others => X"ffffffff");
-            --pulser_interval_i <= (1 => X"00000003",  others => (others => '1'));
-            pulser_interval_i <= (others => (others => '1'));
+            coin_config_i <= (others => X"000F0000");
+            pulser_interval_i <= (1 => X"00000003",  others => (others => '1'));
             
             rand_pulser_threshold_i <= (others => (others => '0'));
 
