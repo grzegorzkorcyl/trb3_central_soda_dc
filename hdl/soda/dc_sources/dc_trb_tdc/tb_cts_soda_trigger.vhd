@@ -43,17 +43,73 @@ architecture arch1 of tb_cts_soda_trigger is
 	signal data64b_muxed_last       : std_logic;
 	signal data64b_muxed_error      : std_logic;
 	signal update_nr                : std_logic_vector(30 downto 0);
-	signal sp_update                : std_logic := '0';
+	signal sp_update                : std_logic                     := '0';
 	signal super_number_q           : std_logic_vector(30 downto 0);
 	signal nothing                  : std_logic;
-	signal SODA_burst_pulse_S : std_logic;
-	signal update_synced_qqq : std_logic;
-	signal event_size : std_logic_vector(15 downto 0) := x"0000";
-	signal tx_k : std_logic;
-	signal tx_data : std_logic_vector(7 downto 0);
-	signal start_ctr : std_logic;
-	signal data_ctr : natural := 0;
-	signal current_size : std_logic_vector(15 downto 0);
+	signal SODA_burst_pulse_S       : std_logic;
+	signal update_synced_qqq        : std_logic;
+	signal event_size               : std_logic_vector(15 downto 0) := x"0000";
+	signal tx_k                     : std_logic;
+	signal tx_data                  : std_logic_vector(7 downto 0);
+	signal start_ctr                : std_logic;
+	signal data_ctr                 : natural                       := 0;
+	signal current_size             : std_logic_vector(15 downto 0);
+
+	signal cts_trg_send        : std_logic;
+	signal cts_trg_type        : std_logic_vector(3 downto 0);
+	signal cts_trg_number      : std_logic_vector(15 downto 0);
+	signal cts_trg_information : std_logic_vector(23 downto 0);
+	signal cts_trg_code        : std_logic_vector(7 downto 0);
+	signal cts_trg_status_bits : std_logic_vector(31 downto 0);
+	signal cts_trg_busy        : std_logic;
+
+	signal cts_ipu_send        : std_logic;
+	signal cts_ipu_type        : std_logic_vector(3 downto 0);
+	signal cts_ipu_number      : std_logic_vector(15 downto 0);
+	signal cts_ipu_information : std_logic_vector(7 downto 0);
+	signal cts_ipu_code        : std_logic_vector(7 downto 0);
+	signal cts_ipu_status_bits : std_logic_vector(31 downto 0);
+	signal cts_ipu_busy        : std_logic;
+
+	signal cts_rdo_trg_status_bits_cts        : std_logic_vector(31 downto 0)         := (others => '0');
+	signal cts_rdo_data                       : std_logic_vector(31 downto 0);
+	signal cts_rdo_write                      : std_logic;
+	signal cts_rdo_finished                   : std_logic;
+	signal cts_rdo_additional_data            : std_logic_vector(32 * 1 - 1 downto 0);
+	signal cts_rdo_additional_write           : std_logic_vector(1 - 1 downto 0)      := (others => '0');
+	signal cts_rdo_additional_finished        : std_logic_vector(1 - 1 downto 0)      := (others => '1');
+	signal cts_rdo_trg_status_bits_additional : std_logic_vector(32 * 1 - 1 downto 0) := (others => '0');
+	signal cts_rdo_trigger                    : std_logic;
+	signal cts_rdo_valid_timing_trg           : std_logic;
+	signal cts_rdo_invalid_trg                : std_logic;
+
+	signal med_stat_op        : std_logic_vector(5 * 16 - 1 downto 0);
+	signal med_ctrl_op        : std_logic_vector(5 * 16 - 1 downto 0);
+	signal med_stat_debug     : std_logic_vector(5 * 64 - 1 downto 0);
+	signal med_ctrl_debug     : std_logic_vector(5 * 64 - 1 downto 0);
+	signal med_data_out       : std_logic_vector(5 * 16 - 1 downto 0);
+	signal med_packet_num_out : std_logic_vector(5 * 3 - 1 downto 0);
+	signal med_dataready_out  : std_logic_vector(5 * 1 - 1 downto 0);
+	signal med_read_out       : std_logic_vector(5 * 1 - 1 downto 0);
+	signal med_data_in        : std_logic_vector(5 * 16 - 1 downto 0);
+	signal med_packet_num_in  : std_logic_vector(5 * 3 - 1 downto 0);
+	signal med_dataready_in   : std_logic_vector(5 * 1 - 1 downto 0);
+	signal med_read_in        : std_logic_vector(5 * 1 - 1 downto 0);
+
+	signal cts_regio_addr         : std_logic_vector(15 downto 0);
+	signal cts_regio_read         : std_logic;
+	signal cts_regio_write        : std_logic;
+	signal cts_regio_data_out     : std_logic_vector(31 downto 0);
+	signal cts_regio_data_in      : std_logic_vector(31 downto 0);
+	signal cts_regio_dataready    : std_logic;
+	signal cts_regio_no_more_data : std_logic;
+	signal cts_regio_write_ack    : std_logic;
+	signal cts_regio_unknown_addr : std_logic;
+
+	signal cts_ext_status  : std_logic_vector(31 downto 0) := (others => '0');
+	signal cts_ext_control : std_logic_vector(31 downto 0);
+	signal cts_ext_debug   : std_logic_vector(31 downto 0);
+	signal cts_ext_header  : std_logic_vector(1 downto 0);
 
 begin
 	process
@@ -94,8 +150,8 @@ begin
 		if rising_edge(clk_100_i) then
 			update_vec <= update_vec(1 downto 0) & update_toggle;
 
-			update_synced_q  <= update_synced;
-			update_synced_qq <= update_synced_q;
+			update_synced_q   <= update_synced;
+			update_synced_qq  <= update_synced_q;
 			update_synced_qqq <= update_synced_qq;
 		end if;
 	end process;
@@ -149,22 +205,22 @@ begin
 		reset_i <= '0';
 		wait;
 	end process;
-	
+
 	event_size <= super_number_q(15 downto 0) + x"0010";
 
-	process
-	begin
-		cts_rdo_trg_data_valid     <= '0';
-		cts_rdo_valid_notiming_trg <= '0';
-		wait until rising_edge(update_synced);
-		wait for 100 ns;
-		wait until rising_edge(clk_100_i);
-		cts_rdo_trg_data_valid     <= '1';
-		cts_rdo_valid_notiming_trg <= '1';
-		wait until falling_edge(gbe_cts_start_readout);
-		wait for 100 ns;
-		wait until rising_edge(clk_100_i);
-	end process;
+	--	process
+	--	begin
+	--		cts_rdo_trg_data_valid     <= '0';
+	--		cts_rdo_valid_notiming_trg <= '0';
+	--		wait until rising_edge(update_synced);
+	--		wait for 100 ns;
+	--		wait until rising_edge(clk_100_i);
+	--		cts_rdo_trg_data_valid     <= '1';
+	--		cts_rdo_valid_notiming_trg <= '1';
+	--		wait until falling_edge(gbe_cts_start_readout);
+	--		wait for 100 ns;
+	--		wait until rising_edge(clk_100_i);
+	--	end process;
 
 	THE_CTS : entity work.CTS
 		generic map(
@@ -182,72 +238,273 @@ begin
 			ADDON_GROUP_UPPER    => (3, 7, 11, 15, 16, 17, others => 0)
 		)
 		port map(
+			--			CLK                        => clk_100_i,
+			--			RESET                      => reset_i,
+			--
+			--			--TRIGGERS_IN => trigger_in_buf_i,
+			--			TRIGGER_BUSY_OUT           => open,
+			--			TIME_REFERENCE_OUT         => open,
+			--			ADDON_TRIGGERS_IN          => (others => '0'), --cts_addon_triggers_in,
+			--			ADDON_GROUP_ACTIVITY_OUT   => open,
+			--			ADDON_GROUP_SELECTED_OUT   => open,
+			--			EXT_TRIGGER_IN             => cts_ext_trigger,
+			--			EXT_STATUS_IN              => x"0123_4567", --cts_ext_status,
+			--			EXT_CONTROL_OUT            => open,
+			--			EXT_HEADER_BITS_IN         => "00", --cts_ext_header,
+			--
+			--			PERIPH_TRIGGER_IN          => (others => '0'), --cts_periph_trigger_i,
+			--			OUTPUT_MULTIPLEXERS_OUT    => open,
+			--			CTS_TRG_SEND_OUT           => open,
+			--			CTS_TRG_TYPE_OUT           => open,
+			--			CTS_TRG_NUMBER_OUT         => open,
+			--			CTS_TRG_INFORMATION_OUT    => open,
+			--			CTS_TRG_RND_CODE_OUT       => open,
+			--			CTS_TRG_STATUS_BITS_IN     => (others => '0'), --cts_trg_status_bits,
+			--			CTS_TRG_BUSY_IN            => '0', --cts_trg_busy,
+			--
+			--			CTS_IPU_SEND_OUT           => open,
+			--			CTS_IPU_TYPE_OUT           => open,
+			--			CTS_IPU_NUMBER_OUT         => open,
+			--			CTS_IPU_INFORMATION_OUT    => open,
+			--			CTS_IPU_RND_CODE_OUT       => open,
+			--			CTS_IPU_STATUS_BITS_IN     => (others => '0'), --cts_ipu_status_bits,
+			--			CTS_IPU_BUSY_IN            => gbe_fee_busy, --'0', --cts_ipu_busy,
+			--
+			--			CTS_REGIO_ADDR_IN          => (others => '0'), --cts_regio_addr,
+			--			CTS_REGIO_DATA_IN          => (others => '0'), --cts_regio_data_out,
+			--			CTS_REGIO_READ_ENABLE_IN   => '0', --cts_regio_read,
+			--			CTS_REGIO_WRITE_ENABLE_IN  => '0', --cts_regio_write,
+			--			CTS_REGIO_DATA_OUT         => open,
+			--			CTS_REGIO_DATAREADY_OUT    => open,
+			--			CTS_REGIO_WRITE_ACK_OUT    => open,
+			--			CTS_REGIO_UNKNOWN_ADDR_OUT => open,
+			--			LVL1_TRG_DATA_VALID_IN     => cts_rdo_trg_data_valid,
+			--			LVL1_VALID_TIMING_TRG_IN   => '0', -- cts_rdo_valid_timing_trg,
+			--			LVL1_VALID_NOTIMING_TRG_IN => cts_rdo_valid_notiming_trg,
+			--			LVL1_INVALID_TRG_IN        => '0', --cts_rdo_invalid_trg,
+			--
+			--			FEE_TRG_STATUSBITS_OUT     => open,
+			--			FEE_DATA_OUT               => open,
+			--			FEE_DATA_WRITE_OUT         => open,
+			--			FEE_DATA_FINISHED_OUT      => open
+
 			CLK                        => clk_100_i,
 			RESET                      => reset_i,
-
-			--TRIGGERS_IN => trigger_in_buf_i,
 			TRIGGER_BUSY_OUT           => open,
 			TIME_REFERENCE_OUT         => open,
-			ADDON_TRIGGERS_IN          => (others => '0'), --cts_addon_triggers_in,
+			ADDON_TRIGGERS_IN          => (others => '0'),
 			ADDON_GROUP_ACTIVITY_OUT   => open,
 			ADDON_GROUP_SELECTED_OUT   => open,
-			EXT_TRIGGER_IN             => cts_ext_trigger,
-			EXT_STATUS_IN              => x"0123_4567", --cts_ext_status,
-			EXT_CONTROL_OUT            => open,
-			EXT_HEADER_BITS_IN         => "00", --cts_ext_header,
-
-			PERIPH_TRIGGER_IN          => (others => '0'), --cts_periph_trigger_i,
+			EXT_TRIGGER_IN             => cts_ext_trigger, -- my local trigger
+			EXT_STATUS_IN              => cts_ext_status,
+			EXT_CONTROL_OUT            => cts_ext_control,
+			EXT_HEADER_BITS_IN         => cts_ext_header,
+			PERIPH_TRIGGER_IN          => (others => '0'),
 			OUTPUT_MULTIPLEXERS_OUT    => open,
-			CTS_TRG_SEND_OUT           => open,
-			CTS_TRG_TYPE_OUT           => open,
-			CTS_TRG_NUMBER_OUT         => open,
-			CTS_TRG_INFORMATION_OUT    => open,
-			CTS_TRG_RND_CODE_OUT       => open,
-			CTS_TRG_STATUS_BITS_IN     => (others => '0'), --cts_trg_status_bits,
-			CTS_TRG_BUSY_IN            => '0', --cts_trg_busy,
-
-			CTS_IPU_SEND_OUT           => open,
-			CTS_IPU_TYPE_OUT           => open,
-			CTS_IPU_NUMBER_OUT         => open,
-			CTS_IPU_INFORMATION_OUT    => open,
-			CTS_IPU_RND_CODE_OUT       => open,
-			CTS_IPU_STATUS_BITS_IN     => (others => '0'), --cts_ipu_status_bits,
-			CTS_IPU_BUSY_IN            => gbe_fee_busy, --'0', --cts_ipu_busy,
-
-			CTS_REGIO_ADDR_IN          => (others => '0'), --cts_regio_addr,
-			CTS_REGIO_DATA_IN          => (others => '0'), --cts_regio_data_out,
-			CTS_REGIO_READ_ENABLE_IN   => '0', --cts_regio_read,
-			CTS_REGIO_WRITE_ENABLE_IN  => '0', --cts_regio_write,
-			CTS_REGIO_DATA_OUT         => open,
-			CTS_REGIO_DATAREADY_OUT    => open,
-			CTS_REGIO_WRITE_ACK_OUT    => open,
-			CTS_REGIO_UNKNOWN_ADDR_OUT => open,
+			CTS_TRG_SEND_OUT           => cts_trg_send,
+			CTS_TRG_TYPE_OUT           => cts_trg_type,
+			CTS_TRG_NUMBER_OUT         => cts_trg_number,
+			CTS_TRG_INFORMATION_OUT    => cts_trg_information,
+			CTS_TRG_RND_CODE_OUT       => cts_trg_code,
+			CTS_TRG_STATUS_BITS_IN     => cts_trg_status_bits,
+			CTS_TRG_BUSY_IN            => cts_trg_busy,
+			CTS_IPU_SEND_OUT           => cts_ipu_send,
+			CTS_IPU_TYPE_OUT           => cts_ipu_type,
+			CTS_IPU_NUMBER_OUT         => cts_ipu_number,
+			CTS_IPU_INFORMATION_OUT    => cts_ipu_information,
+			CTS_IPU_RND_CODE_OUT       => cts_ipu_code,
+			CTS_IPU_STATUS_BITS_IN     => cts_ipu_status_bits,
+			CTS_IPU_BUSY_IN            => cts_ipu_busy,
+			CTS_REGIO_ADDR_IN          => cts_regio_addr,
+			CTS_REGIO_DATA_IN          => cts_regio_data_out,
+			CTS_REGIO_READ_ENABLE_IN   => cts_regio_read,
+			CTS_REGIO_WRITE_ENABLE_IN  => cts_regio_write,
+			CTS_REGIO_DATA_OUT         => cts_regio_data_in,
+			CTS_REGIO_DATAREADY_OUT    => cts_regio_dataready,
+			CTS_REGIO_WRITE_ACK_OUT    => cts_regio_write_ack,
+			CTS_REGIO_UNKNOWN_ADDR_OUT => cts_regio_unknown_addr,
 			LVL1_TRG_DATA_VALID_IN     => cts_rdo_trg_data_valid,
-			LVL1_VALID_TIMING_TRG_IN   => '0', -- cts_rdo_valid_timing_trg,
+			LVL1_VALID_TIMING_TRG_IN   => cts_rdo_valid_timing_trg,
 			LVL1_VALID_NOTIMING_TRG_IN => cts_rdo_valid_notiming_trg,
-			LVL1_INVALID_TRG_IN        => '0', --cts_rdo_invalid_trg,
+			LVL1_INVALID_TRG_IN        => cts_rdo_invalid_trg,
+			FEE_TRG_STATUSBITS_OUT     => cts_rdo_trg_status_bits_cts,
+			FEE_DATA_OUT               => cts_rdo_data,
+			FEE_DATA_WRITE_OUT         => cts_rdo_write,
+			FEE_DATA_FINISHED_OUT      => cts_rdo_finished
+		);
 
-			FEE_TRG_STATUSBITS_OUT     => open,
-			FEE_DATA_OUT               => open,
-			FEE_DATA_WRITE_OUT         => open,
-			FEE_DATA_FINISHED_OUT      => open
+	THE_HUB : entity work.trb_net16_hub_streaming_port_sctrl_cts
+		generic map(
+			INIT_ADDRESS                  => x"F3C0",
+			MII_NUMBER                    => 5, --INTERFACE_NUM,
+			MII_IS_UPLINK                 => (0 => 1, others => 0),
+			MII_IS_DOWNLINK               => (0 => 0, others => 1),
+			MII_IS_UPLINK_ONLY            => (0 => 1, others => 0),
+			--			MII_NUMBER                    => INTERFACE_NUM,
+			--			MII_IS_UPLINK                 => IS_UPLINK,
+			--			MII_IS_DOWNLINK               => IS_DOWNLINK,
+			--			MII_IS_UPLINK_ONLY            => IS_UPLINK_ONLY,
+			HARDWARE_VERSION              => HARDWARE_INFO,
+			INIT_ENDPOINT_ID              => x"0005",
+			BROADCAST_BITMASK             => x"7E",
+			CLOCK_FREQUENCY               => 100,
+			USE_ONEWIRE                   => c_YES,
+			BROADCAST_SPECIAL_ADDR        => x"35",
+			RDO_ADDITIONAL_PORT           => 1, --cts_rdo_additional_ports,
+			RDO_DATA_BUFFER_DEPTH         => 9,
+			RDO_DATA_BUFFER_FULL_THRESH   => 2 ** 9 - 128,
+			RDO_HEADER_BUFFER_DEPTH       => 9,
+			RDO_HEADER_BUFFER_FULL_THRESH => 2 ** 9 - 16
+		)
+		port map(
+			CLK                                                => clk_100_i,
+			RESET                                              => reset_i,
+			CLK_EN                                             => '1',
+
+			-- Media interfacces ---------------------------------------------------------------
+			MED_DATAREADY_OUT(INTERFACE_NUM * 1 - 1 downto 0)  => med_dataready_out,
+			MED_DATA_OUT(INTERFACE_NUM * 16 - 1 downto 0)      => med_data_out,
+			MED_PACKET_NUM_OUT(INTERFACE_NUM * 3 - 1 downto 0) => med_packet_num_out,
+			MED_READ_IN(INTERFACE_NUM * 1 - 1 downto 0)        => med_read_in,
+			MED_DATAREADY_IN(INTERFACE_NUM * 1 - 1 downto 0)   => med_dataready_in,
+			MED_DATA_IN(INTERFACE_NUM * 16 - 1 downto 0)       => med_data_in,
+			MED_PACKET_NUM_IN(INTERFACE_NUM * 3 - 1 downto 0)  => med_packet_num_in,
+			MED_READ_OUT(INTERFACE_NUM * 1 - 1 downto 0)       => med_read_out,
+			MED_STAT_OP(INTERFACE_NUM * 16 - 1 downto 0)       => med_stat_op,
+			MED_CTRL_OP(INTERFACE_NUM * 16 - 1 downto 0)       => med_ctrl_op,
+
+			-- Gbe Read-out Path ---------------------------------------------------------------
+			--Event information coming from CTS for GbE
+			GBE_CTS_NUMBER_OUT                                 => gbe_cts_number,
+			GBE_CTS_CODE_OUT                                   => gbe_cts_code,
+			GBE_CTS_INFORMATION_OUT                            => gbe_cts_information,
+			GBE_CTS_READOUT_TYPE_OUT                           => gbe_cts_readout_type,
+			GBE_CTS_START_READOUT_OUT                          => gbe_cts_start_readout,
+			--Information sent to CTS
+			GBE_CTS_READOUT_FINISHED_IN                        => gbe_cts_readout_finished,
+			GBE_CTS_STATUS_BITS_IN                             => gbe_cts_status_bits,
+			-- Data from Frontends
+			GBE_FEE_DATA_OUT                                   => gbe_fee_data,
+			GBE_FEE_DATAREADY_OUT                              => gbe_fee_dataready,
+			GBE_FEE_READ_IN                                    => gbe_fee_read,
+			GBE_FEE_STATUS_BITS_OUT                            => gbe_fee_status_bits,
+			GBE_FEE_BUSY_OUT                                   => gbe_fee_busy,
+
+			-- CTS Request Sending -------------------------------------------------------------
+			--LVL1 trigger
+			CTS_TRG_SEND_IN                                    => cts_trg_send,
+			CTS_TRG_TYPE_IN                                    => x"f", --cts_trg_type,
+			CTS_TRG_NUMBER_IN                                  => cts_trg_number,
+			CTS_TRG_INFORMATION_IN                             => cts_trg_information,
+			CTS_TRG_RND_CODE_IN                                => cts_trg_code,
+			CTS_TRG_STATUS_BITS_OUT                            => cts_trg_status_bits,
+			CTS_TRG_BUSY_OUT                                   => cts_trg_busy,
+			--IPU Channel
+			CTS_IPU_SEND_IN                                    => cts_ipu_send,
+			CTS_IPU_TYPE_IN                                    => cts_ipu_type,
+			CTS_IPU_NUMBER_IN                                  => cts_ipu_number,
+			CTS_IPU_INFORMATION_IN                             => cts_ipu_information,
+			CTS_IPU_RND_CODE_IN                                => cts_ipu_code,
+			-- Receiver port
+			CTS_IPU_STATUS_BITS_OUT                            => cts_ipu_status_bits,
+			CTS_IPU_BUSY_OUT                                   => cts_ipu_busy,
+
+			-- CTS Data Readout ----------------------------------------------------------------
+			--Trigger to CTS out
+			RDO_TRIGGER_IN                                     => cts_rdo_trigger,
+			RDO_TRG_DATA_VALID_OUT                             => cts_rdo_trg_data_valid,
+			RDO_VALID_TIMING_TRG_OUT                           => cts_rdo_valid_timing_trg,
+			RDO_VALID_NOTIMING_TRG_OUT                         => cts_rdo_valid_notiming_trg,
+			RDO_INVALID_TRG_OUT                                => cts_rdo_invalid_trg,
+			RDO_TRG_TYPE_OUT                                   => open, --cts_rdo_trg_type,
+			RDO_TRG_CODE_OUT                                   => open, --cts_rdo_trg_code,
+			RDO_TRG_INFORMATION_OUT                            => open, --cts_rdo_trg_information,
+			RDO_TRG_NUMBER_OUT                                 => open, --cts_rdo_trg_number,
+
+			--Data from CTS in
+			RDO_TRG_STATUSBITS_IN                              => cts_rdo_trg_status_bits_cts,
+			RDO_DATA_IN                                        => cts_rdo_data,
+			RDO_DATA_WRITE_IN                                  => cts_rdo_write,
+			RDO_DATA_FINISHED_IN                               => cts_rdo_finished,
+			--Data from additional modules
+			RDO_ADDITIONAL_STATUSBITS_IN                       => cts_rdo_trg_status_bits_additional,
+			RDO_ADDITIONAL_DATA                                => cts_rdo_additional_data,
+			RDO_ADDITIONAL_WRITE                               => cts_rdo_additional_write,
+			RDO_ADDITIONAL_FINISHED                            => cts_rdo_additional_finished,
+
+			-- Slow Control --------------------------------------------------------------------
+			COMMON_STAT_REGS                                   => open,
+			COMMON_CTRL_REGS                                   => open,
+			ONEWIRE                                            => '0',
+			ONEWIRE_MONITOR_IN                                 => '0',
+			MY_ADDRESS_OUT                                     => open,
+			UNIQUE_ID_OUT                                      => open,
+			TIMER_TICKS_OUT                                    => open,
+			EXTERNAL_SEND_RESET                                => '0',
+			REGIO_ADDR_OUT                                     => open,
+			REGIO_READ_ENABLE_OUT                              => open,
+			REGIO_WRITE_ENABLE_OUT                             => open,
+			REGIO_DATA_OUT                                     => open,
+			REGIO_DATA_IN                                      => (others => '0'),
+			REGIO_DATAREADY_IN                                 => '1',
+			REGIO_NO_MORE_DATA_IN                              => '0',
+			REGIO_WRITE_ACK_IN                                 => '0',
+			REGIO_UNKNOWN_ADDR_IN                              => (others => '0'),
+			REGIO_TIMEOUT_OUT                                  => open,
+
+			--Gbe Sctrl Input
+			GSC_INIT_DATAREADY_IN                              => '0',
+			GSC_INIT_DATA_IN                                   => (others => '0'),
+			GSC_INIT_PACKET_NUM_IN                             => (others => '0'),
+			GSC_INIT_READ_OUT                                  => open,
+			GSC_REPLY_DATAREADY_OUT                            => open,
+			GSC_REPLY_DATA_OUT                                 => open,
+			GSC_REPLY_PACKET_NUM_OUT                           => open,
+			GSC_REPLY_READ_IN                                  => '1',
+			GSC_BUSY_OUT                                       => open,
+
+			--status and control ports
+			HUB_STAT_CHANNEL                                   => open,
+			HUB_STAT_GEN                                       => open,
+			MPLEX_CTRL                                         => (others => '0'),
+			MPLEX_STAT                                         => open,
+			STAT_REGS                                          => open,
+			STAT_CTRL_REGS                                     => open,
+
+			--Fixed status and control ports
+			STAT_DEBUG                                         => open,
+			CTRL_DEBUG                                         => (others => '0')
 		);
 
 	soda_trigger : entity work.soda_cts_module
 		port map(
+			--			CLK            => clk_100_i,
+			--			RESET_IN       => reset_i,
+			--			EXT_TRG_IN     => update_synced,
+			--			TRG_SYNC_OUT   => cts_ext_trigger,
+			--			TRIGGER_IN     => cts_rdo_trg_data_valid,
+			--			DATA_OUT       => open,
+			--			WRITE_OUT      => open,
+			--			FINISHED_OUT   => open,
+			--			STATUSBIT_OUT  => open,
+			--			CONTROL_REG_IN => (others => '0'),
+			--			STATUS_REG_OUT => open,
+			--			HEADER_REG_OUT => open,
+			--			DEBUG          => open
+
 			CLK            => clk_100_i,
 			RESET_IN       => reset_i,
-			EXT_TRG_IN     => update_synced,
+			EXT_TRG_IN     => update_synced_qqq,
 			TRG_SYNC_OUT   => cts_ext_trigger,
 			TRIGGER_IN     => cts_rdo_trg_data_valid,
-			DATA_OUT       => open,
-			WRITE_OUT      => open,
-			FINISHED_OUT   => open,
-			STATUSBIT_OUT  => open,
-			CONTROL_REG_IN => (others => '0'),
-			STATUS_REG_OUT => open,
-			HEADER_REG_OUT => open,
-			DEBUG          => open
+			DATA_OUT       => cts_rdo_additional_data,
+			WRITE_OUT      => cts_rdo_additional_write(0),
+			FINISHED_OUT   => cts_rdo_additional_finished(0),
+			STATUSBIT_OUT  => cts_rdo_trg_status_bits_additional,
+			CONTROL_REG_IN => cts_ext_control,
+			STATUS_REG_OUT => cts_ext_status,
+			HEADER_REG_OUT => cts_ext_header,
+			DEBUG          => cts_ext_debug
 		);
 
 	dummy_inst : entity work.gbe_ipu_dummy
@@ -353,53 +610,47 @@ begin
 			DATA_IN_LAST    => data64b_muxed_last,
 			DATA_IN_ERROR   => data64b_muxed_error
 		);
-		
-		process(clk_100_i)
-		begin
-			if rising_edge(clk_100_i) then
-				if (reset_i = '1') then
-					start_ctr <= '0';
-				elsif (tx_k = '1' and tx_data = x"dc") then
-					start_ctr <= '1';
-				elsif (tx_k = '1' and tx_data = x"fc") then
-					start_ctr <= '0';
-					assert (std_logic_vector(to_unsigned(data_ctr, 16)) = current_size) report "DDAAAAMMNNNN" severity error; 
-				else
-					start_ctr <= start_ctr;
-				end if;
+
+	process(clk_100_i)
+	begin
+		if rising_edge(clk_100_i) then
+			if (reset_i = '1') then
+				start_ctr <= '0';
+			elsif (tx_k = '1' and tx_data = x"dc") then
+				start_ctr <= '1';
+			elsif (tx_k = '1' and tx_data = x"fc") then
+				start_ctr <= '0';
+				assert (std_logic_vector(to_unsigned(data_ctr, 16)) = current_size) report "DDAAAAMMNNNN" severity error;
+			else
+				start_ctr <= start_ctr;
 			end if;
-		end process;
-					
-		process(clk_100_i)
-		begin
-			if rising_edge(clk_100_i) then
-				if (start_ctr = '0') then
-					data_ctr <= 0;
-				else
-					data_ctr <= data_ctr + 1;
-				end if;
+		end if;
+	end process;
+
+	process(clk_100_i)
+	begin
+		if rising_edge(clk_100_i) then
+			if (start_ctr = '0') then
+				data_ctr <= 0;
+			else
+				data_ctr <= data_ctr + 1;
 			end if;
-		end process;
-					
-		process(clk_100_i)
-		begin
-			if rising_edge(clk_100_i) then
-				if (start_ctr = '0') then
-					current_size <= x"0000";
-				elsif (data_ctr = 2) then
-					current_size(15 downto 8) <= tx_data;
-				elsif (data_ctr = 3) then
-					current_size(7 downto 0) <= tx_data;
-				else
-					current_size <= current_size;
-				end if;
+		end if;
+	end process;
+
+	process(clk_100_i)
+	begin
+		if rising_edge(clk_100_i) then
+			if (start_ctr = '0') then
+				current_size <= x"0000";
+			elsif (data_ctr = 2) then
+				current_size(15 downto 8) <= tx_data;
+			elsif (data_ctr = 3) then
+				current_size(7 downto 0) <= tx_data;
+			else
+				current_size <= current_size;
 			end if;
-		end process;		
-		
-			
-					
-			
-			
-			
+		end if;
+	end process;
 
 end architecture;
