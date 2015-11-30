@@ -291,7 +291,7 @@ begin
 			CLK                        => clk_100_i,
 			RESET                      => reset_i,
 			TRIGGER_BUSY_OUT           => open,
-			TIME_REFERENCE_OUT         => open,
+			TIME_REFERENCE_OUT         => cts_rdo_trigger,
 			ADDON_TRIGGERS_IN          => (others => '0'),
 			ADDON_GROUP_ACTIVITY_OUT   => open,
 			ADDON_GROUP_SELECTED_OUT   => open,
