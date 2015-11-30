@@ -362,16 +362,16 @@ begin
 			CLK_EN                                             => '1',
 
 			-- Media interfacces ---------------------------------------------------------------
-			MED_DATAREADY_OUT(INTERFACE_NUM * 1 - 1 downto 0)  => med_dataready_out,
-			MED_DATA_OUT(INTERFACE_NUM * 16 - 1 downto 0)      => med_data_out,
-			MED_PACKET_NUM_OUT(INTERFACE_NUM * 3 - 1 downto 0) => med_packet_num_out,
-			MED_READ_IN(INTERFACE_NUM * 1 - 1 downto 0)        => med_read_in,
-			MED_DATAREADY_IN(INTERFACE_NUM * 1 - 1 downto 0)   => med_dataready_in,
-			MED_DATA_IN(INTERFACE_NUM * 16 - 1 downto 0)       => med_data_in,
-			MED_PACKET_NUM_IN(INTERFACE_NUM * 3 - 1 downto 0)  => med_packet_num_in,
-			MED_READ_OUT(INTERFACE_NUM * 1 - 1 downto 0)       => med_read_out,
-			MED_STAT_OP(INTERFACE_NUM * 16 - 1 downto 0)       => med_stat_op,
-			MED_CTRL_OP(INTERFACE_NUM * 16 - 1 downto 0)       => med_ctrl_op,
+			MED_DATAREADY_OUT(5 * 1 - 1 downto 0)  => med_dataready_out,
+			MED_DATA_OUT(5 * 16 - 1 downto 0)      => med_data_out,
+			MED_PACKET_NUM_OUT(5 * 3 - 1 downto 0) => med_packet_num_out,
+			MED_READ_IN(5 * 1 - 1 downto 0)        => med_read_in,
+			MED_DATAREADY_IN(5 * 1 - 1 downto 0)   => med_dataready_in,
+			MED_DATA_IN(5 * 16 - 1 downto 0)       => med_data_in,
+			MED_PACKET_NUM_IN(5 * 3 - 1 downto 0)  => med_packet_num_in,
+			MED_READ_OUT(5 * 1 - 1 downto 0)       => med_read_out,
+			MED_STAT_OP(5 * 16 - 1 downto 0)       => med_stat_op,
+			MED_CTRL_OP(5 * 16 - 1 downto 0)       => med_ctrl_op,
 
 			-- Gbe Read-out Path ---------------------------------------------------------------
 			--Event information coming from CTS for GbE
