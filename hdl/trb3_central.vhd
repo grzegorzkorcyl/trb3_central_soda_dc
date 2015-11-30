@@ -879,6 +879,7 @@ begin
 		TRG_FANOUT_ADDON <= cts_trigger_out;
 	end process;
 	
+	cts_rdo_trigger <= cts_trigger_out;
 	
 	periph_trigger <= (others => update_synced_qqq);
 
