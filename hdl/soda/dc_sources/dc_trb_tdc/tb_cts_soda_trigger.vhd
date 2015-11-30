@@ -435,7 +435,7 @@ begin
 			-- Slow Control --------------------------------------------------------------------
 			COMMON_STAT_REGS                                   => open,
 			COMMON_CTRL_REGS                                   => open,
-			ONEWIRE                                            => 'Z',
+			ONEWIRE                                            => open,
 			ONEWIRE_MONITOR_IN                                 => '0',
 			MY_ADDRESS_OUT                                     => open,
 			UNIQUE_ID_OUT                                      => open,
@@ -449,7 +449,7 @@ begin
 			REGIO_DATAREADY_IN                                 => '1',
 			REGIO_NO_MORE_DATA_IN                              => '0',
 			REGIO_WRITE_ACK_IN                                 => '0',
-			REGIO_UNKNOWN_ADDR_IN                              => (others => '0'),
+			REGIO_UNKNOWN_ADDR_IN                              => '0',
 			REGIO_TIMEOUT_OUT                                  => open,
 
 			--Gbe Sctrl Input
