@@ -893,15 +893,15 @@ begin
 
       --FEE Input
       FEE_TRG_RELEASE_IN(0)                                      => RDO_DATA_FINISHED_IN,
-      FEE_TRG_RELEASE_IN(RDO_ADDITIONAL_PORT downto 1)           => RDO_ADDITIONAL_FINISHED,
+      FEE_TRG_RELEASE_IN(1 downto 1)           => RDO_ADDITIONAL_FINISHED,
       FEE_TRG_STATUSBITS_IN(31 downto 0)                         => RDO_TRG_STATUSBITS_IN,
-      FEE_TRG_STATUSBITS_IN(RDO_ADDITIONAL_PORT*32+31 downto 32) => RDO_ADDITIONAL_STATUSBITS_IN,
+      FEE_TRG_STATUSBITS_IN(1*32+31 downto 32) => RDO_ADDITIONAL_STATUSBITS_IN,
       FEE_DATA_IN(31 downto 0)                                   => RDO_DATA_IN,
-      FEE_DATA_IN(RDO_ADDITIONAL_PORT*32+31 downto 32)           => RDO_ADDITIONAL_DATA,
+      FEE_DATA_IN(1*32+31 downto 32)           => RDO_ADDITIONAL_DATA,
       FEE_DATA_WRITE_IN(0)                                       => RDO_DATA_WRITE_IN,
-      FEE_DATA_WRITE_IN(RDO_ADDITIONAL_PORT downto 1)            => RDO_ADDITIONAL_WRITE,
+      FEE_DATA_WRITE_IN(1 downto 1)            => RDO_ADDITIONAL_WRITE,
       FEE_DATA_FINISHED_IN(0)                                    => RDO_DATA_FINISHED_IN,
-      FEE_DATA_FINISHED_IN(RDO_ADDITIONAL_PORT downto 1)         => RDO_ADDITIONAL_FINISHED,
+      FEE_DATA_FINISHED_IN(1 downto 1)         => RDO_ADDITIONAL_FINISHED,
       FEE_DATA_ALMOST_FULL_OUT                                   => open,
 
       TMG_TRG_ERROR_IN           => '0',
