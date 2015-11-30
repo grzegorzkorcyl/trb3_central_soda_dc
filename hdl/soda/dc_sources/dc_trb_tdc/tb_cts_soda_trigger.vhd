@@ -139,7 +139,7 @@ begin
 	process(clk_200_i)
 	begin
 		if rising_edge(clk_200_i) then
-			sp_update <= superburst_update_S;
+			sp_update <= '0'; --superburst_update_S;
 
 			update_toggle <= update_toggle xor sp_update;
 		end if;
