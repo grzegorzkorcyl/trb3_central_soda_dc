@@ -42,119 +42,119 @@ use work.panda_package.all;
 entity trb3_central is
 	port(
 		--Clocks
-		CLK_EXT                                    : in    std_logic_vector(4 downto 3); --from RJ45
-		CLK_GPLL_LEFT                              : in    std_logic; --Clock Manager 2/9, 200 MHz  <-- MAIN CLOCK
-		CLK_GPLL_RIGHT                             : in    std_logic; --Clock Manager 1/9, 125 MHz  <-- for GbE
-		CLK_PCLK_LEFT                              : in    std_logic; --Clock Fan-out, 200/400 MHz 
-		CLK_PCLK_RIGHT                             : in    std_logic; --Clock Fan-out, 200/400 MHz 
+		CLK_EXT                                      : in    std_logic_vector(4 downto 3); --from RJ45
+		CLK_GPLL_LEFT                                : in    std_logic; --Clock Manager 2/9, 200 MHz  <-- MAIN CLOCK
+		CLK_GPLL_RIGHT                               : in    std_logic; --Clock Manager 1/9, 125 MHz  <-- for GbE
+		CLK_PCLK_LEFT                                : in    std_logic; --Clock Fan-out, 200/400 MHz 
+		CLK_PCLK_RIGHT                               : in    std_logic; --Clock Fan-out, 200/400 MHz 
 
 		--Trigger
-		TRIGGER_LEFT                               : in    std_logic; --left side trigger input from fan-out
-		TRIGGER_RIGHT                              : in    std_logic; --right side trigger input from fan-out
-		TRIGGER_EXT                                : in    std_logic_vector(4 downto 2); --additional trigger from RJ45
-		TRIGGER_OUT                                : out   std_logic; --trigger to second input of fan-out
-		TRIGGER_OUT2                               : out   std_logic;
+		TRIGGER_LEFT                                 : in    std_logic; --left side trigger input from fan-out
+		TRIGGER_RIGHT                                : in    std_logic; --right side trigger input from fan-out
+		TRIGGER_EXT                                  : in    std_logic_vector(4 downto 2); --additional trigger from RJ45
+		TRIGGER_OUT                                  : out   std_logic; --trigger to second input of fan-out
+		TRIGGER_OUT2                                 : out   std_logic;
 
 		--Serdes
-		CLK_SERDES_INT_LEFT                        : in    std_logic; --Clock Manager 2/0, 200 MHz, only in case of problems
-		CLK_SERDES_INT_RIGHT                       : in    std_logic; --Clock Manager 1/0, off, 125 MHz possible
+		CLK_SERDES_INT_LEFT                          : in    std_logic; --Clock Manager 2/0, 200 MHz, only in case of problems
+		CLK_SERDES_INT_RIGHT                         : in    std_logic; --Clock Manager 1/0, off, 125 MHz possible
 
 		--SFP
-		SFP_RX_P                                   : in    std_logic_vector(9 downto 1);
-		SFP_RX_N                                   : in    std_logic_vector(9 downto 1);
-		SFP_TX_P                                   : out   std_logic_vector(9 downto 1);
-		SFP_TX_N                                   : out   std_logic_vector(9 downto 1);
-		SFP_TX_FAULT                               : in    std_logic_vector(8 downto 1); --TX broken
-		SFP_RATE_SEL                               : out   std_logic_vector(8 downto 1); --not supported by our SFP
-		SFP_LOS                                    : in    std_logic_vector(8 downto 1); --Loss of signal
-		SFP_MOD0                                   : in    std_logic_vector(8 downto 1); --SFP present
-		SFP_MOD1                                   : out   std_logic_vector(8 downto 1); --I2C interface
-		SFP_MOD2                                   : inout std_logic_vector(8 downto 1); --I2C interface
-		SFP_TXDIS                                  : out   std_logic_vector(8 downto 1); --disable TX
+		SFP_RX_P                                     : in    std_logic_vector(9 downto 1);
+		SFP_RX_N                                     : in    std_logic_vector(9 downto 1);
+		SFP_TX_P                                     : out   std_logic_vector(9 downto 1);
+		SFP_TX_N                                     : out   std_logic_vector(9 downto 1);
+		SFP_TX_FAULT                                 : in    std_logic_vector(8 downto 1); --TX broken
+		SFP_RATE_SEL                                 : out   std_logic_vector(8 downto 1); --not supported by our SFP
+		SFP_LOS                                      : in    std_logic_vector(8 downto 1); --Loss of signal
+		SFP_MOD0                                     : in    std_logic_vector(8 downto 1); --SFP present
+		SFP_MOD1                                     : out   std_logic_vector(8 downto 1); --I2C interface
+		SFP_MOD2                                     : inout std_logic_vector(8 downto 1); --I2C interface
+		SFP_TXDIS                                    : out   std_logic_vector(8 downto 1); --disable TX
 
 		--Clock and Trigger Control
-		TRIGGER_SELECT                             : out   std_logic; --trigger select for fan-out. 0: external, 1: signal from FPGA5
-		CLOCK_SELECT                               : out   std_logic; --clock select for fan-out. 0: 200MHz, 1: external from RJ45
-		CLK_MNGR1_USER                             : inout std_logic_vector(3 downto 0); --I/O lines to clock manager 1
-		CLK_MNGR2_USER                             : inout std_logic_vector(3 downto 0); --I/O lines to clock manager 1
+		TRIGGER_SELECT                               : out   std_logic; --trigger select for fan-out. 0: external, 1: signal from FPGA5
+		CLOCK_SELECT                                 : out   std_logic; --clock select for fan-out. 0: 200MHz, 1: external from RJ45
+		CLK_MNGR1_USER                               : inout std_logic_vector(3 downto 0); --I/O lines to clock manager 1
+		CLK_MNGR2_USER                               : inout std_logic_vector(3 downto 0); --I/O lines to clock manager 1
 
 		--Inter-FPGA Communication
-		FPGA1_COMM                                 : inout std_logic_vector(11 downto 0);
-		FPGA2_COMM                                 : inout std_logic_vector(11 downto 0);
-		FPGA3_COMM                                 : inout std_logic_vector(11 downto 0);
-		FPGA4_COMM                                 : inout std_logic_vector(11 downto 0);
+		FPGA1_COMM                                   : inout std_logic_vector(11 downto 0);
+		FPGA2_COMM                                   : inout std_logic_vector(11 downto 0);
+		FPGA3_COMM                                   : inout std_logic_vector(11 downto 0);
+		FPGA4_COMM                                   : inout std_logic_vector(11 downto 0);
 		-- on all FPGAn_COMM:  --Bit 0/1 output, serial link TX active
 		--Bit 2/3 input, serial link RX active
 		--others yet undefined
-		FPGA1_TTL                                  : inout std_logic_vector(3 downto 0);
-		FPGA2_TTL                                  : inout std_logic_vector(3 downto 0);
-		FPGA3_TTL                                  : inout std_logic_vector(3 downto 0);
-		FPGA4_TTL                                  : inout std_logic_vector(3 downto 0);
+		FPGA1_TTL                                    : inout std_logic_vector(3 downto 0);
+		FPGA2_TTL                                    : inout std_logic_vector(3 downto 0);
+		FPGA3_TTL                                    : inout std_logic_vector(3 downto 0);
+		FPGA4_TTL                                    : inout std_logic_vector(3 downto 0);
 		--only for not timing-sensitive signals
 
 		--Communication to small addons
-		FPGA1_CONNECTOR                            : inout std_logic_vector(7 downto 0); --Bit 2-3: LED for SFP3/4
-		FPGA2_CONNECTOR                            : inout std_logic_vector(7 downto 0); --Bit 2-3: LED for SFP7/8
-		FPGA3_CONNECTOR                            : inout std_logic_vector(7 downto 0); --Bit 0-1: LED for SFP5/6 
-		FPGA4_CONNECTOR                            : inout std_logic_vector(7 downto 0); --Bit 0-1: LED for SFP1/2
+		FPGA1_CONNECTOR                              : inout std_logic_vector(7 downto 0); --Bit 2-3: LED for SFP3/4
+		FPGA2_CONNECTOR                              : inout std_logic_vector(7 downto 0); --Bit 2-3: LED for SFP7/8
+		FPGA3_CONNECTOR                              : inout std_logic_vector(7 downto 0); --Bit 0-1: LED for SFP5/6 
+		FPGA4_CONNECTOR                              : inout std_logic_vector(7 downto 0); --Bit 0-1: LED for SFP1/2
 		--Bit 0-3 connected to LED by default, two on each side
 
 		--AddOn connector
-		ECL_IN                                     : in    std_logic_vector(3 downto 0);
-		NIM_IN                                     : in    std_logic_vector(1 downto 0);
-		JIN1                                       : in    std_logic_vector(3 downto 0);
-		JIN2                                       : in    std_logic_vector(3 downto 0);
-		JINLVDS                                    : in    std_logic_vector(15 downto 0); --No LVDS, just TTL!
+		ECL_IN                                       : in    std_logic_vector(3 downto 0);
+		NIM_IN                                       : in    std_logic_vector(1 downto 0);
+		JIN1                                         : in    std_logic_vector(3 downto 0);
+		JIN2                                         : in    std_logic_vector(3 downto 0);
+		JINLVDS                                      : in    std_logic_vector(15 downto 0); --No LVDS, just TTL!
 
-		DISCRIMINATOR_IN                           : in    std_logic_vector(1 downto 0);
-		PWM_OUT                                    : out   std_logic_vector(1 downto 0);
+		DISCRIMINATOR_IN                             : in    std_logic_vector(1 downto 0);
+		PWM_OUT                                      : out   std_logic_vector(1 downto 0);
 
-		JOUT1                                      : out   std_logic_vector(3 downto 0);
-		JOUT2                                      : out   std_logic_vector(3 downto 0);
-		JOUTLVDS                                   : out   std_logic_vector(7 downto 0);
-		JTTL                                       : inout std_logic_vector(15 downto 0);
-		TRG_FANOUT_ADDON                           : out   std_logic;
+		JOUT1                                        : out   std_logic_vector(3 downto 0);
+		JOUT2                                        : out   std_logic_vector(3 downto 0);
+		JOUTLVDS                                     : out   std_logic_vector(7 downto 0);
+		JTTL                                         : inout std_logic_vector(15 downto 0);
+		TRG_FANOUT_ADDON                             : out   std_logic;
 
-		LED_BANK                                   : out   std_logic_vector(7 downto 0);
-		LED_RJ_GREEN                               : out   std_logic_vector(5 downto 0);
-		LED_RJ_RED                                 : out   std_logic_vector(5 downto 0);
-		LED_FAN_GREEN                              : out   std_logic;
-		LED_FAN_ORANGE                             : out   std_logic;
-		LED_FAN_RED                                : out   std_logic;
-		LED_FAN_YELLOW                             : out   std_logic;
+		LED_BANK                                     : out   std_logic_vector(7 downto 0);
+		LED_RJ_GREEN                                 : out   std_logic_vector(5 downto 0);
+		LED_RJ_RED                                   : out   std_logic_vector(5 downto 0);
+		LED_FAN_GREEN                                : out   std_logic;
+		LED_FAN_ORANGE                               : out   std_logic;
+		LED_FAN_RED                                  : out   std_logic;
+		LED_FAN_YELLOW                               : out   std_logic;
 
 		--Flash ROM & Reboot
-		FLASH_CLK                                  : out   std_logic;
-		FLASH_CS                                   : out   std_logic;
-		FLASH_DIN                                  : out   std_logic;
-		FLASH_DOUT                                 : in    std_logic;
-		PROGRAMN                                   : out   std_logic := '1'; --reboot FPGA
+		FLASH_CLK                                    : out   std_logic;
+		FLASH_CS                                     : out   std_logic;
+		FLASH_DIN                                    : out   std_logic;
+		FLASH_DOUT                                   : in    std_logic;
+		PROGRAMN                                     : out   std_logic := '1'; --reboot FPGA
 
 		--Misc
-		ENPIRION_CLOCK                             : out   std_logic; --Clock for power supply, not necessary, floating
-		TEMPSENS                                   : inout std_logic; --Temperature Sensor
-		LED_CLOCK_GREEN                            : out   std_logic;
-		LED_CLOCK_RED                              : out   std_logic;
-		LED_GREEN                                  : out   std_logic;
-		LED_ORANGE                                 : out   std_logic;
-		LED_RED                                    : out   std_logic;
-		LED_TRIGGER_GREEN                          : out   std_logic;
-		LED_TRIGGER_RED                            : out   std_logic;
-		LED_YELLOW                                 : out   std_logic;
+		ENPIRION_CLOCK                               : out   std_logic; --Clock for power supply, not necessary, floating
+		TEMPSENS                                     : inout std_logic; --Temperature Sensor
+		LED_CLOCK_GREEN                              : out   std_logic;
+		LED_CLOCK_RED                                : out   std_logic;
+		LED_GREEN                                    : out   std_logic;
+		LED_ORANGE                                   : out   std_logic;
+		LED_RED                                      : out   std_logic;
+		LED_TRIGGER_GREEN                            : out   std_logic;
+		LED_TRIGGER_RED                              : out   std_logic;
+		LED_YELLOW                                   : out   std_logic;
 
 		--Test Connectors
-		TEST_LINE                                  : out   std_logic_vector(31 downto 0);
+		TEST_LINE                                    : out   std_logic_vector(31 downto 0);
 
 		-- SODA pinout
-		SODA_SRC_TXP_OUT, SODA_SRC_TXN_OUT         : out   std_logic;
-		SODA_SRC_RXP_IN, SODA_SRC_RXN_IN           : in    std_logic;
-		ENDP_RXP_IN, ENDP_RXN_IN                   : in    std_logic_vector(3 downto 0);
-		ENDP_TXP_OUT, ENDP_TXN_OUT                 : out   std_logic_vector(3 downto 0);
-		
+		SODA_SRC_TXP_OUT, SODA_SRC_TXN_OUT           : out   std_logic;
+		SODA_SRC_RXP_IN, SODA_SRC_RXN_IN             : in    std_logic;
+		ENDP_RXP_IN, ENDP_RXN_IN                     : in    std_logic_vector(3 downto 0);
+		ENDP_TXP_OUT, ENDP_TXN_OUT                   : out   std_logic_vector(3 downto 0);
+
 		SODA_READOUT1_TXP_OUT, SODA_READOUT1_TXN_OUT : out   std_logic;
 		SODA_READOUT2_TXP_OUT, SODA_READOUT2_TXN_OUT : out   std_logic;
 
-		CODE_LINE                                  : in    std_logic_vector(1 downto 0)
+		CODE_LINE                                    : in    std_logic_vector(1 downto 0)
 	);
 
 	attribute syn_useioff : boolean;
@@ -447,8 +447,8 @@ architecture trb3_central_arch of trb3_central is
 	signal ext_sodasrc_TX_DLM_sync2_S                                                     : std_logic;
 	signal ext_sodasrc_TX_DLM_word_sync2_S                                                : std_logic_vector(7 downto 0);
 
-	signal tx_data_ch3, tx_data_ch1              : std_logic_vector(7 downto 0);
-	signal tx_k_ch3, tx_k_ch1                 : std_logic;
+	signal tx_data_ch3, tx_data_ch1 : std_logic_vector(7 downto 0);
+	signal tx_k_ch3, tx_k_ch1       : std_logic;
 	signal tx_ready_ch3             : std_logic;
 	signal data64b_muxed_allowed    : std_logic;
 	signal data64b_muxed            : std_logic_vector(63 downto 0);
@@ -534,24 +534,34 @@ architecture trb3_central_arch of trb3_central is
 	signal update_toggle                                    : std_logic                             := '0';
 	signal update_synced, update_synced_q, update_synced_qq : std_logic                             := '0';
 
-	signal gbe_cts_number               : std_logic_vector(15 downto 0);
-	signal gbe_cts_code                 : std_logic_vector(7 downto 0);
-	signal gbe_cts_information          : std_logic_vector(7 downto 0);
-	signal gbe_cts_start_readout        : std_logic;
-	signal gbe_cts_readout_type         : std_logic_vector(3 downto 0);
-	signal gbe_cts_readout_finished     : std_logic;
-	signal gbe_cts_status_bits          : std_logic_vector(31 downto 0);
-	signal gbe_fee_data                 : std_logic_vector(15 downto 0);
-	signal gbe_fee_dataready            : std_logic;
-	signal gbe_fee_read                 : std_logic;
-	signal gbe_fee_status_bits          : std_logic_vector(31 downto 0);
-	signal gbe_fee_busy                 : std_logic;
-	signal cts_trigger_out              : std_logic;
-	signal super_number, super_number_q : std_logic_vector(30 downto 0);
-	signal nothing                      : std_logic;
-	signal sp_update                    : std_logic;
-	signal update_synced_qqq : std_logic;
+	signal gbe_cts_number                  : std_logic_vector(15 downto 0);
+	signal gbe_cts_code                    : std_logic_vector(7 downto 0);
+	signal gbe_cts_information             : std_logic_vector(7 downto 0);
+	signal gbe_cts_start_readout           : std_logic;
+	signal gbe_cts_readout_type            : std_logic_vector(3 downto 0);
+	signal gbe_cts_readout_finished        : std_logic;
+	signal gbe_cts_status_bits             : std_logic_vector(31 downto 0);
+	signal gbe_fee_data                    : std_logic_vector(15 downto 0);
+	signal gbe_fee_dataready               : std_logic;
+	signal gbe_fee_read                    : std_logic;
+	signal gbe_fee_status_bits             : std_logic_vector(31 downto 0);
+	signal gbe_fee_busy                    : std_logic;
+	signal cts_trigger_out                 : std_logic;
+	signal super_number, super_number_q    : std_logic_vector(30 downto 0);
+	signal nothing                         : std_logic;
+	signal sp_update                       : std_logic;
+	signal update_synced_qqq               : std_logic;
 	signal tx_ready_ch3_qq, tx_ready_ch3_q : std_logic;
+
+	signal cts_regio_addr         : std_logic_vector(15 downto 0);
+	signal cts_regio_read         : std_logic;
+	signal cts_regio_write        : std_logic;
+	signal cts_regio_data_out     : std_logic_vector(31 downto 0);
+	signal cts_regio_data_in      : std_logic_vector(31 downto 0);
+	signal cts_regio_dataready    : std_logic;
+	signal cts_regio_no_more_data : std_logic;
+	signal cts_regio_write_ack    : std_logic;
+	signal cts_regio_unknown_addr : std_logic;
 
 begin
 
@@ -667,21 +677,20 @@ begin
 			SODA_CLOCK_OUT     => SODA_clock_rx,
 
 			-- Connection to addon interface
-			DATASFP1_TXD_P_OUT  => SODA_READOUT1_TXP_OUT,
-			DATASFP1_TXD_N_OUT  => SODA_READOUT1_TXN_OUT,
-			DATASFP1_MOD0       => SFP_MOD0(4),
-			DATASFP1_LOS_IN     => SFP_LOS(4),
-			DATASFP1_READY_OUT  => tx_ready_ch3,
-			DATASFP1_DATA_IN    => tx_data_ch3,
-			DATASFP1_KCHAR_IN   => tx_k_ch3,
-			
-			DATASFP2_TXD_P_OUT  => SODA_READOUT2_TXP_OUT,
-			DATASFP2_TXD_N_OUT  => SODA_READOUT2_TXN_OUT,
-			DATASFP2_MOD0       => SFP_MOD0(2),
-			DATASFP2_LOS_IN     => SFP_LOS(2),
-			DATASFP2_READY_OUT  => open, --tx_ready_ch1,
-			DATASFP2_DATA_IN    => tx_data_ch1,
-			DATASFP2_KCHAR_IN   => tx_k_ch1,
+			DATASFP1_TXD_P_OUT => SODA_READOUT1_TXP_OUT,
+			DATASFP1_TXD_N_OUT => SODA_READOUT1_TXN_OUT,
+			DATASFP1_MOD0      => SFP_MOD0(4),
+			DATASFP1_LOS_IN    => SFP_LOS(4),
+			DATASFP1_READY_OUT => tx_ready_ch3,
+			DATASFP1_DATA_IN   => tx_data_ch3,
+			DATASFP1_KCHAR_IN  => tx_k_ch3,
+			DATASFP2_TXD_P_OUT => SODA_READOUT2_TXP_OUT,
+			DATASFP2_TXD_N_OUT => SODA_READOUT2_TXN_OUT,
+			DATASFP2_MOD0      => SFP_MOD0(2),
+			DATASFP2_LOS_IN    => SFP_LOS(2),
+			DATASFP2_READY_OUT => open, --tx_ready_ch1,
+			DATASFP2_DATA_IN   => tx_data_ch1,
+			DATASFP2_KCHAR_IN  => tx_k_ch1,
 
 			-- Status and control port
 			STAT_OP            => med_stat_op(1 * 16 - 1 downto 0),
@@ -698,9 +707,9 @@ begin
 			data_in  => reset_i,
 			data_out => reset_SODAclock_S
 		);
-		
-		tx_data_ch1 <= tx_data_ch3;
-		tx_k_ch1 <= tx_k_ch3;
+
+	tx_data_ch1 <= tx_data_ch3;
+	tx_k_ch1    <= tx_k_ch3;
 
 	---------------------------------------------------------------------------
 	-- Recover SODA superburst data 
@@ -734,8 +743,8 @@ begin
 	process(clk_100_i)
 	begin
 		if rising_edge(clk_100_i) then
-			update_synced_q  <= update_synced;
-			update_synced_qq <= update_synced_q;
+			update_synced_q   <= update_synced;
+			update_synced_qq  <= update_synced_q;
 			update_synced_qqq <= update_synced_qq;
 
 			update_vec <= update_vec(1 downto 0) & update_toggle;
@@ -814,14 +823,14 @@ begin
 			CTS_IPU_RND_CODE_OUT       => cts_ipu_code,
 			CTS_IPU_STATUS_BITS_IN     => cts_ipu_status_bits,
 			CTS_IPU_BUSY_IN            => cts_ipu_busy,
-			CTS_REGIO_ADDR_IN          => (others => '0'),
-			CTS_REGIO_DATA_IN          => (others => '0'),
-			CTS_REGIO_READ_ENABLE_IN   => '0',
-			CTS_REGIO_WRITE_ENABLE_IN  => '0',
-			CTS_REGIO_DATA_OUT         => open,
-			CTS_REGIO_DATAREADY_OUT    => open,
-			CTS_REGIO_WRITE_ACK_OUT    => open,
-			CTS_REGIO_UNKNOWN_ADDR_OUT => open,
+			CTS_REGIO_ADDR_IN          => cts_regio_addr,
+			CTS_REGIO_DATA_IN          => cts_regio_data_out,
+			CTS_REGIO_READ_ENABLE_IN   => cts_regio_read,
+			CTS_REGIO_WRITE_ENABLE_IN  => cts_regio_write,
+			CTS_REGIO_DATA_OUT         => cts_regio_data_in,
+			CTS_REGIO_DATAREADY_OUT    => cts_regio_dataready,
+			CTS_REGIO_WRITE_ACK_OUT    => cts_regio_write_ack,
+			CTS_REGIO_UNKNOWN_ADDR_OUT => cts_regio_unknown_addr,
 			LVL1_TRG_DATA_VALID_IN     => cts_rdo_trg_data_valid,
 			LVL1_VALID_TIMING_TRG_IN   => cts_rdo_valid_timing_trg,
 			LVL1_VALID_NOTIMING_TRG_IN => cts_rdo_valid_notiming_trg,
@@ -935,11 +944,11 @@ begin
 			DATA_IN_LAST    => data64b_muxed_last,
 			DATA_IN_ERROR   => data64b_muxed_error
 		);
-		
+
 	process(clk_100_i)
 	begin
 		if rising_edge(clk_100_i) then
-			tx_ready_ch3_q <= tx_ready_ch3;
+			tx_ready_ch3_q  <= tx_ready_ch3;
 			tx_ready_ch3_qq <= tx_ready_ch3_q;
 		end if;
 	end process;
@@ -1343,9 +1352,9 @@ begin
 	---------------------------------------------------------------------------
 	THE_BUS_HANDLER : trb_net16_regio_bus_handler
 		generic map(
-			PORT_NUMBER    => 2,
-			PORT_ADDRESSES => (0 => x"d000", 1 => x"d100", others => x"0000"),
-			PORT_ADDR_MASK => (0 => 1, 1 => 6, others => 0)
+			PORT_NUMBER    => 3,
+			PORT_ADDRESSES => (0 => x"d000", 1 => x"d100", 2 => x"a000", others => x"0000"),
+			PORT_ADDR_MASK => (0 => 1, 1 => 6, 2 => 11, others => 0)
 		--     PORT_MASK_ENABLE => 0
 		)
 		port map(
@@ -1383,6 +1392,16 @@ begin
 			BUS_UNKNOWN_ADDR_IN(1)                      => '0',
 			BUS_TIMEOUT_OUT(0)                          => open,
 			BUS_TIMEOUT_OUT(1)                          => open,
+			BUS_ADDR_OUT(3 * 16 - 1 downto 2 * 16)      => cts_regio_addr,
+			BUS_DATA_OUT(3 * 32 - 1 downto 2 * 32)      => cts_regio_data_out,
+			BUS_READ_ENABLE_OUT(2)                      => cts_regio_read,
+			BUS_WRITE_ENABLE_OUT(2)                     => cts_regio_write,
+			BUS_TIMEOUT_OUT(2)                          => open,
+			BUS_DATA_IN(3 * 32 - 1 downto 2 * 32)       => cts_regio_data_in,
+			BUS_DATAREADY_IN(2)                         => cts_regio_dataready,
+			BUS_WRITE_ACK_IN(2)                         => cts_regio_write_ack,
+			BUS_NO_MORE_DATA_IN(2)                      => '0',
+			BUS_UNKNOWN_ADDR_IN(2)                      => cts_regio_unknown_addr,
 
 			--Bus Handler (SPI CTRL)
 			--Bus Handler (SPI Memory)
