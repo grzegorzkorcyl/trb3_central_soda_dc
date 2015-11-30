@@ -1181,7 +1181,7 @@ begin
 			-- CTS Request Sending -------------------------------------------------------------
 			--LVL1 trigger
 			CTS_TRG_SEND_IN                                    => cts_trg_send,
-			CTS_TRG_TYPE_IN                                    => cts_trg_type,
+			CTS_TRG_TYPE_IN                                    => x"f", --cts_trg_type,
 			CTS_TRG_NUMBER_IN                                  => cts_trg_number,
 			CTS_TRG_INFORMATION_IN                             => cts_trg_information,
 			CTS_TRG_RND_CODE_IN                                => cts_trg_code,
