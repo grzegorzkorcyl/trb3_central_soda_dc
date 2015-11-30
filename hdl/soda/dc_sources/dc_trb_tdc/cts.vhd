@@ -109,7 +109,7 @@ entity CTS is
       
       TRIGGER_ADDON_COUNT : integer range 0 to 15 := 2;  -- number of module instances used to patch through those lines
       ADDON_GROUPS        : integer range 1 to 8 := 5;
-      ADDON_GROUP_UPPER   : CTS_GROUP_CONFIG_T  := (3,7,11,12,13, others=>'0');
+      ADDON_GROUP_UPPER   : CTS_GROUP_CONFIG_T  := (3,7,11,12,13, others=>0);
       
       PERIPH_TRIGGER_COUNT: integer range 0 to 1 := 1;
       
