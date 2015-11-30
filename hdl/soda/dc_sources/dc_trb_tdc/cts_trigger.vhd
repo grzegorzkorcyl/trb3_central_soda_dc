@@ -276,14 +276,14 @@ begin
          for i in 0 to TRIGGER_PULSER_COUNT-1 loop
             pulser_i(i) <= '0';
             
-            if pulser_counter_i(i) >= pulser_interval_i(i) then
-               pulser_counter_i(i) <= (others => '0');
-               pulser_i(i) <= '1';
-               
-            else
-               pulser_counter_i(i) <= STD_LOGIC_VECTOR(UNSIGNED(pulser_counter_i(i)) + TO_UNSIGNED(1,1));
-               
-            end if;
+--            if pulser_counter_i(i) >= pulser_interval_i(i) then
+--               pulser_counter_i(i) <= (others => '0');
+--               pulser_i(i) <= '1';
+--               
+--            else
+--               pulser_counter_i(i) <= STD_LOGIC_VECTOR(UNSIGNED(pulser_counter_i(i)) + TO_UNSIGNED(1,1));
+--               
+--            end if;
          end loop;
       end if;
    end process;
