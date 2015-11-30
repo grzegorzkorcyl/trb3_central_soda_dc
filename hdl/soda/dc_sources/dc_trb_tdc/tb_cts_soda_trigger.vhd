@@ -344,7 +344,7 @@ begin
 			--			MII_IS_UPLINK                 => IS_UPLINK,
 			--			MII_IS_DOWNLINK               => IS_DOWNLINK,
 			--			MII_IS_UPLINK_ONLY            => IS_UPLINK_ONLY,
-			HARDWARE_VERSION              => HARDWARE_INFO,
+			--HARDWARE_VERSION              => HARDWARE_INFO,
 			INIT_ENDPOINT_ID              => x"0005",
 			BROADCAST_BITMASK             => x"7E",
 			CLOCK_FREQUENCY               => 100,
@@ -435,7 +435,7 @@ begin
 			-- Slow Control --------------------------------------------------------------------
 			COMMON_STAT_REGS                                   => open,
 			COMMON_CTRL_REGS                                   => open,
-			ONEWIRE                                            => '0',
+			ONEWIRE                                            => 'Z',
 			ONEWIRE_MONITOR_IN                                 => '0',
 			MY_ADDRESS_OUT                                     => open,
 			UNIQUE_ID_OUT                                      => open,
