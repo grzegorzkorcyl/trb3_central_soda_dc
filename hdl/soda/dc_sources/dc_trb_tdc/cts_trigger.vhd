@@ -261,14 +261,14 @@ begin
       );
    end generate;
    
-   proc_periph: process(CLK_IN) is
-   begin
-      if rising_edge(clk_in) and PERIPH_TRIGGER_COUNT > 0 then
-         for i in 0 to PERIPH_TRIGGER_COUNT - 1 loop
-            channels_i(ITC_BASE_PERIPH + i) <= OR_ALL( periph_trigger_mask_i(i) and PERIPH_TRIGGER_IN );
-         end loop;
-      end if;
-   end process;
+--   proc_periph: process(CLK_IN) is
+--   begin
+--      if rising_edge(clk_in) and PERIPH_TRIGGER_COUNT > 0 then
+--         for i in 0 to PERIPH_TRIGGER_COUNT - 1 loop
+--            channels_i(ITC_BASE_PERIPH + i) <= OR_ALL( periph_trigger_mask_i(i) and PERIPH_TRIGGER_IN );
+--         end loop;
+--      end if;
+--   end process;
    
    proc_pulser: process(CLK_IN) is
    begin
