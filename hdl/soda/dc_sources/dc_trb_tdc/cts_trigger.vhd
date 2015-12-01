@@ -274,7 +274,7 @@ begin
    begin
       if rising_edge(CLK_IN) then
          for i in 0 to TRIGGER_PULSER_COUNT-1 loop
-            pulser_i(i) <= '0';
+            --pulser_i(i) <= '0';
             
             if pulser_counter_i(i) >= pulser_interval_i(i) then
                pulser_counter_i(i) <= (others => '0');
