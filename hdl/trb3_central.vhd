@@ -563,15 +563,6 @@ architecture trb3_central_arch of trb3_central is
 	signal cts_regio_write_ack    : std_logic;
 	signal cts_regio_unknown_addr : std_logic;
 
-	constant TRIGGER_COIN_COUNT      : integer := 4;
-	constant TRIGGER_PULSER_COUNT    : integer := 2;
-	constant TRIGGER_RAND_PULSER     : integer := 1;
-	constant TRIGGER_ADDON_COUNT     : integer := 6;
-	constant PERIPH_TRIGGER_COUNT    : integer := 2;
-	constant CTS_ADDON_LINE_COUNT    : integer := 38;
-	constant CTS_OUTPUT_MULTIPLEXERS : integer := 8;
-	constant CTS_OUTPUT_INPUTS       : integer := 16;
-	constant INTERFACE_NUM : integer := 5;
 	signal periph_trigger            : std_logic_vector(19 downto 0);
 
 begin
@@ -863,13 +854,15 @@ begin
 			TRIGGER_IN     => cts_rdo_trg_data_valid,
 			DATA_OUT       => cts_rdo_additional_data,
 			WRITE_OUT      => cts_rdo_additional_write(0),
-			FINISHED_OUT   => cts_rdo_additional_finished(0),
+			FINISHED_OUT   => open, --cts_rdo_additional_finished(0),
 			STATUSBIT_OUT  => cts_rdo_trg_status_bits_additional,
 			CONTROL_REG_IN => cts_ext_control,
 			STATUS_REG_OUT => cts_ext_status,
 			HEADER_REG_OUT => cts_ext_header,
 			DEBUG          => cts_ext_debug
 		);
+		
+	cts_rdo_additional_finished(0) <= '1';
 
 	process is
 	begin
@@ -1141,14 +1134,14 @@ begin
 	THE_HUB : entity work.trb_net16_hub_streaming_port_sctrl_cts
 		generic map(
 			INIT_ADDRESS                  => x"F3C0",
-			MII_NUMBER                    => 5, --INTERFACE_NUM,
-			MII_IS_UPLINK                 => (0 => 1, others => 0),
-			MII_IS_DOWNLINK               => (0 => 0, others => 1),
-			MII_IS_UPLINK_ONLY            => (0 => 1, others => 0),
-			--			MII_NUMBER                    => INTERFACE_NUM,
-			--			MII_IS_UPLINK                 => IS_UPLINK,
-			--			MII_IS_DOWNLINK               => IS_DOWNLINK,
-			--			MII_IS_UPLINK_ONLY            => IS_UPLINK_ONLY,
+--			MII_NUMBER                    => 5, --INTERFACE_NUM,
+--			MII_IS_UPLINK                 => (0 => 1, others => 0),
+--			MII_IS_DOWNLINK               => (0 => 0, others => 1),
+--			MII_IS_UPLINK_ONLY            => (0 => 1, others => 0),
+			MII_NUMBER                    => INTERFACE_NUM,
+			MII_IS_UPLINK                 => IS_UPLINK,
+			MII_IS_DOWNLINK               => IS_DOWNLINK,
+			MII_IS_UPLINK_ONLY            => IS_UPLINK_ONLY,
 			HARDWARE_VERSION              => HARDWARE_INFO,
 			INIT_ENDPOINT_ID              => x"0005",
 			BROADCAST_BITMASK             => x"7E",
