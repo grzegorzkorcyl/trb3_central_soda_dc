@@ -432,6 +432,8 @@ begin
 
             ext_control_i <= (others => '0');
             
+            periph_trigger_mask_i <= (others => (others => '1'));
+            
             for i in 0 to TRIGGER_ADDON_COUNT - 1 loop
                trigger_addon_configs_i(i) <= STD_LOGIC_VECTOR(TO_UNSIGNED(i mod ADDON_LINE_COUNT, 8));
             end loop;
