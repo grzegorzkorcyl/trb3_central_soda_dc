@@ -425,8 +425,8 @@ begin
             channel_edge_select_i <= (others => '1');
             
             trigger_input_configs_i <= (others => (others => '0'));
-            coin_config_i <= (others => X"000F0000");
-            pulser_interval_i <= (others => (others => '1'));
+            coin_config_i <= (others => X"000F0001");
+            pulser_interval_i <= (0 => x"0000ffff", others => (others => '1'));
             
             rand_pulser_threshold_i <= (others => (others => '0'));
 
