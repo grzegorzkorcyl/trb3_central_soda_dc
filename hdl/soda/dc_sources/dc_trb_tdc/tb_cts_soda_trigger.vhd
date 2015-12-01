@@ -35,7 +35,6 @@ use work.config.all;
 
 use work.soda_components.all;
 
-
 entity tb_cts_soda_trigger is
 end entity;
 
@@ -137,6 +136,7 @@ architecture arch1 of tb_cts_soda_trigger is
 	signal cts_ext_control : std_logic_vector(31 downto 0);
 	signal cts_ext_debug   : std_logic_vector(31 downto 0);
 	signal cts_ext_header  : std_logic_vector(1 downto 0);
+	signal periph_trigger : std_logic_vector(19 downto 0);
 
 begin
 	process
@@ -166,7 +166,7 @@ begin
 	process(clk_200_i)
 	begin
 		if rising_edge(clk_200_i) then
-			sp_update <= '0'; --superburst_update_S;
+			sp_update <= '0';           --superburst_update_S;
 
 			update_toggle <= update_toggle xor sp_update;
 		end if;
@@ -249,29 +249,30 @@ begin
 	--		wait until rising_edge(clk_100_i);
 	--	end process;
 
+
 	THE_CTS : entity work.CTS
 		generic map(
 			EXTERNAL_TRIGGER_ID  => x"60", -- fill in trigger logic enumeration id of external trigger logic
-			TRIGGER_COIN_COUNT   => TRIGGER_COIN_COUNT,
-			TRIGGER_PULSER_COUNT => TRIGGER_PULSER_COUNT,
-			TRIGGER_RAND_PULSER  => TRIGGER_RAND_PULSER,
+			TRIGGER_COIN_COUNT   => 4,
+			TRIGGER_PULSER_COUNT => 2,
+			TRIGGER_RAND_PULSER  => 1,
 			TRIGGER_INPUT_COUNT  => 0,  -- obsolete! now all inputs are routed via an input multiplexer!
-			TRIGGER_ADDON_COUNT  => TRIGGER_ADDON_COUNT,
-			PERIPH_TRIGGER_COUNT => 1, --PERIPH_TRIGGER_COUNT,
-			OUTPUT_MULTIPLEXERS  => 0, --CTS_OUTPUT_MULTIPLEXERS,
+			TRIGGER_ADDON_COUNT  => 6,
+			PERIPH_TRIGGER_COUNT => 2,
+			OUTPUT_MULTIPLEXERS  => 0,  --CTS_OUTPUT_MULTIPLEXERS,
 			ADDON_LINE_COUNT     => 38, --CTS_ADDON_LINE_COUNT,
 			ADDON_GROUPS         => 7,
 			ADDON_GROUP_UPPER    => (3, 7, 11, 15, 16, 17, others => 0)
---			TRIGGER_COIN_COUNT   => 0,  --TRIGGER_COIN_COUNT,
---			TRIGGER_PULSER_COUNT => 2,  --TRIGGER_PULSER_COUNT,
---			TRIGGER_RAND_PULSER  => 0,  --TRIGGER_RAND_PULSER,
---			TRIGGER_INPUT_COUNT  => 0,  -- obsolete! now all inputs are routed via an input multiplexer!
---			TRIGGER_ADDON_COUNT  => 1,  --TRIGGER_ADDON_COUNT,
---			PERIPH_TRIGGER_COUNT => 0,  --PERIPH_TRIGGER_COUNT,
---			OUTPUT_MULTIPLEXERS  => 0,  --CTS_OUTPUT_MULTIPLEXERS,
---			ADDON_LINE_COUNT     => 38, --CTS_ADDON_LINE_COUNT,
---			ADDON_GROUPS         => 7,
---			ADDON_GROUP_UPPER    => (3, 7, 11, 15, 16, 17, others => 0)
+		--			TRIGGER_COIN_COUNT   => 0,  --TRIGGER_COIN_COUNT,
+		--			TRIGGER_PULSER_COUNT => 2,  --TRIGGER_PULSER_COUNT,
+		--			TRIGGER_RAND_PULSER  => 0,  --TRIGGER_RAND_PULSER,
+		--			TRIGGER_INPUT_COUNT  => 0,  -- obsolete! now all inputs are routed via an input multiplexer!
+		--			TRIGGER_ADDON_COUNT  => 1,  --TRIGGER_ADDON_COUNT,
+		--			PERIPH_TRIGGER_COUNT => 0,  --PERIPH_TRIGGER_COUNT,
+		--			OUTPUT_MULTIPLEXERS  => 0,  --CTS_OUTPUT_MULTIPLEXERS,
+		--			ADDON_LINE_COUNT     => 38, --CTS_ADDON_LINE_COUNT,
+		--			ADDON_GROUPS         => 7,
+		--			ADDON_GROUP_UPPER    => (3, 7, 11, 15, 16, 17, others => 0)
 		)
 		port map(
 			--			CLK                        => clk_100_i,
@@ -335,7 +336,7 @@ begin
 			EXT_STATUS_IN              => cts_ext_status,
 			EXT_CONTROL_OUT            => cts_ext_control,
 			EXT_HEADER_BITS_IN         => cts_ext_header,
-			PERIPH_TRIGGER_IN          => (others => '0'),
+			PERIPH_TRIGGER_IN          => periph_trigger,
 			OUTPUT_MULTIPLEXERS_OUT    => open,
 			CTS_TRG_SEND_OUT           => cts_trg_send,
 			CTS_TRG_TYPE_OUT           => cts_trg_type,
@@ -369,6 +370,8 @@ begin
 			FEE_DATA_FINISHED_OUT      => cts_rdo_finished
 		);
 
+	periph_trigger <= (others => update_synced_qqq);
+
 	THE_HUB : entity work.trb_net16_hub_streaming_port_sctrl_cts
 		generic map(
 			INIT_ADDRESS                  => x"F3C0",
@@ -393,9 +396,9 @@ begin
 			RDO_HEADER_BUFFER_FULL_THRESH => 2 ** 9 - 16
 		)
 		port map(
-			CLK                                                => clk_100_i,
-			RESET                                              => reset_i,
-			CLK_EN                                             => '1',
+			CLK                                    => clk_100_i,
+			RESET                                  => reset_i,
+			CLK_EN                                 => '1',
 
 			-- Media interfacces ---------------------------------------------------------------
 			MED_DATAREADY_OUT(5 * 1 - 1 downto 0)  => med_dataready_out,
@@ -411,105 +414,105 @@ begin
 
 			-- Gbe Read-out Path ---------------------------------------------------------------
 			--Event information coming from CTS for GbE
-			GBE_CTS_NUMBER_OUT                                 => gbe_cts_number,
-			GBE_CTS_CODE_OUT                                   => gbe_cts_code,
-			GBE_CTS_INFORMATION_OUT                            => gbe_cts_information,
-			GBE_CTS_READOUT_TYPE_OUT                           => gbe_cts_readout_type,
-			GBE_CTS_START_READOUT_OUT                          => gbe_cts_start_readout,
+			GBE_CTS_NUMBER_OUT                     => gbe_cts_number,
+			GBE_CTS_CODE_OUT                       => gbe_cts_code,
+			GBE_CTS_INFORMATION_OUT                => gbe_cts_information,
+			GBE_CTS_READOUT_TYPE_OUT               => gbe_cts_readout_type,
+			GBE_CTS_START_READOUT_OUT              => gbe_cts_start_readout,
 			--Information sent to CTS
-			GBE_CTS_READOUT_FINISHED_IN                        => gbe_cts_readout_finished,
-			GBE_CTS_STATUS_BITS_IN                             => gbe_cts_status_bits,
+			GBE_CTS_READOUT_FINISHED_IN            => gbe_cts_readout_finished,
+			GBE_CTS_STATUS_BITS_IN                 => gbe_cts_status_bits,
 			-- Data from Frontends
-			GBE_FEE_DATA_OUT                                   => gbe_fee_data,
-			GBE_FEE_DATAREADY_OUT                              => gbe_fee_dataready,
-			GBE_FEE_READ_IN                                    => gbe_fee_read,
-			GBE_FEE_STATUS_BITS_OUT                            => gbe_fee_status_bits,
-			GBE_FEE_BUSY_OUT                                   => gbe_fee_busy,
+			GBE_FEE_DATA_OUT                       => gbe_fee_data,
+			GBE_FEE_DATAREADY_OUT                  => gbe_fee_dataready,
+			GBE_FEE_READ_IN                        => gbe_fee_read,
+			GBE_FEE_STATUS_BITS_OUT                => gbe_fee_status_bits,
+			GBE_FEE_BUSY_OUT                       => gbe_fee_busy,
 
 			-- CTS Request Sending -------------------------------------------------------------
 			--LVL1 trigger
-			CTS_TRG_SEND_IN                                    => cts_trg_send,
-			CTS_TRG_TYPE_IN                                    => cts_trg_type,
-			CTS_TRG_NUMBER_IN                                  => cts_trg_number,
-			CTS_TRG_INFORMATION_IN                             => cts_trg_information,
-			CTS_TRG_RND_CODE_IN                                => cts_trg_code,
-			CTS_TRG_STATUS_BITS_OUT                            => cts_trg_status_bits,
-			CTS_TRG_BUSY_OUT                                   => cts_trg_busy,
+			CTS_TRG_SEND_IN                        => cts_trg_send,
+			CTS_TRG_TYPE_IN                        => cts_trg_type,
+			CTS_TRG_NUMBER_IN                      => cts_trg_number,
+			CTS_TRG_INFORMATION_IN                 => cts_trg_information,
+			CTS_TRG_RND_CODE_IN                    => cts_trg_code,
+			CTS_TRG_STATUS_BITS_OUT                => cts_trg_status_bits,
+			CTS_TRG_BUSY_OUT                       => cts_trg_busy,
 			--IPU Channel
-			CTS_IPU_SEND_IN                                    => cts_ipu_send,
-			CTS_IPU_TYPE_IN                                    => cts_ipu_type,
-			CTS_IPU_NUMBER_IN                                  => cts_ipu_number,
-			CTS_IPU_INFORMATION_IN                             => cts_ipu_information,
-			CTS_IPU_RND_CODE_IN                                => cts_ipu_code,
+			CTS_IPU_SEND_IN                        => cts_ipu_send,
+			CTS_IPU_TYPE_IN                        => cts_ipu_type,
+			CTS_IPU_NUMBER_IN                      => cts_ipu_number,
+			CTS_IPU_INFORMATION_IN                 => cts_ipu_information,
+			CTS_IPU_RND_CODE_IN                    => cts_ipu_code,
 			-- Receiver port
-			CTS_IPU_STATUS_BITS_OUT                            => cts_ipu_status_bits,
-			CTS_IPU_BUSY_OUT                                   => cts_ipu_busy,
+			CTS_IPU_STATUS_BITS_OUT                => cts_ipu_status_bits,
+			CTS_IPU_BUSY_OUT                       => cts_ipu_busy,
 
 			-- CTS Data Readout ----------------------------------------------------------------
 			--Trigger to CTS out
-			RDO_TRIGGER_IN                                     => cts_rdo_trigger,
-			RDO_TRG_DATA_VALID_OUT                             => cts_rdo_trg_data_valid,
-			RDO_VALID_TIMING_TRG_OUT                           => cts_rdo_valid_timing_trg,
-			RDO_VALID_NOTIMING_TRG_OUT                         => cts_rdo_valid_notiming_trg,
-			RDO_INVALID_TRG_OUT                                => cts_rdo_invalid_trg,
-			RDO_TRG_TYPE_OUT                                   => open, --cts_rdo_trg_type,
-			RDO_TRG_CODE_OUT                                   => open, --cts_rdo_trg_code,
-			RDO_TRG_INFORMATION_OUT                            => open, --cts_rdo_trg_information,
-			RDO_TRG_NUMBER_OUT                                 => open, --cts_rdo_trg_number,
+			RDO_TRIGGER_IN                         => cts_rdo_trigger,
+			RDO_TRG_DATA_VALID_OUT                 => cts_rdo_trg_data_valid,
+			RDO_VALID_TIMING_TRG_OUT               => cts_rdo_valid_timing_trg,
+			RDO_VALID_NOTIMING_TRG_OUT             => cts_rdo_valid_notiming_trg,
+			RDO_INVALID_TRG_OUT                    => cts_rdo_invalid_trg,
+			RDO_TRG_TYPE_OUT                       => open, --cts_rdo_trg_type,
+			RDO_TRG_CODE_OUT                       => open, --cts_rdo_trg_code,
+			RDO_TRG_INFORMATION_OUT                => open, --cts_rdo_trg_information,
+			RDO_TRG_NUMBER_OUT                     => open, --cts_rdo_trg_number,
 
 			--Data from CTS in
-			RDO_TRG_STATUSBITS_IN                              => cts_rdo_trg_status_bits_cts,
-			RDO_DATA_IN                                        => cts_rdo_data,
-			RDO_DATA_WRITE_IN                                  => cts_rdo_write,
-			RDO_DATA_FINISHED_IN                               => cts_rdo_finished,
+			RDO_TRG_STATUSBITS_IN                  => cts_rdo_trg_status_bits_cts,
+			RDO_DATA_IN                            => cts_rdo_data,
+			RDO_DATA_WRITE_IN                      => cts_rdo_write,
+			RDO_DATA_FINISHED_IN                   => cts_rdo_finished,
 			--Data from additional modules
-			RDO_ADDITIONAL_STATUSBITS_IN                       => cts_rdo_trg_status_bits_additional,
-			RDO_ADDITIONAL_DATA                                => cts_rdo_additional_data,
-			RDO_ADDITIONAL_WRITE                               => cts_rdo_additional_write,
-			RDO_ADDITIONAL_FINISHED                            => cts_rdo_additional_finished,
+			RDO_ADDITIONAL_STATUSBITS_IN           => cts_rdo_trg_status_bits_additional,
+			RDO_ADDITIONAL_DATA                    => cts_rdo_additional_data,
+			RDO_ADDITIONAL_WRITE                   => cts_rdo_additional_write,
+			RDO_ADDITIONAL_FINISHED                => cts_rdo_additional_finished,
 
 			-- Slow Control --------------------------------------------------------------------
-			COMMON_STAT_REGS                                   => open,
-			COMMON_CTRL_REGS                                   => open,
-			ONEWIRE                                            => open,
-			ONEWIRE_MONITOR_IN                                 => '0',
-			MY_ADDRESS_OUT                                     => open,
-			UNIQUE_ID_OUT                                      => open,
-			TIMER_TICKS_OUT                                    => open,
-			EXTERNAL_SEND_RESET                                => '0',
-			REGIO_ADDR_OUT                                     => open,
-			REGIO_READ_ENABLE_OUT                              => open,
-			REGIO_WRITE_ENABLE_OUT                             => open,
-			REGIO_DATA_OUT                                     => open,
-			REGIO_DATA_IN                                      => (others => '0'),
-			REGIO_DATAREADY_IN                                 => '1',
-			REGIO_NO_MORE_DATA_IN                              => '0',
-			REGIO_WRITE_ACK_IN                                 => '0',
-			REGIO_UNKNOWN_ADDR_IN                              => '0',
-			REGIO_TIMEOUT_OUT                                  => open,
+			COMMON_STAT_REGS                       => open,
+			COMMON_CTRL_REGS                       => open,
+			ONEWIRE                                => open,
+			ONEWIRE_MONITOR_IN                     => '0',
+			MY_ADDRESS_OUT                         => open,
+			UNIQUE_ID_OUT                          => open,
+			TIMER_TICKS_OUT                        => open,
+			EXTERNAL_SEND_RESET                    => '0',
+			REGIO_ADDR_OUT                         => open,
+			REGIO_READ_ENABLE_OUT                  => open,
+			REGIO_WRITE_ENABLE_OUT                 => open,
+			REGIO_DATA_OUT                         => open,
+			REGIO_DATA_IN                          => (others => '0'),
+			REGIO_DATAREADY_IN                     => '1',
+			REGIO_NO_MORE_DATA_IN                  => '0',
+			REGIO_WRITE_ACK_IN                     => '0',
+			REGIO_UNKNOWN_ADDR_IN                  => '0',
+			REGIO_TIMEOUT_OUT                      => open,
 
 			--Gbe Sctrl Input
-			GSC_INIT_DATAREADY_IN                              => '0',
-			GSC_INIT_DATA_IN                                   => (others => '0'),
-			GSC_INIT_PACKET_NUM_IN                             => (others => '0'),
-			GSC_INIT_READ_OUT                                  => open,
-			GSC_REPLY_DATAREADY_OUT                            => open,
-			GSC_REPLY_DATA_OUT                                 => open,
-			GSC_REPLY_PACKET_NUM_OUT                           => open,
-			GSC_REPLY_READ_IN                                  => '1',
-			GSC_BUSY_OUT                                       => open,
+			GSC_INIT_DATAREADY_IN                  => '0',
+			GSC_INIT_DATA_IN                       => (others => '0'),
+			GSC_INIT_PACKET_NUM_IN                 => (others => '0'),
+			GSC_INIT_READ_OUT                      => open,
+			GSC_REPLY_DATAREADY_OUT                => open,
+			GSC_REPLY_DATA_OUT                     => open,
+			GSC_REPLY_PACKET_NUM_OUT               => open,
+			GSC_REPLY_READ_IN                      => '1',
+			GSC_BUSY_OUT                           => open,
 
 			--status and control ports
-			HUB_STAT_CHANNEL                                   => open,
-			HUB_STAT_GEN                                       => open,
-			MPLEX_CTRL                                         => (others => '0'),
-			MPLEX_STAT                                         => open,
-			STAT_REGS                                          => open,
-			STAT_CTRL_REGS                                     => open,
+			HUB_STAT_CHANNEL                       => open,
+			HUB_STAT_GEN                           => open,
+			MPLEX_CTRL                             => (others => '0'),
+			MPLEX_STAT                             => open,
+			STAT_REGS                              => open,
+			STAT_CTRL_REGS                         => open,
 
 			--Fixed status and control ports
-			STAT_DEBUG                                         => open,
-			CTRL_DEBUG                                         => (others => '0')
+			STAT_DEBUG                             => open,
+			CTRL_DEBUG                             => (others => '0')
 		);
 
 	soda_trigger : entity work.soda_cts_module
