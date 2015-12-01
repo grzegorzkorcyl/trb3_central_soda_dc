@@ -125,7 +125,9 @@ architecture arch1 of tb_cts_soda_trigger is
     constant IS_UPLINK_ONLY_ARR   : hub_cfg_t := ((0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0),
                                                   (0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0)); 
     constant HARDWARE_INFO_ARR    : hw_info_t := (x"9000CEE0",x"9000CEE2");
-
+                          
+ 
+    
   constant CFG_MODE : integer := 0;
   constant cts_rdo_additional_ports : integer := 1 + 0 + 0;
 
