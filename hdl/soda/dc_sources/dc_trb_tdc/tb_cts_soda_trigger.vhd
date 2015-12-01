@@ -34,7 +34,7 @@ use work.config.all;
 
 
 use work.soda_components.all;
-use work.panda_package.all;
+
 
 entity tb_cts_soda_trigger is
 end entity;
