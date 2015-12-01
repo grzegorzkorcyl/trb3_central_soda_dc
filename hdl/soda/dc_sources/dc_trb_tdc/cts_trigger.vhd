@@ -421,13 +421,12 @@ begin
          
          if RESET_IN = '1' then
             -- modelsim want's it that way
-            channel_mask_i <= (others => '1');
+            channel_mask_i <= (others => '0');
             channel_edge_select_i <= (others => '1');
             
             trigger_input_configs_i <= (others => (others => '0'));
-            coin_config_i <= (others => X"ffffffff");
-            --pulser_interval_i <= (1 => X"00000003",  others => (others => '1'));
-            pulser_interval_i <= (1 => X"00000fff",  others => (others => '1'));
+            coin_config_i <= (others => X"000F0000");
+            pulser_interval_i <= (others => (others => '1'));
             
             rand_pulser_threshold_i <= (others => (others => '0'));
 
