@@ -166,7 +166,7 @@ begin
 	process(clk_200_i)
 	begin
 		if rising_edge(clk_200_i) then
-			sp_update <= '0';           --superburst_update_S;
+			sp_update <= superburst_update_S;
 
 			update_toggle <= update_toggle xor sp_update;
 		end if;
@@ -332,7 +332,7 @@ begin
 			ADDON_TRIGGERS_IN          => (others => '0'),
 			ADDON_GROUP_ACTIVITY_OUT   => open,
 			ADDON_GROUP_SELECTED_OUT   => open,
-			EXT_TRIGGER_IN             => cts_ext_trigger, -- my local trigger
+			EXT_TRIGGER_IN             => '0', --cts_ext_trigger, -- my local trigger
 			EXT_STATUS_IN              => cts_ext_status,
 			EXT_CONTROL_OUT            => cts_ext_control,
 			EXT_HEADER_BITS_IN         => cts_ext_header,
