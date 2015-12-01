@@ -4,11 +4,40 @@ use ieee.numeric_std.all;
 use ieee.std_logic_unsigned.all;
 USE ieee.std_logic_arith.all;
 
+-- synopsys translate_off
+library ecp3;
+use ecp3.components.all;
+-- synopsys translate_on   
 library work;
 use work.trb_net_std.all;
+use work.trb_net_components.all;
 use work.trb3_components.all;
-use work.soda_components.all;
+use work.trb_net16_hub_func.all;
+use work.version.all;
+use work.tdc_components.TDC;
+use work.tdc_version.all;
+use work.trb_net_gbe_components.all;
+use work.cts_pkg.all;
+
+--Configuration is done in this file:   
 use work.config.all;
+-- The description of hub ports is also there!
+
+--Slow Control
+--    0 -    7  Readout endpoint common status
+--   80 -   AF  Hub status registers
+--   C0 -   CF  Hub control registers
+-- 4000 - 40FF  Hub status registers
+-- 7000 - 72FF  Readout endpoint registers
+-- 8100 - 83FF  GbE configuration & status
+-- A000 - A7FF  CTS configuration & status
+-- A800 - A9ff  CBMNet
+-- C000 - CFFF  TDC configuration & status
+-- D000 - D13F  Flash Programming
+
+
+use work.soda_components.all;
+use work.panda_package.all;
 
 entity tb_cts_soda_trigger is
 end entity;
@@ -226,17 +255,26 @@ begin
 	THE_CTS : entity work.CTS
 		generic map(
 			EXTERNAL_TRIGGER_ID  => x"60", -- fill in trigger logic enumeration id of external trigger logic
-
-			TRIGGER_COIN_COUNT   => 0,  --TRIGGER_COIN_COUNT,
-			TRIGGER_PULSER_COUNT => 2,  --TRIGGER_PULSER_COUNT,
-			TRIGGER_RAND_PULSER  => 0,  --TRIGGER_RAND_PULSER,
+			TRIGGER_COIN_COUNT   => TRIGGER_COIN_COUNT,
+			TRIGGER_PULSER_COUNT => TRIGGER_PULSER_COUNT,
+			TRIGGER_RAND_PULSER  => TRIGGER_RAND_PULSER,
 			TRIGGER_INPUT_COUNT  => 0,  -- obsolete! now all inputs are routed via an input multiplexer!
-			TRIGGER_ADDON_COUNT  => 1,  --TRIGGER_ADDON_COUNT,
-			PERIPH_TRIGGER_COUNT => 0,  --PERIPH_TRIGGER_COUNT,
-			OUTPUT_MULTIPLEXERS  => 0,  --CTS_OUTPUT_MULTIPLEXERS,
-			ADDON_LINE_COUNT     => 38, --CTS_ADDON_LINE_COUNT,
+			TRIGGER_ADDON_COUNT  => TRIGGER_ADDON_COUNT,
+			PERIPH_TRIGGER_COUNT => PERIPH_TRIGGER_COUNT,
+			OUTPUT_MULTIPLEXERS  => CTS_OUTPUT_MULTIPLEXERS,
+			ADDON_LINE_COUNT     => CTS_ADDON_LINE_COUNT,
 			ADDON_GROUPS         => 7,
 			ADDON_GROUP_UPPER    => (3, 7, 11, 15, 16, 17, others => 0)
+--			TRIGGER_COIN_COUNT   => 0,  --TRIGGER_COIN_COUNT,
+--			TRIGGER_PULSER_COUNT => 2,  --TRIGGER_PULSER_COUNT,
+--			TRIGGER_RAND_PULSER  => 0,  --TRIGGER_RAND_PULSER,
+--			TRIGGER_INPUT_COUNT  => 0,  -- obsolete! now all inputs are routed via an input multiplexer!
+--			TRIGGER_ADDON_COUNT  => 1,  --TRIGGER_ADDON_COUNT,
+--			PERIPH_TRIGGER_COUNT => 0,  --PERIPH_TRIGGER_COUNT,
+--			OUTPUT_MULTIPLEXERS  => 0,  --CTS_OUTPUT_MULTIPLEXERS,
+--			ADDON_LINE_COUNT     => 38, --CTS_ADDON_LINE_COUNT,
+--			ADDON_GROUPS         => 7,
+--			ADDON_GROUP_UPPER    => (3, 7, 11, 15, 16, 17, others => 0)
 		)
 		port map(
 			--			CLK                        => clk_100_i,
