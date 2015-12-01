@@ -421,7 +421,7 @@ begin
          
          if RESET_IN = '1' then
             -- modelsim want's it that way
-            channel_mask_i <= (others => '0');
+            channel_mask_i <= (others => '1'); --(others => '0');
             channel_edge_select_i <= (others => '1');
             
             trigger_input_configs_i <= (others => (others => '0'));
