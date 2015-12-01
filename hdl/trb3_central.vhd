@@ -562,14 +562,17 @@ architecture trb3_central_arch of trb3_central is
 	signal cts_regio_no_more_data : std_logic;
 	signal cts_regio_write_ack    : std_logic;
 	signal cts_regio_unknown_addr : std_logic;
-	
-	
-    constant TRIGGER_COIN_COUNT   : integer := 4;
-    constant TRIGGER_PULSER_COUNT : integer := 2;
-    constant TRIGGER_RAND_PULSER  : integer := 1;
-    constant TRIGGER_ADDON_COUNT  : integer := 6;
-    constant PERIPH_TRIGGER_COUNT : integer := 2; 
-    signal periph_trigger : std_logic_vector(19 downto 0);
+
+	constant TRIGGER_COIN_COUNT      : integer := 4;
+	constant TRIGGER_PULSER_COUNT    : integer := 2;
+	constant TRIGGER_RAND_PULSER     : integer := 1;
+	constant TRIGGER_ADDON_COUNT     : integer := 6;
+	constant PERIPH_TRIGGER_COUNT    : integer := 2;
+	constant CTS_ADDON_LINE_COUNT    : integer := 38;
+	constant CTS_OUTPUT_MULTIPLEXERS : integer := 8;
+	constant CTS_OUTPUT_INPUTS       : integer := 16;
+	constant INTERFACE_NUM : integer := 5;
+	signal periph_trigger            : std_logic_vector(19 downto 0);
 
 begin
 
@@ -789,20 +792,19 @@ begin
 	--------------------------------------------------------------------------- 
 
 
-
 	THE_CTS : entity work.CTS
 		generic map(
 			EXTERNAL_TRIGGER_ID  => x"60", -- fill in trigger logic enumeration id of external trigger logic
 
-    
+
 			TRIGGER_COIN_COUNT   => TRIGGER_COIN_COUNT,
 			TRIGGER_PULSER_COUNT => TRIGGER_PULSER_COUNT,
 			TRIGGER_RAND_PULSER  => TRIGGER_RAND_PULSER,
 			TRIGGER_INPUT_COUNT  => 0,  -- obsolete! now all inputs are routed via an input multiplexer!
 			TRIGGER_ADDON_COUNT  => TRIGGER_ADDON_COUNT,
 			PERIPH_TRIGGER_COUNT => PERIPH_TRIGGER_COUNT,
-			OUTPUT_MULTIPLEXERS  => 0,  --CTS_OUTPUT_MULTIPLEXERS,
-			ADDON_LINE_COUNT     => 38, --CTS_ADDON_LINE_COUNT,
+			OUTPUT_MULTIPLEXERS  => CTS_OUTPUT_MULTIPLEXERS,
+			ADDON_LINE_COUNT     => CTS_ADDON_LINE_COUNT,
 			ADDON_GROUPS         => 7,
 			ADDON_GROUP_UPPER    => (3, 7, 11, 15, 16, 17, others => 0)
 		)
@@ -878,9 +880,9 @@ begin
 		TRIGGER_OUT2     <= cts_trigger_out;
 		TRG_FANOUT_ADDON <= cts_trigger_out;
 	end process;
-	
+
 	cts_rdo_trigger <= cts_trigger_out;
-	
+
 	periph_trigger <= (others => update_synced_qqq);
 
 	---------------------------------------------------------------------------

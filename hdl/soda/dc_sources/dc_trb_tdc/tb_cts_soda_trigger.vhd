@@ -110,6 +110,32 @@ architecture arch1 of tb_cts_soda_trigger is
 	signal cts_ext_control : std_logic_vector(31 downto 0);
 	signal cts_ext_debug   : std_logic_vector(31 downto 0);
 	signal cts_ext_header  : std_logic_vector(1 downto 0);
+	
+	type hub_mii_t is array(0 to 1) of integer;    
+    type hub_ct    is array(0 to 16) of integer;
+    type hub_cfg_t is array(0 to 1) of hub_ct;    
+    type hw_info_t is array(0 to 1) of std_logic_vector(31 downto 0);
+	constant INTERNAL_NUM_ARR     : hub_mii_t := (5,5);
+    constant INTERFACE_NUM_ARR    : hub_mii_t := (5,8);
+--                                                 0 1 2 3 4 5 6 7 8 9 a b c d e f 
+    constant IS_UPLINK_ARR        : hub_cfg_t := ((0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0),
+                                                  (0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0));
+    constant IS_DOWNLINK_ARR      : hub_cfg_t := ((1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0),
+                                                  (1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0));
+    constant IS_UPLINK_ONLY_ARR   : hub_cfg_t := ((0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0),
+                                                  (0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0)); 
+    constant HARDWARE_INFO_ARR    : hw_info_t := (x"9000CEE0",x"9000CEE2");
+
+  constant CFG_MODE : integer := 0;
+  constant cts_rdo_additional_ports : integer := 1 + 0 + 0;
+
+  constant INTERNAL_NUM         : integer := INTERNAL_NUM_ARR(CFG_MODE);
+  constant INTERFACE_NUM        : integer := INTERFACE_NUM_ARR(CFG_MODE);
+  constant IS_UPLINK            : hub_ct  := IS_UPLINK_ARR(CFG_MODE);
+  constant IS_DOWNLINK          : hub_ct  := IS_DOWNLINK_ARR(CFG_MODE);
+  constant IS_UPLINK_ONLY       : hub_ct  := IS_UPLINK_ONLY_ARR(CFG_MODE); 
+	
+	
 
 begin
 	process
