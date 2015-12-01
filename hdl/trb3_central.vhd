@@ -1486,6 +1486,8 @@ begin
 		);
 
 	do_reboot_i <= common_ctrl_regs(15);
+	
+	TRIGGER_SELECT <= '1';
 
 	---------------------------------------------------------------------------
 	-- FPGA communication

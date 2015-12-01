@@ -274,7 +274,7 @@ begin
    begin
       if rising_edge(CLK_IN) then
          for i in 0 to TRIGGER_PULSER_COUNT-1 loop
-            --pulser_i(i) <= '0';
+            pulser_i(i) <= '0';
             
             if pulser_counter_i(i) >= pulser_interval_i(i) then
                pulser_counter_i(i) <= (others => '0');
@@ -421,12 +421,12 @@ begin
          
          if RESET_IN = '1' then
             -- modelsim want's it that way
-            channel_mask_i <= (others => '1');
+            channel_mask_i <= (others => '0');
             channel_edge_select_i <= (others => '1');
             
             trigger_input_configs_i <= (others => (others => '0'));
-            coin_config_i <= (others => x"ffffffff"); --X"000F0001");
-            pulser_interval_i <= (1 => x"000000ff", others => (others => '1'));
+            coin_config_i <= (others => X"000F0000");
+            pulser_interval_i <= (1 => X"00000003",  others => (others => '1'));
             
             rand_pulser_threshold_i <= (others => (others => '0'));
 
