@@ -13,9 +13,6 @@ use work.trb_net_std.all;
 use work.trb_net_components.all;
 use work.trb3_components.all;
 use work.trb_net16_hub_func.all;
-use work.version.all;
-use work.tdc_components.TDC;
-use work.tdc_version.all;
 use work.trb_net_gbe_components.all;
 use work.cts_pkg.all;
 
@@ -36,8 +33,7 @@ use work.config.all;
 -- D000 - D13F  Flash Programming
 
 
-use work.soda_components.all;
-use work.panda_package.all;
+
 
 entity tb_cts_soda_trigger is
 end entity;
