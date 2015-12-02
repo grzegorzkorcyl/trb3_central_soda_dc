@@ -137,6 +137,7 @@ architecture arch1 of tb_cts_soda_trigger is
 	signal cts_ext_debug   : std_logic_vector(31 downto 0);
 	signal cts_ext_header  : std_logic_vector(1 downto 0);
 	signal periph_trigger : std_logic_vector(19 downto 0);
+	signal my_address : std_logic_vector (15 downto 0);
 
 begin
 	process
@@ -476,7 +477,7 @@ begin
 			COMMON_CTRL_REGS                       => open,
 			ONEWIRE                                => open,
 			ONEWIRE_MONITOR_IN                     => '0',
-			MY_ADDRESS_OUT                         => open,
+			MY_ADDRESS_OUT                         => my_address,
 			UNIQUE_ID_OUT                          => open,
 			TIMER_TICKS_OUT                        => open,
 			EXTERNAL_SEND_RESET                    => '0',
@@ -618,6 +619,7 @@ begin
 			-- SODA signals
 			superburst_number        => super_number_q,
 			superburst_update        => update_synced_qqq,
+			ENDPOINT_ADDRESS_IN      => my_address,
 
 			-- 64 bits data output
 			data_out_allowed         => data64b_muxed_allowed_S,
