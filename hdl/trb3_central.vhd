@@ -926,6 +926,7 @@ begin
 			-- SODA signals
 			superburst_update        => update_synced_qqq,
 			superburst_number        => super_number_q,
+			ENDPOINT_ADDRESS_IN      => my_address,
 
 			-- 64 bits data output
 			data_out_allowed         => data64b_muxed_allowed_S,
@@ -1138,14 +1139,14 @@ begin
 	THE_HUB : entity work.trb_net16_hub_streaming_port_sctrl_cts
 		generic map(
 			INIT_ADDRESS                  => x"FAAA",
-						MII_NUMBER                    => 5, --INTERFACE_NUM,
-						MII_IS_UPLINK                 => (0 => 1, others => 0),
-						MII_IS_DOWNLINK               => (0 => 0, others => 1),
-						MII_IS_UPLINK_ONLY            => (0 => 1, others => 0),
---			MII_NUMBER                    => INTERFACE_NUM,
---			MII_IS_UPLINK                 => IS_UPLINK,
---			MII_IS_DOWNLINK               => IS_DOWNLINK,
---			MII_IS_UPLINK_ONLY            => IS_UPLINK_ONLY,
+			MII_NUMBER                    => 5, --INTERFACE_NUM,
+			MII_IS_UPLINK                 => (0 => 1, others => 0),
+			MII_IS_DOWNLINK               => (0 => 0, others => 1),
+			MII_IS_UPLINK_ONLY            => (0 => 1, others => 0),
+			--			MII_NUMBER                    => INTERFACE_NUM,
+			--			MII_IS_UPLINK                 => IS_UPLINK,
+			--			MII_IS_DOWNLINK               => IS_DOWNLINK,
+			--			MII_IS_UPLINK_ONLY            => IS_UPLINK_ONLY,
 			HARDWARE_VERSION              => HARDWARE_INFO,
 			INIT_ENDPOINT_ID              => x"0005",
 			BROADCAST_BITMASK             => x"7E",
@@ -1486,7 +1487,7 @@ begin
 		);
 
 	do_reboot_i <= common_ctrl_regs(15);
-	
+
 	TRIGGER_SELECT <= '1';
 
 	---------------------------------------------------------------------------
