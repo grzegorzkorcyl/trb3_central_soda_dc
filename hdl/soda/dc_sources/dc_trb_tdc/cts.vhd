@@ -208,7 +208,7 @@ architecture RTL of CTS is
    signal input_counters_i,
           input_counters_buf_i,
           input_edge_counters_i,
-          input_edge_counters_buf_i    : std_logic_vector(32 * (TRIGGER_INPUT_COUNT+TRIGGER_ADDON_COUNT) - 1 downto 0);
+          input_edge_counters_buf_i    : std_logic_vector(32 * (2 * TRIGGER_INPUT_COUNT+TRIGGER_ADDON_COUNT) - 1 downto 0);
           
    signal channel_counters_i,
           channel_counters_buf_i,
