@@ -256,7 +256,7 @@ begin
 			TRIGGER_COIN_COUNT   => 4,
 			TRIGGER_PULSER_COUNT => 2,
 			TRIGGER_RAND_PULSER  => 1,
-			TRIGGER_INPUT_COUNT  => 4,  -- obsolete! now all inputs are routed via an input multiplexer!
+			TRIGGER_INPUT_COUNT  => 2,  -- obsolete! now all inputs are routed via an input multiplexer!
 			TRIGGER_ADDON_COUNT  => 6,
 			PERIPH_TRIGGER_COUNT => 2,
 			OUTPUT_MULTIPLEXERS  => 0,  --CTS_OUTPUT_MULTIPLEXERS,
