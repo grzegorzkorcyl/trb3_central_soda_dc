@@ -235,19 +235,19 @@ begin
 
 	event_size <= super_number_q(15 downto 0) + x"0010";
 
-	--	process
-	--	begin
-	--		cts_rdo_trg_data_valid     <= '0';
-	--		cts_rdo_valid_notiming_trg <= '0';
-	--		wait until rising_edge(update_synced);
-	--		wait for 100 ns;
-	--		wait until rising_edge(clk_100_i);
-	--		cts_rdo_trg_data_valid     <= '1';
-	--		cts_rdo_valid_notiming_trg <= '1';
-	--		wait until falling_edge(gbe_cts_start_readout);
-	--		wait for 100 ns;
-	--		wait until rising_edge(clk_100_i);
-	--	end process;
+		process
+		begin
+			cts_rdo_trg_data_valid     <= '0';
+			cts_rdo_valid_notiming_trg <= '0';
+			wait until rising_edge(update_synced);
+			wait for 100 ns;
+			wait until rising_edge(clk_100_i);
+			cts_rdo_trg_data_valid     <= '1';
+			cts_rdo_valid_notiming_trg <= '1';
+			wait until falling_edge(gbe_cts_start_readout);
+			wait for 100 ns;
+			wait until rising_edge(clk_100_i);
+		end process;
 
 
 	THE_CTS : entity work.CTS
@@ -451,9 +451,9 @@ begin
 			-- CTS Data Readout ----------------------------------------------------------------
 			--Trigger to CTS out
 			RDO_TRIGGER_IN                         => cts_rdo_trigger,
-			RDO_TRG_DATA_VALID_OUT                 => cts_rdo_trg_data_valid,
+			RDO_TRG_DATA_VALID_OUT                 => open, --cts_rdo_trg_data_valid,
 			RDO_VALID_TIMING_TRG_OUT               => cts_rdo_valid_timing_trg,
-			RDO_VALID_NOTIMING_TRG_OUT             => cts_rdo_valid_notiming_trg,
+			RDO_VALID_NOTIMING_TRG_OUT             => open, --cts_rdo_valid_notiming_trg,
 			RDO_INVALID_TRG_OUT                    => cts_rdo_invalid_trg,
 			RDO_TRG_TYPE_OUT                       => open, --cts_rdo_trg_type,
 			RDO_TRG_CODE_OUT                       => open, --cts_rdo_trg_code,
