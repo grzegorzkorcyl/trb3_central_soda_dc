@@ -305,6 +305,8 @@ architecture trb3_central_arch of trb3_central is
 	constant CTS_ADDON_LINE_COUNT    : integer := 38;
 	constant CTS_OUTPUT_MULTIPLEXERS : integer := 8;
 	constant CTS_OUTPUT_INPUTS       : integer := 16;
+	
+	
 
 	attribute syn_keep : boolean;
 	attribute syn_preserve : boolean;
@@ -792,12 +794,12 @@ begin
 			EXTERNAL_TRIGGER_ID  => x"60", -- fill in trigger logic enumeration id of external trigger logic
 
 
-			TRIGGER_COIN_COUNT   => TRIGGER_COIN_COUNT,
-			TRIGGER_PULSER_COUNT => TRIGGER_PULSER_COUNT,
-			TRIGGER_RAND_PULSER  => TRIGGER_RAND_PULSER,
+			TRIGGER_COIN_COUNT   => 4,
+			TRIGGER_PULSER_COUNT => 2,
+			TRIGGER_RAND_PULSER  => 1,
 			TRIGGER_INPUT_COUNT  => 0,  -- obsolete! now all inputs are routed via an input multiplexer!
-			TRIGGER_ADDON_COUNT  => TRIGGER_ADDON_COUNT,
-			PERIPH_TRIGGER_COUNT => PERIPH_TRIGGER_COUNT,
+			TRIGGER_ADDON_COUNT  => 6,
+			PERIPH_TRIGGER_COUNT => 2,
 			OUTPUT_MULTIPLEXERS  => CTS_OUTPUT_MULTIPLEXERS,
 			ADDON_LINE_COUNT     => CTS_ADDON_LINE_COUNT,
 			ADDON_GROUPS         => 7,
