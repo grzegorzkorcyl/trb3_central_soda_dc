@@ -1503,10 +1503,10 @@ begin
 	FPGA3_TTL <= (others => 'Z');
 	FPGA4_TTL <= (others => 'Z');
 
-	FPGA1_COMM(11) <= '0';              --superburst_update_S;
-	FPGA2_COMM(11) <= '0';              --superburst_update_S;
-	FPGA3_COMM(11) <= '0';              --superburst_update_S;
-	FPGA4_COMM(11) <= '0';              --superburst_update_S;
+	FPGA1_COMM(11) <= superburst_update_S;
+	FPGA2_COMM(11) <= superburst_update_S;
+	FPGA3_COMM(11) <= superburst_update_S;
+	FPGA4_COMM(11) <= superburst_update_S;
 
 	FPGA1_CONNECTOR <= (others => 'Z');
 	FPGA2_CONNECTOR <= (others => 'Z');
