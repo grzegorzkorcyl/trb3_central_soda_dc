@@ -571,6 +571,11 @@ architecture trb3_central_arch of trb3_central is
 
 	signal periph_trigger : std_logic_vector(19 downto 0);
 
+      signal busgbeip_rx, busgbereg_rx : CTRLBUS_RX;
+      signal busgbeip_tx, busgbereg_tx : CTRLBUS_TX;
+
+      signal mc_unique_id  : std_logic_vector(63 downto 0);
+
 begin
 
 	---------------------------------------------------------------------------
@@ -888,57 +893,138 @@ begin
 	-- Data Concentrator
 	--------------------------------------------------------------------------- 
 
-	THE_DATACONCENTRATOR_FROM_TDC : entity work.dc_module_trb_tdc
-		port map(
-			slowcontrol_clock        => clk_100_i,
-			packet_in_clock          => clk_100_i, --PACKETIN_clock,
-			MUX_clock                => MUX_clock,
-			packet_out_clock         => clk_100_i, --PACKETOUT_clock,
-			SODA_clock               => clk_SODA200_i,
-			reset                    => reset_i,
+-- 	THE_DATACONCENTRATOR_FROM_TDC : entity work.dc_module_trb_tdc
+-- 		port map(
+-- 			slowcontrol_clock        => clk_100_i,
+-- 			packet_in_clock          => clk_100_i, --PACKETIN_clock,
+-- 			MUX_clock                => MUX_clock,
+-- 			packet_out_clock         => clk_100_i, --PACKETOUT_clock,
+-- 			SODA_clock               => clk_SODA200_i,
+-- 			reset                    => reset_i,
+-- 
+-- 			-- Slave bus
+-- 			BUS_READ_IN              => dc_read_en,
+-- 			BUS_WRITE_IN             => dc_write_en,
+-- 			BUS_BUSY_OUT             => dc_busy,
+-- 			BUS_ACK_OUT              => dc_ack,
+-- 			BUS_ADDR_IN              => dc_addr,
+-- 			BUS_DATA_IN              => dc_data_in,
+-- 			BUS_DATA_OUT             => dc_data_out,
+-- 
+-- 			--CTS interface
+-- 			CTS_NUMBER_IN            => gbe_cts_number,
+-- 			CTS_CODE_IN              => gbe_cts_code,
+-- 			CTS_INFORMATION_IN       => gbe_cts_information,
+-- 			CTS_READOUT_TYPE_IN      => gbe_cts_readout_type,
+-- 			CTS_START_READOUT_IN     => gbe_cts_start_readout,
+-- 			CTS_DATA_OUT             => open,
+-- 			CTS_DATAREADY_OUT        => open,
+-- 			CTS_READOUT_FINISHED_OUT => gbe_cts_readout_finished,
+-- 			CTS_READ_IN              => '1',
+-- 			CTS_LENGTH_OUT           => open,
+-- 			CTS_ERROR_PATTERN_OUT    => gbe_cts_status_bits,
+-- 			--Data payload interface
+-- 			FEE_DATA_IN              => gbe_fee_data,
+-- 			FEE_DATAREADY_IN         => gbe_fee_dataready,
+-- 			FEE_READ_OUT             => gbe_fee_read,
+-- 			FEE_STATUS_BITS_IN       => gbe_fee_status_bits,
+-- 			FEE_BUSY_IN              => gbe_fee_busy,
+-- 
+-- 			-- SODA signals
+-- 			superburst_update        => update_synced_qqq,
+-- 			superburst_number        => super_number_q,
+-- 			ENDPOINT_ADDRESS_IN      => my_address,
+-- 
+-- 			-- 64 bits data output
+-- 			data_out_allowed         => data64b_muxed_allowed_S,
+-- 			data_out                 => data64b_muxed,
+-- 			data_out_write           => data64b_muxed_write,
+-- 			data_out_first           => data64b_muxed_first,
+-- 			data_out_last            => data64b_muxed_last,
+-- 			data_out_error           => data64b_muxed_error,
+-- 			no_packet_limit          => open
+-- 		);
 
-			-- Slave bus
-			BUS_READ_IN              => dc_read_en,
-			BUS_WRITE_IN             => dc_write_en,
-			BUS_BUSY_OUT             => dc_busy,
-			BUS_ACK_OUT              => dc_ack,
-			BUS_ADDR_IN              => dc_addr,
-			BUS_DATA_IN              => dc_data_in,
-			BUS_DATA_OUT             => dc_data_out,
+	  GBE : entity work.gbe_wrapper
+	    generic map(
+	      DO_SIMULATION             => 0,
+	      INCLUDE_DEBUG             => 0,
+	      USE_INTERNAL_TRBNET_DUMMY => 0,
+	      USE_EXTERNAL_TRBNET_DUMMY => 0,
+	      RX_PATH_ENABLE            => 1,
+	      FIXED_SIZE_MODE           => 1,
+	      INCREMENTAL_MODE          => 1,
+	      FIXED_SIZE                => 100,
+	      FIXED_DELAY_MODE          => 1,
+	      UP_DOWN_MODE              => 0,
+	      UP_DOWN_LIMIT             => 100,
+	      FIXED_DELAY               => 100,
 
-			--CTS interface
-			CTS_NUMBER_IN            => gbe_cts_number,
-			CTS_CODE_IN              => gbe_cts_code,
-			CTS_INFORMATION_IN       => gbe_cts_information,
-			CTS_READOUT_TYPE_IN      => gbe_cts_readout_type,
-			CTS_START_READOUT_IN     => gbe_cts_start_readout,
-			CTS_DATA_OUT             => open,
-			CTS_DATAREADY_OUT        => open,
-			CTS_READOUT_FINISHED_OUT => gbe_cts_readout_finished,
-			CTS_READ_IN              => '1',
-			CTS_LENGTH_OUT           => open,
-			CTS_ERROR_PATTERN_OUT    => gbe_cts_status_bits,
-			--Data payload interface
-			FEE_DATA_IN              => gbe_fee_data,
-			FEE_DATAREADY_IN         => gbe_fee_dataready,
-			FEE_READ_OUT             => gbe_fee_read,
-			FEE_STATUS_BITS_IN       => gbe_fee_status_bits,
-			FEE_BUSY_IN              => gbe_fee_busy,
+	      NUMBER_OF_GBE_LINKS       => 4,
+	      LINKS_ACTIVE              => "1000",
 
-			-- SODA signals
-			superburst_update        => update_synced_qqq,
-			superburst_number        => super_number_q,
-			ENDPOINT_ADDRESS_IN      => my_address,
+	      LINK_HAS_READOUT  => "1000",
+	      LINK_HAS_SLOWCTRL => "1000",
+	      LINK_HAS_DHCP     => "1000",
+	      LINK_HAS_ARP      => "1000",
+	      LINK_HAS_PING     => "1000"
+	      
+	      )
+	    port map(
+	      CLK_SYS_IN               => clk_100_i,
+	      CLK_125_IN               => clk_125_i,
+	      RESET                    => reset_i,
+	      GSR_N                    => gsr_n,
 
-			-- 64 bits data output
-			data_out_allowed         => data64b_muxed_allowed_S,
-			data_out                 => data64b_muxed,
-			data_out_write           => data64b_muxed_write,
-			data_out_first           => data64b_muxed_first,
-			data_out_last            => data64b_muxed_last,
-			data_out_error           => data64b_muxed_error,
-			no_packet_limit          => open
-		);
+	      TRIGGER_IN => '0',
+	      
+	      SD_PRSNT_N_IN            => SFP_MOD0(8 downto 5),
+	      SD_LOS_IN                => SFP_LOS(8 downto 5),
+	      SD_TXDIS_OUT             => SFP_TXDIS(8 downto 5),
+		  
+	      CTS_NUMBER_IN            => gbe_cts_number,          
+	      CTS_CODE_IN              => gbe_cts_code,            
+	      CTS_INFORMATION_IN       => gbe_cts_information,     
+	      CTS_READOUT_TYPE_IN      => gbe_cts_readout_type,    
+	      CTS_START_READOUT_IN     => gbe_cts_start_readout,   
+	      CTS_DATA_OUT             => open,                    
+	      CTS_DATAREADY_OUT        => open,                    
+	      CTS_READOUT_FINISHED_OUT => gbe_cts_readout_finished,
+	      CTS_READ_IN              => '1',                     
+	      CTS_LENGTH_OUT           => open,                    
+	      CTS_ERROR_PATTERN_OUT    => gbe_cts_status_bits,     
+	      
+	      FEE_DATA_IN              => gbe_fee_data,       
+	      FEE_DATAREADY_IN         => gbe_fee_dataready,  
+	      FEE_READ_OUT             => gbe_fee_read,       
+	      FEE_STATUS_BITS_IN       => gbe_fee_status_bits,
+	      FEE_BUSY_IN              => gbe_fee_busy,       
+	      
+	      MC_UNIQUE_ID_IN          => mc_unique_id,  
+	      MY_TRBNET_ADDRESS_IN => my_address,
+	      ISSUE_REBOOT_OUT => open,
+	      
+	      GSC_CLK_IN               => clk_100_i,            
+	      GSC_INIT_DATAREADY_OUT   => open,   
+	      GSC_INIT_DATA_OUT        => open,        
+	      GSC_INIT_PACKET_NUM_OUT  => open,  
+	      GSC_INIT_READ_IN         => '1',        
+	      GSC_REPLY_DATAREADY_IN   => '0',  
+	      GSC_REPLY_DATA_IN        => (others => '0'),       
+	      GSC_REPLY_PACKET_NUM_IN  => (others => '0'), 
+	      GSC_REPLY_READ_OUT       => open,       
+	      GSC_BUSY_IN              => '0',
+	      
+	      BUS_IP_RX  => busgbeip_rx,
+	      BUS_IP_TX  => busgbeip_tx,
+	      BUS_REG_RX => busgbereg_rx,
+	      BUS_REG_TX => busgbereg_tx,
+	      
+	      MAKE_RESET_OUT           => open,
+
+	      DEBUG_OUT                => open
+	      ); 
+
 
 	---------------------------------------------------------------------------
 	-- Data preparation
@@ -1243,7 +1329,7 @@ begin
 			ONEWIRE                                            => TEMPSENS,
 			ONEWIRE_MONITOR_IN                                 => '0',
 			MY_ADDRESS_OUT                                     => my_address,
-			UNIQUE_ID_OUT                                      => open,
+			UNIQUE_ID_OUT                                      => mc_unique_id,
 			TIMER_TICKS_OUT                                    => open,
 			EXTERNAL_SEND_RESET                                => '0',
 			REGIO_ADDR_OUT                                     => regio_addr_out,
@@ -1369,9 +1455,9 @@ begin
 	---------------------------------------------------------------------------
 	THE_BUS_HANDLER : trb_net16_regio_bus_handler
 		generic map(
-			PORT_NUMBER    => 3,
-			PORT_ADDRESSES => (0 => x"d000", 1 => x"d100", 2 => x"a000", others => x"0000"),
-			PORT_ADDR_MASK => (0 => 1, 1 => 6, 2 => 11, others => 0)
+			PORT_NUMBER    => 5,
+			PORT_ADDRESSES => (0 => x"d000", 1 => x"d100", 2 => x"a000", 3 => x"8100", 4 => x"8300", others => x"0000"),
+			PORT_ADDR_MASK => (0 => 1, 1 => 6, 2 => 11, 3 => 8, 4 => 8, others => 0)
 		--     PORT_MASK_ENABLE => 0
 		)
 		port map(
@@ -1419,6 +1505,31 @@ begin
 			BUS_WRITE_ACK_IN(2)                         => cts_regio_write_ack,
 			BUS_NO_MORE_DATA_IN(2)                      => '0',
 			BUS_UNKNOWN_ADDR_IN(2)                      => cts_regio_unknown_addr,
+
+		      -- third one - IP config memory
+		      BUS_ADDR_OUT(3*16+7 downto 3*16) => busgbeip_rx.addr(7 downto 0),
+		      BUS_DATA_OUT(4*32-1 downto 3*32) => busgbeip_rx.data,
+		      BUS_READ_ENABLE_OUT(3)           => busgbeip_rx.read,
+		      BUS_WRITE_ENABLE_OUT(3)          => busgbeip_rx.write,
+		      BUS_TIMEOUT_OUT(3)               => open,
+		      BUS_DATA_IN(4*32-1 downto 3*32)  => busgbeip_tx.data,
+		      BUS_DATAREADY_IN(3)              => busgbeip_tx.ack,
+		      BUS_WRITE_ACK_IN(3)              => busgbeip_tx.ack,
+		      BUS_NO_MORE_DATA_IN(3)           => busgbeip_tx.nack,
+		      BUS_UNKNOWN_ADDR_IN(3)           => busgbeip_tx.unknown,
+
+		      -- gk 22.04.10
+		      -- gbe setup
+		      BUS_ADDR_OUT(4*16+7 downto 4*16) => busgbereg_rx.addr(7 downto 0),
+		      BUS_DATA_OUT(5*32-1 downto 4*32) => busgbereg_rx.data,
+		      BUS_READ_ENABLE_OUT(4)           => busgbereg_rx.read,
+		      BUS_WRITE_ENABLE_OUT(4)          => busgbereg_rx.write,
+		      BUS_TIMEOUT_OUT(4)               => open,
+		      BUS_DATA_IN(5*32-1 downto 4*32)  => busgbereg_tx.data,
+		      BUS_DATAREADY_IN(4)              => busgbereg_tx.ack,
+		      BUS_WRITE_ACK_IN(4)              => busgbereg_tx.ack,
+		      BUS_NO_MORE_DATA_IN(4)           => busgbereg_tx.nack,
+		      BUS_UNKNOWN_ADDR_IN(4)           => busgbereg_tx.unknown,
 
 			--Bus Handler (SPI CTRL)
 			--Bus Handler (SPI Memory)
